@@ -1871,7 +1871,7 @@ function updateCompletions(){
 }
 function acceptCompletion(index){
   const state=completionState,o=state?.items[index];if(!state||!o)return;
-  if(o.action==='apply-status'){hideCompletions();setEditorLineStatus(o.value);return}
+  if(o.action==='apply-status'){hideCompletions();setEditorLineStatus(o.value,state.targetSelection);return}
   if(o.action==='status'){
     editorReplace(state.start,state.end,'',true);hideCompletions();openToolbarStatus();return;
   }
@@ -1896,7 +1896,98 @@ function editorInsert(text){
   const source=$('#source'),start=source.selectionStart,end=source.selectionEnd;
   editorReplace(start,end,text,true);source.setSelectionRange(start+text.length,start+text.length);updateCompletions();
 }
+// mindfagg v15: Apply toolbar formatting atomically to every selected Markdown line.
+// A selection ending exactly at the beginning of the next line does not include it.
+function editorSelectedLineRange(selection){
+  const source=$('#source'),scan=editorScan;
+  if(!source||!scan?.items?.length)return null;
+  const start=clamp(selection?.start??source.selectionStart,0,source.value.length);
+  const end=clamp(selection?.end??source.selectionEnd,start,source.value.length);
+  const first=linePosition(start).line;
+  let last=linePosition(end).line;
+  if(end>start&&last>first&&end===scan.offsets[last])last--;
+  return {first,last,multiple:last>first,from:scan.offsets[first],to:scan.offsets[last]+scan.lines[last].length};
+}
+function editorNodeControlValue(item,change){
+  const marker=lineMarker(item.raw);
+  if(!marker)return item.raw;
+  const tokens=nodeControlTokens(item);
+  let checked=tokens.find(t=>t.type==='check')?.checked??null;
+  let status=tokens.find(t=>t.type==='status')?.status??null;
+  if(Object.prototype.hasOwnProperty.call(change,'checked'))checked=change.checked;
+  if(Object.prototype.hasOwnProperty.call(change,'status'))status=change.status==='story'?null:change.status;
+  const prefixEnd=tokens.length?tokens[tokens.length-1].end:marker[0].length;
+  const body=item.raw.slice(prefixEnd).replace(/^[ \t]+/,'');
+  return marker[0]+(checked===null?'':(checked?'[x] ':'[ ] '))+(status===null?'':'[status:'+status+'] ')+body;
+}
+function editorHasCheckbox(item){
+  if(item.kind==='heading'||item.kind==='list')return nodeControlTokens(item).some(t=>t.type==='check');
+  return /^\[[ xX]\](?:[ \t]+|$)/.test(item.raw.replace(/^[ \t]*/,''));
+}
+function editorLineBody(item){
+  if(item.kind==='list')return smartListMatch(item.raw)?.[4]??item.raw.trimStart();
+  if(item.kind==='heading')return item.raw.replace(/^ {0,3}#{1,6}[ \t]+/,'');
+  return item.raw.replace(/^[ \t]*/, '');
+}
+function editorTransformSelectedLines(action,value,selection){
+  const source=$('#source'),range=editorSelectedLineRange(selection);
+  if(!range?.multiple)return false; // Keep existing one-line toolbar behavior.
+  const items=editorScan.items.slice(range.first,range.last+1);
+  const editable=items.filter(item=>item.raw.trim()&&item.kind!=='code'&&item.kind!=='fence');
+  const removable=action==='list'?editable.filter(item=>!(item.kind==='heading'&&item.level===1)):
+    action==='checkbox'?editable:editable.filter(item=>!(item.kind==='heading'&&item.level===1));
+  const removeAll=action==='list'?removable.length>0&&removable.every(item=>item.kind==='list'):
+    action==='checkbox'?removable.length>0&&removable.every(editorHasCheckbox):false;
+  let applicable=0;
+  const changed=items.map(item=>{
+    const raw=item.raw;
+    if(!raw.trim()||item.kind==='code'||item.kind==='fence')return raw;
+    const lead=(raw.match(/^[ \t]*/)||[''])[0];
+    if(action==='heading'){
+      // The sole H1 root must remain a root; heading indentation is limited by Markdown syntax.
+      if(item.kind==='heading'&&item.level===1)return raw;
+      applicable++;
+      const headingIndent=lead.includes('\t')||lead.length>3?'':lead;
+      return headingIndent+'#'.repeat(value)+' '+editorLineBody(item);
+    }
+    if(action==='list'){
+      if(item.kind==='heading'&&item.level===1)return raw;
+      applicable++;
+      if(removeAll)return item.kind==='list'?lead+editorLineBody(item):raw;
+      return item.kind==='list'?raw:lead+'- '+editorLineBody(item);
+    }
+    if(action==='checkbox'){
+      applicable++;
+      if(item.kind==='heading'||item.kind==='list'){
+        if(removeAll)return editorNodeControlValue(item,{checked:null});
+        return editorHasCheckbox(item)?raw:editorNodeControlValue(item,{checked:false});
+      }
+      const body=raw.slice(lead.length);
+      const checkbox=body.match(/^\[[ xX]\](?:[ \t]+|$)/);
+      if(removeAll)return checkbox?lead+body.slice(checkbox[0].length):raw;
+      return checkbox?raw:lead+'[ ] '+body;
+    }
+    if(action==='status'&&['heading','list'].includes(item.kind)){
+      applicable++;
+      return editorNodeControlValue(item,{status:value});
+    }
+    return raw;
+  });
+  if(!applicable){
+    if(action==='status')toast('Status nur für Überschriften und Listen verfügbar');
+    else toast('Keine passenden Zeilen in der Markierung');
+    hideCompletions();source.focus({preventScroll:true});return true;
+  }
+  const replacement=changed.join('\n');
+  if(replacement!==source.value.slice(range.from,range.to)){
+    // One input event = one autosave/history step; keep the transformed lines selected.
+    editorApplyRange(range.from,range.to,replacement,range.from,range.from+replacement.length);
+  }
+  hideCompletions();source.focus({preventScroll:true});
+  return true;
+}
 function editorLineChange(marker){
+  if(editorTransformSelectedLines('heading',marker.trim().length))return;
   const source=$('#source'),at=source.selectionStart,pos=linePosition(at),line=editorScan.lines[pos.line],start=editorScan.offsets[pos.line];
   const whitespace=(line.match(/^\s*/)||[''])[0].length,rest=line.slice(whitespace);
   const existing=rest.match(/^(?:#{1,6}[ \t]+|(?:[-+*]|\d+[.)])[ \t]+)/);
@@ -1907,6 +1998,7 @@ function editorLineChange(marker){
 }
 // The list tool toggles the structural list marker, not the whole line's text.
 function editorToggleList(){
+  if(editorTransformSelectedLines('list'))return;
   const source=$('#source'),pos=linePosition(source.selectionStart),item=editorScan?.items[pos.line];
   if(!source||!item)return;
   if(item.kind==='code'||item.kind==='fence'){toast('Listenmarker innerhalb eines Codeblocks nicht verfügbar');return}
@@ -1924,6 +2016,7 @@ function editorToggleList(){
 }
 // Checkbox tool only inserts/removes [ ]; it never inserts or removes a list marker.
 function editorCheckboxToolbar(){
+  if(editorTransformSelectedLines('checkbox'))return;
   const source=$('#source'),pos=linePosition(source.selectionStart),item=editorScan?.items[pos.line];
   if(!source||!item)return;
   if(item.kind==='code'||item.kind==='fence')return;
@@ -1941,14 +2034,16 @@ function editorCheckboxToolbar(){
   editorApplyRange(from,to,replacement,nextCaret);
   source.focus({preventScroll:true});hideCompletions();
 }
-function setEditorLineStatus(status){
-  const source=$('#source'),pos=linePosition(source.selectionStart),item=editorScan.items[pos.line];
+function setEditorLineStatus(status,selection){
+  if(editorTransformSelectedLines('status',status,selection))return;
+  const source=$('#source'),pos=linePosition(selection?.start??source.selectionStart),item=editorScan.items[pos.line];
   if(!item||!['heading','list'].includes(item.kind)){toast('Status nur für Knoten verfügbar');hideCompletions();return}
   setEditorNodeControls(pos.line,{status},true);
 }
 function openToolbarStatus(){
   const source=$('#source'),at=source.selectionStart;
-  completionState={start:at,end:at,label:'Status für aktuellen Knoten',items:STATUS.map(s=>({...namedCompletion(statusLabel(s),'[status:'+s+']','','apply-status'),value:s}))};
+  const targetSelection={start:source.selectionStart,end:source.selectionEnd};
+  completionState={start:at,end:at,targetSelection,label:'Status für markierte Knoten',items:STATUS.map(s=>({...namedCompletion(statusLabel(s),'[status:'+s+']','','apply-status'),value:s}))};
   completionIndex=0;renderCompletionPopup();
 }
 // List behavior is derived from the current Markdown line, and never changes
@@ -2094,7 +2189,7 @@ function renderEditor(){
   const d=documentNow();editorDocId=d.id;
   completionState=null;editorComposing=false;
   $('#surface').innerHTML=`<div class="editor">
-    <div class="editor-tools" aria-label="Markdown-Schnelleingabe"><select class="tool tool-heading" id="headingLevel" aria-label="Überschriftenebene auswählen" title="Überschrift H2 bis H6 einfügen"><option value="" selected disabled>H ▾</option>${[2,3,4,5,6].map(i=>`<option value="${i}">H${i}</option>`).join('')}</select><button type="button" class="tool" data-tool="outdent" title="Listenpunkt mit Unterpunkten ausrücken (Shift+Tab)" aria-label="Ausrücken">⇤</button><button type="button" class="tool" data-tool="indent" title="Listenpunkt mit Unterpunkten einrücken (Tab)" aria-label="Einrücken">⇥</button><button type="button" class="tool" data-tool="list" title="Listenmarker ein-/ausblenden" aria-label="Listenmarker umschalten">-</button><button type="button" class="tool" data-tool="checkbox" title="Checkbox [ ] ein-/ausblenden" aria-label="Checkbox umschalten">☐</button><button type="button" class="tool" data-tool="status" title="Knotenstatus wählen">Status ▾</button><button type="button" class="tool" data-tool="link" title="Wikilink einfügen">Link</button></div>
+    <div class="editor-tools" aria-label="Markdown-Schnelleingabe"><select class="tool tool-heading" id="headingLevel" aria-label="Überschriftenebene auswählen" title="Überschriftenebene auf alle markierten Zeilen anwenden"><option value="" selected disabled>H ▾</option>${[2,3,4,5,6].map(i=>`<option value="${i}">H${i}</option>`).join('')}</select><button type="button" class="tool" data-tool="outdent" title="Listenpunkt mit Unterpunkten ausrücken (Shift+Tab)" aria-label="Ausrücken">⇤</button><button type="button" class="tool" data-tool="indent" title="Listenpunkt mit Unterpunkten einrücken (Tab)" aria-label="Einrücken">⇥</button><button type="button" class="tool" data-tool="list" title="Listenmarker für alle markierten Zeilen ein-/ausblenden" aria-label="Listenmarker umschalten">-</button><button type="button" class="tool" data-tool="checkbox" title="Checkbox für alle markierten Zeilen ein-/ausblenden" aria-label="Checkbox umschalten">☐</button><button type="button" class="tool" data-tool="status" title="Status für alle markierten Knoten wählen">Status ▾</button><button type="button" class="tool" data-tool="link" title="Wikilink einfügen">Link</button></div>
     <div class="codeframe" id="codeFrame">
       <div class="codegutter" aria-hidden="true"><pre id="lineNumbers"></pre></div>
       <div class="codepane"><pre class="syntaxlayer" id="syntax" aria-hidden="true"></pre><textarea id="source" aria-label="Mindmap-Markdown bearbeiten" aria-describedby="editorHelp" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" wrap="off"></textarea><div class="code-interactions" id="interactionLayer"></div><div id="completionPopup" class="completion-popup hidden" role="listbox" aria-label="Markdown-Vervollständigung"></div></div>
@@ -2132,7 +2227,7 @@ function renderEditor(){
       }
       if(e.key==='Enter'||e.key==='Tab'){
         e.preventDefault();if(completionState.items[completionIndex]?.action==='apply-status'){
-          const s=STATUS[completionIndex];hideCompletions();setEditorLineStatus(s);
+          const selection=completionState.targetSelection,s=completionState.items[completionIndex]?.value;hideCompletions();setEditorLineStatus(s,selection);
         }else acceptCompletion(completionIndex);
         return;
       }

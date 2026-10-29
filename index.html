@@ -2,12 +2,12 @@
 <html lang="de">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>mindfagg v13 — Markdown Mindmaps</title>
+<title>mindfagg v14 — Markdown Mindmaps</title>
 <style>
-:root{color-scheme:dark;--bg:#0b0e14;--panel:#111722;--panel2:#171f2c;--line:#263144;--text:#ecf1fa;--muted:#8898b0;--accent:#9b8cff;--accent2:#62d5c7;--warn:#eac17a;--danger:#f07587;--radius:13px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button,input,textarea,select{font:inherit}button{border:0;cursor:pointer;color:inherit}button:disabled{opacity:.4;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.app{display:grid;grid-template-columns:260px minmax(0,1fr);height:100dvh}.sidebar{background:#101520;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}.brand{padding:24px 21px 25px;display:flex;gap:11px;align-items:center}.mark{width:35px;height:35px;background:linear-gradient(145deg,#a69aff,#5c72dc);border-radius:11px;display:grid;place-items:center;font-size:23px;color:white;box-shadow:0 7px 25px #7466dc33}.brand strong{font-size:21px;font-weight:750;letter-spacing:-.9px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.6px}.side-section{padding:0 13px}.side-head{display:flex;align-items:center;justify-content:space-between;margin:7px 8px 10px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}.iconbtn{background:transparent;border-radius:8px;padding:4px 9px;color:var(--muted);font-size:19px}.iconbtn:hover,.navitem:hover{background:#222b3b;color:var(--text)}.navlist{display:flex;flex-direction:column;gap:3px}.navitem{display:flex;align-items:center;gap:11px;padding:10px 12px;width:100%;text-align:left;border-radius:9px;color:#aab6c8;background:transparent;min-width:0}.navitem.active{background:#26233e;color:#d3cdff}.navitem span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.navitem .sym{font-size:16px;opacity:.9}.projectlabel{background:#141b29;border:1px solid var(--line);border-radius:9px;padding:11px 12px;margin:0 7px 18px;font-weight:650;display:flex;gap:8px;align-items:center;justify-content:space-between}.projectlabel select{width:100%;min-width:0;background:transparent;color:var(--text);border:0;outline-offset:4px;font-weight:650;cursor:pointer}.projectlabel select option{background:#141b29;color:var(--text)}.side-footer{margin-top:auto;border-top:1px solid var(--line);padding:15px 12px;display:grid;gap:7px}.side-footer button{border:1px solid var(--line);background:#171e2b;border-radius:9px;padding:10px;text-align:left;color:#c8d2e2}.side-footer button:hover{border-color:#766cc4}.main{min-width:0;display:flex;flex-direction:column}.topbar{height:73px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 26px;gap:12px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:800}.top-actions{display:flex;gap:8px;align-items:center}.btn{padding:9px 13px;background:#202a3a;border:1px solid #334056;border-radius:9px;font-weight:650;font-size:12px}.btn:hover{background:#2b364b}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111222}.btn.primary:hover{background:#b5aaff}.tabsbar{display:flex;gap:8px;padding:18px 26px 0;align-items:center;justify-content:space-between}.tabs{display:flex;padding:4px;background:#171d29;border:1px solid #242d40;border-radius:11px;gap:3px}.tab{padding:8px 15px;background:none;border-radius:8px;color:var(--muted);font-weight:650;font-size:12px}.tab.active{background:#34304f;color:#eeeaff}.workspace{min-height:0;flex:1;padding:17px 26px 22px;display:flex;flex-direction:column}.surface{flex:1;min-height:0;background:radial-gradient(ellipse at 60% 40%,#141b2a 0%,#111723 58%,#101520 100%);border:1px solid var(--line);border-radius:15px;overflow:hidden;position:relative}.surfacehead{position:absolute;z-index:2;top:17px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.surfacehead>*{pointer-events:auto}.subtle{color:var(--muted);font-size:12px}.pill{padding:6px 11px;border:1px solid #38445b;background:#1c2535;border-radius:30px;color:#bdc8da;font-size:11px}.mindcanvas{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;padding:75px 30px 60px}.mindtree{min-width:max-content;display:flex;align-items:center;gap:55px}.treecol{display:flex;flex-direction:column;gap:21px;align-items:flex-start;position:relative}.treebranch{display:flex;align-items:center;gap:39px;position:relative}.treeroot{background:#544b91!important;border-color:#887bd8!important;color:white!important;padding:18px 23px!important;font-size:17px!important}.node{position:relative;text-align:left;display:flex;align-items:center;gap:10px;background:#202b3a;border:1px solid #3c4c61;border-radius:11px;padding:12px 15px;color:#f2f4ff;min-width:130px;max-width:280px;box-shadow:0 10px 25px #0002;white-space:normal}.node:hover{border-color:#a69aff;transform:translateY(-1px)}.node.selected{border-color:#b5aaff;box-shadow:0 0 0 2px #a99aff36}.node .dot{width:8px;height:8px;background:#9d90ff;border-radius:50%;flex:none}.node .nodeinner{min-width:0;display:flex;flex-direction:column;gap:5px}.node .nodetitle{font-size:13px;font-weight:650;overflow-wrap:anywhere}.node .nodefoot{display:flex;gap:7px;align-items:center;font-size:10px;color:#a2b1c6}.bar{height:4px;min-width:55px;width:85px;border-radius:8px;overflow:hidden;background:#364154}.bar>i{display:block;height:100%;background:#7dd5c4}.children{display:flex;flex-direction:column;gap:12px;border-left:1px solid #4a536c;padding-left:24px;position:relative}.children>.treebranch:before{content:"";position:absolute;width:24px;height:1px;background:#4a536c;left:-24px;top:50%}.treebranch:has(>.children)>.node:after{content:"";position:absolute;width:39px;height:1px;background:#4a536c;right:-40px;top:50%}.empty{text-align:center;color:var(--muted);padding:80px 20px}.kanban{display:flex;gap:14px;overflow:auto;height:100%;padding:72px 18px 22px}.lane{flex:1;min-width:178px;max-width:350px;background:#19212f;border:1px solid #283447;border-radius:11px;display:flex;flex-direction:column;padding:12px;gap:10px}.laneheading{display:flex;justify-content:space-between;align-items:center;padding:3px 2px 7px;letter-spacing:.2px;font-size:12px;font-weight:750}.count{background:#2b3648;color:#abb9ce;border-radius:20px;padding:1px 8px;font-size:11px}.ticket{background:#252f3f;border:1px solid #354358;border-radius:9px;padding:12px;display:grid;gap:9px;cursor:pointer}.ticket:hover{border-color:#8d84dc}.ticket b{font-size:12px}.ticket small{color:var(--muted)}.scope{background:#202a3a;color:var(--text);border:1px solid #3b4860;border-radius:7px;padding:7px 10px;max-width:230px}.editor{display:flex;flex-direction:column;height:100%;padding:70px 18px 18px;gap:10px}.editor textarea{width:100%;flex:1;resize:none;border:1px solid #303b50;background:#0d131d;color:#dce6f6;border-radius:9px;padding:21px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}.editfoot{display:flex;align-items:center;justify-content:space-between}.editfoot small{color:var(--muted)}.modalback{position:fixed;z-index:20;inset:0;background:#03060acb;display:grid;place-items:center;padding:18px}.modal{width:min(540px,100%);max-height:88dvh;overflow-y:auto;background:#1a2230;border:1px solid #38465b;border-radius:17px;padding:24px;box-shadow:0 24px 90px #0009}.modal h2{margin:0 0 6px;font-size:19px}.modal p{margin:0 0 18px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:13px 0}.field label{font-size:11px;font-weight:700;color:#abb9ce}.field input,.field textarea,.field select{width:100%;background:#101724;color:var(--text);border:1px solid #39485e;border-radius:8px;padding:10px}.field textarea{resize:vertical;min-height:105px}.modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.toast{position:fixed;bottom:20px;right:20px;z-index:40;background:#2b354a;border:1px solid #5a6580;padding:11px 17px;border-radius:10px;box-shadow:0 12px 50px #0007}.hidden{display:none!important}@media(max-width:850px){.app{grid-template-columns:67px 1fr}.brand{padding:20px 15px}.brand strong,.brand small,.side-head,.projectlabel,.navitem span:last-child,.side-footer button{display:none}.side-section{padding:0 7px}.navitem{justify-content:center}.navitem .sym{font-size:21px}.side-footer{min-height:72px}.topbar{padding:0 14px}.tabsbar{padding:12px 12px 0}.workspace{padding:12px}.top-actions .btn{padding:8px}.mindcanvas{justify-content:flex-start}.lane{min-width:175px}}
+:root{color-scheme:dark;--bg:#0b0e14;--panel:#111722;--panel2:#171f2c;--line:#263144;--text:#ecf1fa;--muted:#8898b0;--accent:#9b8cff;--accent2:#62d5c7;--warn:#eac17a;--danger:#f07587;--radius:13px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button,input,textarea,select{font:inherit}button{border:0;cursor:pointer;color:inherit}button:disabled{opacity:.4;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.app{display:grid;grid-template-columns:260px minmax(0,1fr);height:100dvh}.sidebar{background:#101520;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}.brand{padding:24px 21px 25px;display:flex;gap:11px;align-items:center}.mark{width:35px;height:35px;background:linear-gradient(145deg,#a69aff,#5c72dc);border-radius:11px;display:grid;place-items:center;font-size:23px;color:white;box-shadow:0 7px 25px #7466dc33}.brand strong{font-size:21px;font-weight:750;letter-spacing:-.9px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.6px}.side-section{padding:0 13px}.side-head{display:flex;align-items:center;justify-content:space-between;margin:7px 8px 10px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}.iconbtn{background:transparent;border-radius:8px;padding:4px 9px;color:var(--muted);font-size:19px}.iconbtn:hover,.navitem:hover{background:#222b3b;color:var(--text)}.navlist{display:flex;flex-direction:column;gap:3px}.navitem{display:flex;align-items:center;gap:11px;padding:10px 12px;width:100%;text-align:left;border-radius:9px;color:#aab6c8;background:transparent;min-width:0}.navitem.active{background:#26233e;color:#d3cdff}.navitem span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.navitem .sym{font-size:16px;opacity:.9}.projectlabel{background:#141b29;border:1px solid var(--line);border-radius:9px;padding:11px 12px;margin:0 7px 18px;font-weight:650;display:flex;gap:8px;align-items:center;justify-content:space-between}.projectlabel select{width:100%;min-width:0;background:transparent;color:var(--text);border:0;outline-offset:4px;font-weight:650;cursor:pointer}.projectlabel select option{background:#141b29;color:var(--text)}.side-footer{margin-top:auto;border-top:1px solid var(--line);padding:15px 12px;display:grid;gap:7px}.side-footer button{border:1px solid var(--line);background:#171e2b;border-radius:9px;padding:10px;text-align:left;color:#c8d2e2}.side-footer button:hover{border-color:#766cc4}.main{min-width:0;display:flex;flex-direction:column}.topbar{height:73px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 26px;gap:12px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:800}.top-actions{display:flex;gap:8px;align-items:center}.btn{padding:9px 13px;background:#202a3a;border:1px solid #334056;border-radius:9px;font-weight:650;font-size:12px}.btn:hover{background:#2b364b}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111222}.btn.primary:hover{background:#b5aaff}.tabsbar{display:flex;gap:8px;padding:18px 26px 0;align-items:center;justify-content:space-between}.tabs{display:flex;padding:4px;background:#171d29;border:1px solid #242d40;border-radius:11px;gap:3px}.tab{padding:8px 15px;background:none;border-radius:8px;color:var(--muted);font-weight:650;font-size:12px}.tab.active{background:#34304f;color:#eeeaff}.workspace{min-height:0;flex:1;padding:17px 26px 22px;display:flex;flex-direction:column}.surface{flex:1;min-height:0;background:radial-gradient(ellipse at 60% 40%,#141b2a 0%,#111723 58%,#101520 100%);border:1px solid var(--line);border-radius:15px;overflow:hidden;position:relative}.surfacehead{position:absolute;z-index:2;top:17px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.surfacehead>*{pointer-events:auto}.subtle{color:var(--muted);font-size:12px}.pill{padding:6px 11px;border:1px solid #38445b;background:#1c2535;border-radius:30px;color:#bdc8da;font-size:11px}.mindcanvas{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;padding:75px 30px 60px}.mindtree{min-width:max-content;display:flex;align-items:center;gap:55px}.treecol{display:flex;flex-direction:column;gap:21px;align-items:flex-start;position:relative}.treebranch{display:flex;align-items:center;gap:39px;position:relative}.treeroot{background:#544b91!important;border-color:#887bd8!important;color:white!important;padding:18px 23px!important;font-size:17px!important}.node{position:relative;text-align:left;display:flex;align-items:center;gap:10px;background:#202b3a;border:1px solid #3c4c61;border-radius:11px;padding:12px 15px;color:#f2f4ff;min-width:130px;max-width:280px;box-shadow:0 10px 25px #0002;white-space:normal}.node:hover{border-color:#a69aff;transform:translateY(-1px)}.node.selected{border-color:#b5aaff;box-shadow:0 0 0 2px #a99aff36}.node .dot{width:8px;height:8px;background:#9d90ff;border-radius:50%;flex:none}.node .nodeinner{min-width:0;display:flex;flex-direction:column;gap:5px}.node .nodetitle{font-size:13px;font-weight:650;overflow-wrap:anywhere}.node .nodefoot{display:flex;gap:7px;align-items:center;font-size:10px;color:#a2b1c6}.bar{height:4px;min-width:55px;width:85px;border-radius:8px;overflow:hidden;background:#364154}.bar>i{display:block;height:100%;background:#7dd5c4}.children{display:flex;flex-direction:column;gap:12px;border-left:1px solid #4a536c;padding-left:24px;position:relative}.children>.treebranch:before{content:"";position:absolute;width:24px;height:1px;background:#4a536c;left:-24px;top:50%}.treebranch:has(>.children)>.node:after{content:"";position:absolute;width:39px;height:1px;background:#4a536c;right:-40px;top:50%}.empty{text-align:center;color:var(--muted);padding:80px 20px}.kanban{display:flex;gap:14px;overflow:auto;height:100%;padding:55px 18px 22px}.lane{flex:1;min-width:178px;max-width:350px;background:#19212f;border:1px solid #283447;border-radius:11px;display:flex;flex-direction:column;padding:12px;gap:10px}.laneheading{display:flex;justify-content:space-between;align-items:center;padding:3px 2px 7px;letter-spacing:.2px;font-size:12px;font-weight:750}.count{background:#2b3648;color:#abb9ce;border-radius:20px;padding:1px 8px;font-size:11px}.ticket{background:#252f3f;border:1px solid #354358;border-radius:9px;padding:12px;display:grid;gap:9px;cursor:pointer}.ticket:hover{border-color:#8d84dc}.ticket b{font-size:12px}.ticket small{color:var(--muted)}.scope{background:#202a3a;color:var(--text);border:1px solid #3b4860;border-radius:7px;padding:7px 10px;max-width:230px}.editor{display:flex;flex-direction:column;height:100%;padding:14px 18px 18px;gap:10px}.editor textarea{width:100%;flex:1;resize:none;border:1px solid #303b50;background:#0d131d;color:#dce6f6;border-radius:9px;padding:21px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}.editfoot{display:flex;align-items:center;justify-content:space-between}.editfoot small{color:var(--muted)}.modalback{position:fixed;z-index:20;inset:0;background:#03060acb;display:grid;place-items:center;padding:18px}.modal{width:min(540px,100%);max-height:88dvh;overflow-y:auto;background:#1a2230;border:1px solid #38465b;border-radius:17px;padding:24px;box-shadow:0 24px 90px #0009}.modal h2{margin:0 0 6px;font-size:19px}.modal p{margin:0 0 18px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:13px 0}.field label{font-size:11px;font-weight:700;color:#abb9ce}.field input,.field textarea,.field select{width:100%;background:#101724;color:var(--text);border:1px solid #39485e;border-radius:8px;padding:10px}.field textarea{resize:vertical;min-height:105px}.modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.toast{position:fixed;bottom:20px;right:20px;z-index:40;background:#2b354a;border:1px solid #5a6580;padding:11px 17px;border-radius:10px;box-shadow:0 12px 50px #0007}.hidden{display:none!important}@media(max-width:850px){.app{grid-template-columns:67px 1fr}.brand{padding:20px 15px}.brand strong,.brand small,.side-head,.projectlabel,.navitem span:last-child,.side-footer button{display:none}.side-section{padding:0 7px}.navitem{justify-content:center}.navitem .sym{font-size:21px}.side-footer{min-height:72px}.topbar{padding:0 14px}.tabsbar{padding:12px 12px 0}.workspace{padding:12px}.top-actions .btn{padding:8px}.mindcanvas{justify-content:flex-start}.lane{min-width:175px}}
 
 /* Mindstorm v3: syntax-aware source editor and interactive minimap. */
-.editor{padding:66px 14px 16px;gap:9px}
+.editor{padding:14px 14px 16px;gap:9px}
 .editor .codeframe{display:grid;grid-template-columns:43px minmax(0,1fr) 77px;flex:1;min-height:0;border:1px solid #35435a;border-radius:12px;overflow:hidden;background:#0c121d;box-shadow:inset 0 1px 0 #ffffff05}
 .codegutter{position:relative;overflow:hidden;background:#101724;border-right:1px solid #273246;user-select:none}
 .codegutter pre{position:absolute;left:0;top:0;width:100%;margin:0;padding:17px 0;white-space:pre;font:12px/23px ui-monospace,SFMono-Regular,Consolas,monospace;color:#66778f;pointer-events:none;will-change:transform}
@@ -60,8 +60,8 @@
 .source-invalid h2{margin:0;font-size:19px}
 .source-invalid p{max-width:440px;color:var(--muted);margin:0;font-size:13px}
 .source-invalid code{color:#ead9f8}
-@media(max-width:850px){.editor{padding:64px 8px 9px}.editor .codeframe{grid-template-columns:33px minmax(0,1fr) 52px}.syntaxlayer,.editor #source{font-size:16px;line-height:24px;padding:13px 11px}.codegutter pre{font-size:11px;line-height:24px;padding:13px 0}.gline{height:24px;padding-right:5px}.minimap::after{font-size:6px;right:3px}.editor .editfoot{align-items:flex-start}.editor .codehelp{display:none}}
-@media(max-width:440px){.editor .codeframe{grid-template-columns:29px minmax(0,1fr) 47px}.editor{padding-top:58px}.surfacehead{left:11px;right:11px}.surfacehead .subtle{font-size:10px}}
+@media(max-width:850px){.editor{padding:12px 8px 9px}.editor .codeframe{grid-template-columns:33px minmax(0,1fr) 52px}.syntaxlayer,.editor #source{font-size:16px;line-height:24px;padding:13px 11px}.codegutter pre{font-size:11px;line-height:24px;padding:13px 0}.gline{height:24px;padding-right:5px}.minimap::after{font-size:6px;right:3px}.editor .editfoot{align-items:flex-start}.editor .codehelp{display:none}}
+@media(max-width:440px){.editor .codeframe{grid-template-columns:29px minmax(0,1fr) 47px}.editor{padding-top:10px}.surfacehead{left:11px;right:11px}.surfacehead .subtle{font-size:10px}}
 
 
 /* Mindstorm v4: responsive top navigation, off-canvas project menu and compact mobile workspace. */
@@ -107,7 +107,7 @@
   .mindcanvas{justify-content:flex-start;padding:52px 10px 18px}
   .kanban{padding:53px 7px 10px;gap:8px}
   .lane{min-width:176px;padding:9px}
-  .editor{padding:47px 0 0;gap:0}
+  .editor{padding:8px 0 0;gap:0}
   .editor .codeframe{border-left:0;border-right:0;border-bottom:0;border-radius:0;box-shadow:none}
   .editor .editfoot{padding:5px 9px}
 }
@@ -179,13 +179,10 @@
 .mm-controls button:hover,.mm-controls button:focus-visible{background:#3a345a;color:white}
 .mm-controls button.label{font-size:11px;min-width:53px;color:#c5bcff;font-variant-numeric:tabular-nums}
 .mm-controls .mm-divider{width:1px;height:23px;background:#39465a;margin:0 2px}
-.mm-surfacehead{z-index:3}
-.mm-surfacehead .subtle{border-radius:7px;background:#131b29bb;padding:5px 7px}
 @media(max-width:850px){
  .mm-controls{right:8px;bottom:max(8px,env(safe-area-inset-bottom));gap:4px;padding:4px}
  .mm-controls button{min-width:41px;height:42px;padding:0 8px;font-size:21px}
  .mm-controls button.label{min-width:50px;font-size:11px}
- .mm-surfacehead .subtle{font-size:10px;max-width:55%;white-space:normal;text-align:right}
  .mm-node{min-height:69px;padding:12px 13px}
  .editor-tools .tool[data-tool="indent"],.editor-tools .tool[data-tool="outdent"]{color:#a9d8ce}
 }
@@ -300,7 +297,6 @@
  .mm-controls{right:10px;bottom:max(10px,env(safe-area-inset-bottom))}
  .mm-controls button{width:45px;min-width:45px;height:45px}
  .mm-drop-hint{left:12px;bottom:72px;max-width:calc(100% - 24px);transform:none}
- .mm-surfacehead .subtle{max-width:57%;font-size:10px}
 }
 
 /* mindstorm v11: document-wide undo/redo, Kanban refinements and map zoom. */
@@ -394,18 +390,54 @@
   .top-title{gap:3px}
   .save-indicator{font-size:10px}
 }
+
+/* mindfagg v14: project-specific status labels and colors. */
+.projectlabel select{flex:1;width:auto}
+.project-settings-button{flex:none;display:grid;place-items:center;width:31px;height:31px;border:1px solid #37445a;border-radius:7px;background:#202a3a;color:#c8b9ff;font-size:19px;line-height:1}
+.project-settings-button:hover,.project-settings-button:focus-visible{background:#373251;border-color:#887cce;color:#fff}
+.status-settings-grid{display:grid;gap:8px;margin-top:8px}
+.status-setting-head,.status-setting-row{display:grid;grid-template-columns:79px minmax(0,1fr) 58px;align-items:center;gap:9px}
+.status-setting-head{font-size:10px;font-weight:750;letter-spacing:.4px;text-transform:uppercase;color:#9dacbf}
+.status-setting-row{padding:7px 9px;background:#131b29;border:1px solid #34425a;border-radius:9px}
+.status-setting-row .status-code{font:650 11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;color:#a7b5cc}
+.status-setting-row input[type=text]{min-width:0;padding:8px 9px}
+.status-setting-row input[type=color]{width:45px;height:37px;min-width:0;justify-self:center;border:1px solid #53617b;border-radius:8px;background:#202a3b;padding:3px;cursor:pointer}
+.status-settings-note{margin-top:10px}
+.kanban .laneheading>span:first-child{color:var(--lane-accent)}
+.kanban .ticket{border-left:3px solid var(--lane-accent)}
+.mm-node .nodefoot .bar>i{background:var(--node-accent)}
+.node-properties.single{grid-template-columns:minmax(0,1fr)}
+@media(max-width:480px){.status-setting-head,.status-setting-row{grid-template-columns:64px minmax(0,1fr) 49px;gap:5px}.status-setting-row{padding:7px 5px}.status-setting-row input[type=color]{width:39px}}
 </style>
 </head>
 <body>
 <div class="app">
-<aside class="sidebar" id="mainSidebar" aria-label="Hauptmenü"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="27" height="27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.4 1.3 19.2 10l8.1-4.2-3.5 8.6 7.2 2.4-8 3.6 3.1 8.9-9-5-5.5 6.5-1.5-8.9-9.1 1.6 6.2-7-5.3-7.4 9.6 2.4 3.9-9.8Z" fill="currentColor"/><path d="m15 10.1-2.6 7.1h4l-1 5.8 5-9h-4Z" fill="#6A5BC8"/></svg></div><strong>mindfagg</strong></div><div class="side-section"><div class="side-head"><span>PROJEKTE</span><button class="iconbtn" id="addProject" title="Projekt hinzufügen">+</button></div><div class="projectlabel" id="projectLabel"><select id="projectSelect" aria-label="Projekt auswählen"><option>Kein Projekt</option></select></div><div class="side-head"><span>DOKUMENTE</span><button class="iconbtn" id="addDocument" title="Dokument hinzufügen">+</button></div><div class="navlist" id="docList"></div></div><div class="side-footer"><button id="exportZip">⇩ &nbsp; Projekt exportieren</button><button id="importZip">⇧ &nbsp; ZIP importieren</button><input id="fileImport" type="file" accept=".zip,application/zip" class="hidden"></div></aside>
+<aside class="sidebar" id="mainSidebar" aria-label="Hauptmenü"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="27" height="27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.4 1.3 19.2 10l8.1-4.2-3.5 8.6 7.2 2.4-8 3.6 3.1 8.9-9-5-5.5 6.5-1.5-8.9-9.1 1.6 6.2-7-5.3-7.4 9.6 2.4 3.9-9.8Z" fill="currentColor"/><path d="m15 10.1-2.6 7.1h4l-1 5.8 5-9h-4Z" fill="#6A5BC8"/></svg></div><strong>mindfagg</strong></div><div class="side-section"><div class="side-head"><span>PROJEKTE</span><button class="iconbtn" id="addProject" title="Projekt hinzufügen">+</button></div><div class="projectlabel" id="projectLabel"><select id="projectSelect" aria-label="Projekt auswählen"><option>Kein Projekt</option></select><button type="button" class="project-settings-button" id="projectSettings" aria-label="Projekteinstellungen" title="Projekteinstellungen">⚙</button></div><div class="side-head"><span>DOKUMENTE</span><button class="iconbtn" id="addDocument" title="Dokument hinzufügen">+</button></div><div class="navlist" id="docList"></div></div><div class="side-footer"><button id="exportZip">⇩ &nbsp; Projekt exportieren</button><button id="importZip">⇧ &nbsp; ZIP importieren</button><input id="fileImport" type="file" accept=".zip,application/zip" class="hidden"></div></aside>
 <div class="sidebar-scrim" id="sidebarScrim" aria-hidden="true"></div>
 <main class="main"><header class="topbar"><button class="mobile-menu" id="menuToggle" aria-label="Hauptmenü öffnen" title="Hauptmenü" aria-controls="mainSidebar" aria-expanded="false"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="top-title"><div class="eyebrow" id="breadcrumb">WORKSPACE / PROJEKT</div><span class="save-indicator" id="saveLabel" role="status" aria-live="polite" data-state="saved">Automatisch gespeichert</span></div><div class="top-actions"><button class="btn rename-btn" id="renameDoc" aria-label="Dokument umbenennen" title="Dokument umbenennen"><svg class="rename-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L10 16l-4 1 1-4z"/><path d="m15 5 4 4"/></svg><span class="rename-label">Umbenennen</span></button><button type="button" class="btn history-action" id="undoAction" title="Rückgängig (Strg+Z)" aria-label="Rückgängig" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-2"/></svg></button><button type="button" class="btn history-action" id="redoAction" title="Wiederherstellen (Strg+Umschalt+Z)" aria-label="Wiederherstellen" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h2"/></svg></button></div></header><div class="tabsbar"><div class="tabs"><button class="tab active" data-view="mindmap">✳ &nbsp; Mindmap</button><button class="tab" data-view="kanban">▥ &nbsp; Kanban</button><button class="tab" data-view="markdown">⌘ &nbsp; Markdown</button></div></div><div class="workspace"><section class="surface" id="surface"></section></div></main>
 </div><div class="modalback hidden" id="modalBack"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div><div id="toast" class="toast hidden"></div>
 <script>
 'use strict';
 const $=s=>document.querySelector(s), escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const STATUS=['story','todo','doing','review','done'];const STATUS_LABEL={story:'Story',todo:'To Do',doing:'In Progress',review:'Review',done:'Done'};
+const STATUS=['story','todo','doing','review','done'];
+const DEFAULT_STATUS_SETTINGS={
+  story:{label:'Story',color:'#a99cff'},
+  todo:{label:'To Do',color:'#8ebdff'},
+  doing:{label:'In Progress',color:'#eabc7c'},
+  review:{label:'Review',color:'#e2a4d6'},
+  done:{label:'Done',color:'#70d8b5'}
+};
+function statusSetting(key,p=project()){
+  const fallback=DEFAULT_STATUS_SETTINGS[key]||DEFAULT_STATUS_SETTINGS.story;
+  const item=p?.statusSettings?.[key];
+  const label=typeof item?.label==='string'?item.label.replace(/\s+/g,' ').trim().slice(0,36):'';
+  const color=typeof item?.color==='string'&&/^#[0-9a-f]{6}$/i.test(item.color)?item.color.toLowerCase():fallback.color;
+  return {label:label||fallback.label,color};
+}
+function statusLabel(key){return statusSetting(key).label}
+function statusColor(key){return statusSetting(key).color}
+function statusSettingsFor(p){return Object.fromEntries(STATUS.map(key=>[key,statusSetting(key,p)]))}
+
 const SAMPLE=`# [ ] Mein Projekt\nEine zentrale Mindmap für Ideen, Aufgaben und Fortschritt.\n\n## [status:done] Planung\nDie Anforderungen und das Konzept werden vorbereitet.\n\n- [x] Ziele definieren\n- [x] Anforderungen sammeln\n\n## [status:doing] Entwicklung\nDie App wird Schritt für Schritt umgesetzt.\n\n- [x] Markdown-Parser\n- [ ] [status:doing] Mindmap-Ansicht\n- [ ] [status:todo] Kanban-Ansicht\n- [ ] [status:review] Dokumentation\n\n## Ideen\nHier ist Platz für neue Gedanken.\n\n- [ ] Später umsetzen\n- [[Planung]]\n`;
 let db,projects=[],docs=[],projectId=null,docId=null,view='mindmap',scopePath='0',currentModel=null,saveTimer;
 const VIEWS=['mindmap','kanban','markdown'];
@@ -426,7 +458,7 @@ function docHistoryFor(id){
   return docHistory.get(id);
 }
 // A single persistent save indicator is shared by Mindmap, Kanban and Markdown.
-// The storage key stays unchanged so documents from earlier versions remain available.
+// Uses the new mindfagg-db; no old database is read or migrated.
 const pendingDocWrites=new Map(),failedDocWrites=new Set();
 function updateSaveStatus(){
   const label=$('#saveLabel');if(!label)return;
@@ -508,7 +540,7 @@ async function changeHistory(direction){
   }finally{historyBusy=false;updateHistoryButtons()}
 }
 async function del(store,key){return req(tx(store,'readwrite').delete(key))}
-async function init(){db=await new Promise((res,rej)=>{let r=indexedDB.open('mindstorm-db',1);r.onupgradeneeded=()=>{let d=r.result;d.createObjectStore('projects',{keyPath:'id'});d.createObjectStore('docs',{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});await refresh();if(!projects.length){let p={id:uid(),name:'Mein Workspace',created:Date.now()};await put('projects',p);await put('docs',{id:uid(),projectId:p.id,name:'Projekt',content:SAMPLE});}await refresh();try{const lastView=localStorage.getItem('msView');if(VIEWS.includes(lastView))view=lastView}catch(e){console.warn('Letzte Ansicht konnte nicht geladen werden:',e)}projectId=localStorage.getItem('msProject');if(!projects.some(p=>p.id===projectId))projectId=projects[0].id;selectProject(projectId)}
+async function init(){db=await new Promise((res,rej)=>{let r=indexedDB.open('mindfagg-db',1);r.onupgradeneeded=()=>{let d=r.result;d.createObjectStore('projects',{keyPath:'id'});d.createObjectStore('docs',{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});await refresh();if(!projects.length){let p={id:uid(),name:'Mein Workspace',created:Date.now(),statusSettings:statusSettingsFor(null)};await put('projects',p);await put('docs',{id:uid(),projectId:p.id,name:'Projekt',content:SAMPLE});}await refresh();try{const lastView=localStorage.getItem('msView');if(VIEWS.includes(lastView))view=lastView}catch(e){console.warn('Letzte Ansicht konnte nicht geladen werden:',e)}projectId=localStorage.getItem('msProject');if(!projects.some(p=>p.id===projectId))projectId=projects[0].id;selectProject(projectId)}
 async function refresh(){projects=await all('projects');docs=await all('docs');for(const d of docs)persistedDocSnapshots.set(d.id,docSnapshot(d));updateHistoryButtons()}
 function project(){return projects.find(p=>p.id===projectId)}function documentNow(){return docs.find(d=>d.id===docId)}
 function selectProject(id){setMobileMenu(false);projectId=id;localStorage.setItem('msProject',id);let pd=docs.filter(d=>d.projectId===id);let old=docId;docId=pd.some(d=>d.id===old)?old:pd[0]?.id||null;scopePath='0';render()}
@@ -605,8 +637,9 @@ function toast(s){let e=$('#toast');e.textContent=s;e.classList.remove('hidden')
 
 function render(){
   let p=project(),d=documentNow();
-  $('#projectLabel').innerHTML=`<select id="projectSelect" aria-label="Projekt auswählen">${projects.map(item=>`<option value="${item.id}" ${item.id===projectId?'selected':''}>${escapeHtml(item.name)}</option>`).join('')}</select>`;
+  $('#projectLabel').innerHTML=`<select id="projectSelect" aria-label="Projekt auswählen">${projects.map(item=>`<option value="${item.id}" ${item.id===projectId?'selected':''}>${escapeHtml(item.name)}</option>`).join('')}</select><button type="button" class="project-settings-button" id="projectSettings" aria-label="Projekteinstellungen" title="Status-Bezeichnungen und -Farben bearbeiten">⚙</button>`;
   $('#projectSelect').onchange=async e=>{await flushSource();selectProject(e.target.value)};
+  $('#projectSettings').onclick=async()=>{await flushSource();setMobileMenu(false);openProjectSettings()};
   $('#docList').innerHTML=docs.filter(x=>x.projectId===projectId).map(x=>`<button class="navitem ${x.id===docId?'active':''}" data-doc="${x.id}"><span class="sym">▤</span><span>${escapeHtml(x.name)}</span></button>`).join('');
   document.querySelectorAll('[data-doc]').forEach(e=>e.onclick=async()=>{await flushSource();selectDocument(e.dataset.doc)});
   $('#breadcrumb').textContent=`${p?.name||'Workspace'} / ${d?.name||'Kein Dokument'}`;
@@ -686,8 +719,7 @@ function mapLayout(root,collapsed){
   return {rows,links,rootRow:visit(root,0)};
 }
 function mapStatusColor(n){
-  if(n.status)return {done:'#70d8b5',doing:'#eabc7c',todo:'#8ebdff',review:'#e2a4d6',story:'#a99cff'}[n.status]||'#a99cff';
-  return n.checked===true?'#70d8b5':'#a99cff';
+  return n.status&&STATUS.includes(n.status)?statusColor(n.status):n.checked===true?statusColor('done'):statusColor('story');
 }
 const mapIcons={
   edit:'<path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L10 16l-4 1 1-4z"/>',
@@ -1337,8 +1369,8 @@ function renderKanban(){
   }).join('');
   const lanes=STATUS.map(st=>{
     const ns=selected.children.filter(n=>(n.status||'story')===st&&kanbanVisible(n));
-    return `<div class="lane" data-lane-status="${st}">
-      <div class="laneheading"><span>${STATUS_LABEL[st]}</span><span class="count">${ns.length}</span></div>
+    return `<div class="lane" data-lane-status="${st}" style="--lane-accent:${statusColor(st)}">
+      <div class="laneheading"><span>${escapeHtml(statusLabel(st))}</span><span class="count">${ns.length}</span></div>
       ${ns.map(n=>`<div class="ticket" data-open="${n.path}" data-ticket-status="${st}" tabindex="0" aria-label="${escapeHtml(plain(n.title))}; lange drücken und in eine andere Spalte ziehen">
         <b>${labeledNodeTitle(n)}</b>
         ${n.children.length?`<small class="ticket-subcount">▦ ${n.children.length} Unterknoten</small>`:''}
@@ -1437,7 +1469,7 @@ function wireKanbanDrag(){
       // A non-task moved to Story becomes hidden by the Story-only filter.
       patchNode(id,{status:to==='story'?null:to}).then(()=>toast(to==='story'&&node?.checked===null
         ?'Story: Knoten ohne Checkbox in Kanban ausgeblendet'
-        :'Status: '+STATUS_LABEL[to]));
+        :'Status: '+statusLabel(to)));
     });
     ticket.addEventListener('pointercancel',e=>{if(gesture?.ticket===ticket&&gesture.pointerId===e.pointerId)clear(gesture)});
     ticket.addEventListener('lostpointercapture',e=>{if(gesture?.ticket===ticket&&gesture.pointerId===e.pointerId)clear(gesture)});
@@ -1463,7 +1495,7 @@ function paintNodeText(value){
     const cb=rest.match(/^\[([ xX])\](?=\s|$)/);
     const status=rest.match(/^\[status:([a-z-]+)\](?=\s|$)/i);
     if(cb){html+=`<span class="${cb[1].toLowerCase()==='x'?'syn-checkbox-done':'syn-checkbox'}">${escapeHtml(cb[0])}</span>`;rest=rest.slice(cb[0].length);continue}
-    if(status){let key=status[1].toLowerCase(),cls=['done','doing','todo','review'].includes(key)?' syn-status-'+key:'';html+=`<span class="syn-status${cls}">${escapeHtml(status[0])}</span>`;rest=rest.slice(status[0].length);continue}
+    if(status){const key=status[1].toLowerCase(),cls=['done','doing','todo','review'].includes(key)?' syn-status-'+key:'',style=STATUS.includes(key)?` style="color:${statusColor(key)}" title="${escapeHtml(statusLabel(key))}"`:'';html+=`<span class="syn-status${cls}"${style}>${escapeHtml(status[0])}</span>`;rest=rest.slice(status[0].length);continue}
     break;
   }
   return html+paintInline(rest);
@@ -1533,7 +1565,7 @@ function drawMinimap(){
     if(it.kind==='heading'||it.kind==='list'){
       const status=raw.match(/\[status:(done|doing|todo|review|story)\]/i);
       const check=raw.match(/\[[ xX]\]/);
-      if(status||check){ctx.fillStyle=status?.[1]==='done'||check?.[0].toLowerCase()==='[x]'?'#6dd7ad':status?.[1]==='doing'?'#f0ba79':'#d6acfb';ctx.globalAlpha=1;ctx.fillRect(Math.min(width-7,x+len*.38),y,Math.min(13,len*.25),Math.min(3.2,Math.max(1.6,lineSpacing*.5)))}
+      if(status||check){ctx.fillStyle=status?statusColor(status[1].toLowerCase()):check?.[0].toLowerCase()==='[x]'?statusColor('done'):statusColor('story');ctx.globalAlpha=1;ctx.fillRect(Math.min(width-7,x+len*.38),y,Math.min(13,len*.25),Math.min(3.2,Math.max(1.6,lineSpacing*.5)))}
     }
     if(it.kind==='heading'&&it.level===1&&editorScan.roots[0]!==i){ctx.fillStyle='#fc8090';ctx.globalAlpha=1;ctx.fillRect(0,y,3,4)}
   }
@@ -1703,7 +1735,7 @@ function drawEditorInteractions(){
       if(left>source.clientWidth||left+width<0)continue;
       const base=`data-line="${line}" data-column="${t.start}" style="top:${y.toFixed(2)}px;left:${left.toFixed(2)}px;width:${Math.max(width,t.type==='check'?27:32).toFixed(2)}px;height:${m.lineHeight}px"`;
       if(t.type==='check')html+=`<button type="button" class="token-hit token-hit-checkbox" ${base} aria-label="Checkbox in Zeile ${line+1}: ${t.checked?'erledigt, als offen markieren':'offen, als erledigt markieren'}" title="Checkbox umschalten"></button>`;
-      else html+=`<select class="token-hit token-hit-status" ${base} aria-label="Status in Zeile ${line+1} ändern" title="Status ändern">${STATUS.map(s=>`<option value="${s}" ${s===t.status?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}</select>`;
+      else html+=`<select class="token-hit token-hit-status" ${base} aria-label="Status in Zeile ${line+1} ändern" title="Status ändern">${STATUS.map(s=>`<option value="${s}" ${s===t.status?'selected':''}>${escapeHtml(statusLabel(s))}</option>`).join('')}</select>`;
     }
   }
   layer.innerHTML=html;
@@ -1790,10 +1822,10 @@ function completionForCaret(){
     return items.length||existingLink?{start,end:lineStart+link.end,items,label,linkMode,existingLink}:null;
   }else if((m=before.match(/\[status:([a-z-]*)$/i))){
     start=source.selectionStart-m[0].length;const q=m[1].toLowerCase();
-    items=STATUS.filter(s=>s.startsWith(q)).map(s=>({...namedCompletion(STATUS_LABEL[s],'[status:'+s+']','[status:'+s+'] ','apply-node-status'),value:s}));label='Knotenstatus';
+    items=STATUS.filter(s=>s.startsWith(q)).map(s=>({...namedCompletion(statusLabel(s),'[status:'+s+']','[status:'+s+'] ','apply-node-status'),value:s}));label='Knotenstatus';
   }else if((m=before.match(/(^|[^\[])\[([a-z xX]*)$/i))&&['heading','list'].includes(item.kind)){
     start=source.selectionStart-m[2].length-1;const q=m[2].toLowerCase();
-    items=[{...namedCompletion('[ ]','Offene Aufgabe','[ ] ','apply-node-checkbox'),value:false},{...namedCompletion('[x]','Erledigte Aufgabe','[x] ','apply-node-checkbox'),value:true},...STATUS.map(s=>({...namedCompletion('[status:'+s+']',STATUS_LABEL[s],'[status:'+s+'] ','apply-node-status'),value:s}))].filter(o=>o.insert.toLowerCase().startsWith('['+q));label='Knoten-Eigenschaften';
+    items=[{...namedCompletion('[ ]','Offene Aufgabe','[ ] ','apply-node-checkbox'),value:false},{...namedCompletion('[x]','Erledigte Aufgabe','[x] ','apply-node-checkbox'),value:true},...STATUS.map(s=>({...namedCompletion('[status:'+s+']',statusLabel(s),'[status:'+s+'] ','apply-node-status'),value:s}))].filter(o=>o.insert.toLowerCase().startsWith('['+q));label='Knoten-Eigenschaften';
   }else if((m=before.match(/^\s*\/([a-z0-9-]*)$/i))){
     const q=m[1].toLowerCase();start=source.selectionStart-q.length-1;
     items=[namedCompletion('/h1','Überschrift 1','# '),namedCompletion('/h2','Überschrift 2','## '),namedCompletion('/h3','Überschrift 3','### '),namedCompletion('/list','Listenpunkt','- '),namedCompletion('/task','Offene Aufgabe','- [ ] '),namedCompletion('/done','Erledigte Aufgabe','- [x] '),namedCompletion('/link','Dokument verlinken','[[', 'link'),namedCompletion('/status','Knotenstatus wählen','', 'status')].filter(o=>o.label.slice(1).startsWith(q));label='Markdown-Befehle';
@@ -1916,7 +1948,7 @@ function setEditorLineStatus(status){
 }
 function openToolbarStatus(){
   const source=$('#source'),at=source.selectionStart;
-  completionState={start:at,end:at,label:'Status für aktuellen Knoten',items:STATUS.map(s=>({...namedCompletion(STATUS_LABEL[s],'[status:'+s+']','','apply-status'),value:s}))};
+  completionState={start:at,end:at,label:'Status für aktuellen Knoten',items:STATUS.map(s=>({...namedCompletion(statusLabel(s),'[status:'+s+']','','apply-status'),value:s}))};
   completionIndex=0;renderCompletionPopup();
 }
 // List behavior is derived from the current Markdown line, and never changes
@@ -2147,7 +2179,37 @@ async function flushSource(){
 
 function openModal(html){$('#modal').classList.remove('node-modal');$('#modal').innerHTML=html;$('#modalBack').classList.remove('hidden')}function closeModal(){$('#modalBack').classList.add('hidden')};$('#modalBack').onclick=e=>{if(e.target===$('#modalBack'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 function formActions(label='Speichern'){return `<div class="modalactions"><button class="btn" type="button" id="cancelModal">Abbrechen</button><button class="btn primary" type="submit">${label}</button></div>`}function wireCancel(){$('#cancelModal').onclick=closeModal}
-function createProject(){openModal(`<h2>Neues Projekt</h2><p>Projekte und Dokumente werden lokal in deinem Browser gespeichert.</p><form id="projectForm"><div class="field"><label>Projektname</label><input id="projectName" maxlength="90" required placeholder="Mein neues Projekt" autofocus></div>${formActions('Projekt erstellen')}</form>`);wireCancel();$('#projectForm').onsubmit=async e=>{e.preventDefault();let p={id:uid(),name:$('#projectName').value.trim(),created:Date.now()};if(!p.name)return;await put('projects',p);await refresh();selectProject(p.id);closeModal();toast('Projekt erstellt')}}
+function openProjectSettings(){
+  const p=project();if(!p)return;
+  const settings=statusSettingsFor(p);
+  const rows=STATUS.map(key=>`<div class="status-setting-row">
+    <span class="status-code" title="Markdown: [status:${key}]">${key}</span>
+    <input type="text" id="statusLabel-${key}" aria-label="Bezeichnung für ${key}" maxlength="36" required value="${escapeHtml(settings[key].label)}">
+    <input type="color" id="statusColor-${key}" aria-label="Farbe für ${key}" value="${settings[key].color}">
+  </div>`).join('');
+  openModal(`<h2>Projekteinstellungen</h2><p>${escapeHtml(p.name)}</p>
+    <form id="projectSettingsForm">
+      <div class="field"><label>Knoten-Status</label>
+        <div class="status-settings-grid"><div class="status-setting-head"><span>Kennung</span><span>Bezeichnung</span><span>Farbe</span></div>${rows}</div>
+        <small class="field-note status-settings-note">Kennungen wie <code>[status:doing]</code> bleiben im Markdown unverändert. Bezeichnungen und Farben gelten nur für dieses Projekt.</small>
+      </div>${formActions('Einstellungen speichern')}</form>`);
+  wireCancel();
+  $('#projectSettingsForm').onsubmit=async e=>{
+    e.preventDefault();
+    const next={};
+    for(const key of STATUS){
+      const label=$('#statusLabel-'+key).value.replace(/\s+/g,' ').trim().slice(0,36);
+      if(!label){$('#statusLabel-'+key).focus();toast('Status-Bezeichnungen dürfen nicht leer sein');return}
+      next[key]={label,color:$('#statusColor-'+key).value};
+    }
+    const previous=p.statusSettings;
+    p.statusSettings=next;
+    try{await put('projects',{...p})}
+    catch(error){p.statusSettings=previous;console.error(error);toast('Projekteinstellungen konnten nicht gespeichert werden');return}
+    closeModal();render();toast('Projekteinstellungen gespeichert');
+  };
+}
+function createProject(){openModal(`<h2>Neues Projekt</h2><p>Projekte und Dokumente werden lokal in deinem Browser gespeichert.</p><form id="projectForm"><div class="field"><label>Projektname</label><input id="projectName" maxlength="90" required placeholder="Mein neues Projekt" autofocus></div>${formActions('Projekt erstellen')}</form>`);wireCancel();$('#projectForm').onsubmit=async e=>{e.preventDefault();let p={id:uid(),name:$('#projectName').value.trim(),created:Date.now(),statusSettings:statusSettingsFor(null)};if(!p.name)return;await put('projects',p);await refresh();selectProject(p.id);closeModal();toast('Projekt erstellt')}}
 function createDocument(){if(!projectId)return createProject();openModal(`<h2>Neues Dokument</h2><p>Jedes Dokument besitzt einen eindeutigen Namen innerhalb des Projekts.</p><form id="docForm"><div class="field"><label>Dokumentname</label><input id="newDocName" required maxlength="100" placeholder="Planung"></div>${formActions('Dokument erstellen')}</form>`);wireCancel();$('#docForm').onsubmit=async e=>{e.preventDefault();let name=$('#newDocName').value.trim().replace(/\.md$/i,'');if(!name||docs.some(d=>d.projectId===projectId&&d.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname existiert bereits');let d={id:uid(),projectId,name,content:'# '+name+'\n'};await put('docs',d);await refresh();selectDocument(d.id);closeModal();toast('Dokument erstellt')}}
 function renameDocument(){let d=documentNow();if(!d)return;openModal(`<h2>Dokument umbenennen</h2><form id="renameForm"><div class="field"><label>Name</label><input id="renameValue" required value="${escapeHtml(d.name)}"></div>${formActions()}</form>`);wireCancel();$('#renameForm').onsubmit=async e=>{e.preventDefault();let name=$('#renameValue').value.trim().replace(/\.md$/i,'');if(!name||docs.some(x=>x.projectId===projectId&&x.id!==d.id&&x.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname bereits vergeben');d.name=name;await put('docs',d);closeModal();render()}}
 function lineEdit(n,props){
@@ -2187,12 +2249,12 @@ function editNode(path){
   const n=flattened(currentModel).find(item=>item.path===path);
   if(!n||n.kind==='virtual')return;
   const refs=[...n.title.matchAll(/\[\[([^\]#|]+)(?:#([^\]|]+))?(?:\|[^\]]+)?\]\]/g)];
-  const previousType=nodeTypeValue(n);
+  const previousType=nodeTypeValue(n),isKanbanTicket=view==='kanban';
   const typeOptions=NODE_TYPES.map(t=>`<option value="${t.value}" ${t.value===previousType?'selected':''}>${escapeHtml(t.label)}</option>`).join('');
-  openModal(`<h2><label for="nodeTitle">Knoten bearbeiten</label></h2><form id="nodeForm" class="node-form">
+  openModal(`<h2><label for="nodeTitle">${isKanbanTicket?'Ticket':'Knoten'} bearbeiten</label></h2><form id="nodeForm" class="node-form">
     <div class="field"><input id="nodeTitle" aria-label="Knoten bearbeiten: Titel" required value="${escapeHtml(n.title)}"></div>
-    <div class="node-properties"><div class="field"><label for="nodeType">Knotentyp</label><select id="nodeType">${typeOptions}</select></div>
-    <div class="field"><label for="nodeStatus">Status</label><select id="nodeStatus">${STATUS.map(st=>`<option value="${st}" ${st===(n.status||'story')?'selected':''}>${STATUS_LABEL[st]}</option>`).join('')}</select></div></div>
+    <div class="node-properties ${isKanbanTicket?'single':''}"><div class="field"><label for="nodeType">Knotentyp</label><select id="nodeType">${typeOptions}</select></div>
+    ${isKanbanTicket?'':`<div class="field"><label for="nodeStatus">Status</label><select id="nodeStatus">${STATUS.map(st=>`<option value="${st}" ${st===(n.status||'story')?'selected':''}>${escapeHtml(statusLabel(st))}</option>`).join('')}</select></div>`}</div>
     <div class="field"><label>Aufgabenstatus (Checkbox)</label><div class="node-check-group"><label><input type="checkbox" id="nodeUseCheck" ${n.checked!==null?'checked':''}> Checkbox für diesen Knoten verwenden</label><label><input type="checkbox" id="nodeDone" ${n.checked===true?'checked':''} ${n.checked===null?'disabled':''}> Erledigt</label></div></div>
     <div class="field"><label for="nodeDescription">Beschreibung (Markdown)</label><textarea id="nodeDescription">${escapeHtml(n.description.join('\n').trim())}</textarea></div>
     ${refs.length?`<div class="field"><label>Dokumentenverknüpfungen</label>${refs.map((m,i)=>`<button type="button" class="btn" data-link="${i}" style="text-align:left">↗ ${escapeHtml(m[0])}</button>`).join('')}</div>`:''}
@@ -2205,7 +2267,7 @@ function editNode(path){
     e.preventDefault();
     const nextType=$('#nodeType').value;
     const d=lineEdit(n,{title:$('#nodeTitle').value.trim(),nodeType:nextType,
-      status:$('#nodeStatus').value||null,
+      status:isKanbanTicket?n.status:$('#nodeStatus').value||null,
       checked:$('#nodeUseCheck').checked?$('#nodeDone').checked:null});
     if(!d)return;
     const lines=d.content.split('\n'),scan=scanMarkdown(d.content),start=n.start+1;
@@ -2231,7 +2293,7 @@ function editNode(path){
   };
 }
 function navigateLink(name,heading){let d=docs.find(x=>x.projectId===projectId&&x.name.toLowerCase()===name.toLowerCase());if(!d)return toast('Zieldokument nicht gefunden: '+name);docId=d.id;setView('mindmap');scopePath='0';closeModal();render();if(heading){let target=flattened(currentModel).find(n=>n.kind==='h'&&plain(n.title).toLowerCase()===heading.toLowerCase());if(target){let el=[...document.querySelectorAll('[data-node]')].find(x=>x.dataset.node===target.path);centerMapNode(target.path)}else toast('Überschrift nicht gefunden: '+heading)}}
-function addNode(){let root=currentRoot();let options=flattened(root);openModal(`<h2><label for="nodeTitle">Knoten erstellen</label></h2><form id="addForm" class="node-form"><div class="field"><input id="nodeTitle" required placeholder="Neuer Gedanke"></div><div class="field"><label for="parentSelect">Übergeordneter Knoten</label><select id="parentSelect">${options.map(n=>`<option value="${n.path}">${escapeHtml(plain(n.title))}</option>`).join('')}</select></div><div class="field"><label>Status</label><select id="addStatus">${STATUS.map(s=>`<option value="${s}">${STATUS_LABEL[s]}</option>`).join('')}</select></div>${formActions('Knoten hinzufügen')}</form>`);$('#modal').classList.add('node-modal');wireCancel();$('#addForm').onsubmit=async e=>{e.preventDefault();let parent=options.find(n=>n.path===$('#parentSelect').value),d=documentNow(),lines=d.content.split('\n');let indent=parent.kind==='li'?' '.repeat(parent.indent+2):'';let status=$('#addStatus').value;let line=indent+'- '+(status&&status!=='story'?'[status:'+status+'] ':'')+$('#nodeTitle').value.trim();let insertion=parent.kind==='h'?findHeadingEnd(lines,parent):findListEnd(lines,parent);lines.splice(insertion,0,line);d.content=lines.join('\n');await put('docs',d);closeModal();render();toast('Knoten hinzugefügt')}}
+function addNode(){let root=currentRoot();let options=flattened(root);openModal(`<h2><label for="nodeTitle">Knoten erstellen</label></h2><form id="addForm" class="node-form"><div class="field"><input id="nodeTitle" required placeholder="Neuer Gedanke"></div><div class="field"><label for="parentSelect">Übergeordneter Knoten</label><select id="parentSelect">${options.map(n=>`<option value="${n.path}">${escapeHtml(plain(n.title))}</option>`).join('')}</select></div><div class="field"><label>Status</label><select id="addStatus">${STATUS.map(s=>`<option value="${s}">${escapeHtml(statusLabel(s))}</option>`).join('')}</select></div>${formActions('Knoten hinzufügen')}</form>`);$('#modal').classList.add('node-modal');wireCancel();$('#addForm').onsubmit=async e=>{e.preventDefault();let parent=options.find(n=>n.path===$('#parentSelect').value),d=documentNow(),lines=d.content.split('\n');let indent=parent.kind==='li'?' '.repeat(parent.indent+2):'';let status=$('#addStatus').value;let line=indent+'- '+(status&&status!=='story'?'[status:'+status+'] ':'')+$('#nodeTitle').value.trim();let insertion=parent.kind==='h'?findHeadingEnd(lines,parent):findListEnd(lines,parent);lines.splice(insertion,0,line);d.content=lines.join('\n');await put('docs',d);closeModal();render();toast('Knoten hinzugefügt')}}
 function findHeadingEnd(lines,n){let i=n.start+1;for(;i<lines.length;i++){let m=lines[i].match(/^ {0,3}(#{1,6})\s/);if(m&&m[1].length<=n.level)break}return i}function findListEnd(lines,n){let i=n.start+1;for(;i<lines.length;i++){let m=lines[i].match(/^(\s*)(?:[-+*]|\d+[.)])\s/);if(/^ {0,3}#{1,6}\s/.test(lines[i])||(m&&m[1].length<=n.indent))break}return i}
 // ZIP stored-entry writer (no dependencies, works offline)
 const enc=new TextEncoder(),dec=new TextDecoder();function crc32(data){let crc=-1;for(let b of data){crc^=b;for(let j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}return(crc^-1)>>>0}
@@ -2239,8 +2301,8 @@ function makeZip(entries){let parts=[],central=[],offset=0;for(let [name,text] o
 async function readZip(buffer){let a=new Uint8Array(buffer),v=new DataView(buffer),pos=a.length-22;while(pos>=0&&v.getUint32(pos,true)!==0x06054b50)pos--;if(pos<0)throw Error('Ungültige ZIP-Datei');let count=v.getUint16(pos+10,true),at=v.getUint32(pos+16,true),out=[];for(let k=0;k<count;k++){if(v.getUint32(at,true)!==0x02014b50)throw Error('Ungültiger ZIP-Eintrag');let method=v.getUint16(at+10,true),size=v.getUint32(at+20,true),nl=v.getUint16(at+28,true),extra=v.getUint16(at+30,true),comment=v.getUint16(at+32,true),loc=v.getUint32(at+42,true),name=dec.decode(a.slice(at+46,at+46+nl)),start=loc+30+v.getUint16(loc+26,true)+v.getUint16(loc+28,true),bytes=a.slice(start,start+size);if(method===8){if(typeof DecompressionStream==='undefined')throw Error('Dieser Browser unterstützt komprimierte ZIP-Dateien nicht');let stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));bytes=new Uint8Array(await new Response(stream).arrayBuffer())}else if(method!==0)throw Error('Nicht unterstützte ZIP-Komprimierung');if(name&&!name.endsWith('/'))out.push([name,dec.decode(bytes)]);at+=46+nl+extra+comment}return out}
 function safeName(s){return s.replace(/[\\/:*?"<>|]/g,'_')}
 function download(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
-function exportProject(){let p=project();if(!p)return;let items=docs.filter(d=>d.projectId===p.id),entries=[['mindstorm-project.json',JSON.stringify({format:'mindstorm',version:2,name:p.name,documents:items.map(d=>({name:d.name,file:safeName(d.name)+'.md',mapPositions:d.mapPositions||{},mapCollapsedPaths:d.mapCollapsedPaths||[]}))},null,2)],...items.map(d=>[safeName(d.name)+'.md',d.content])];download(makeZip(entries),safeName(p.name)+'.zip');toast('Projekt exportiert')}
-async function importProject(file){try{let entries=await readZip(await file.arrayBuffer()),meta=entries.find(x=>x[0]==='mindstorm-project.json'),pname=meta?JSON.parse(meta[1]).name:file.name.replace(/\.zip$/i,'');let mapping=meta?JSON.parse(meta[1]).documents:entries.filter(x=>x[0].endsWith('.md')).map(x=>({name:x[0].split('/').pop().replace(/\.md$/i,''),file:x[0]}));if(!mapping.length)throw Error('Keine Markdown-Dateien gefunden');let p={id:uid(),name:pname+' (Import)',created:Date.now()};await put('projects',p);for(let item of mapping){let found=entries.find(x=>x[0]===item.file);if(found)await put('docs',{id:uid(),projectId:p.id,name:item.name,content:found[1],mapPositions:item.mapPositions||{},mapCollapsedPaths:item.mapCollapsedPaths||[]})}await refresh();selectProject(p.id);toast('Projekt importiert')}catch(e){toast('Import fehlgeschlagen: '+e.message)}}
+function exportProject(){let p=project();if(!p)return;let items=docs.filter(d=>d.projectId===p.id),entries=[['mindstorm-project.json',JSON.stringify({format:'mindstorm',version:3,name:p.name,statusSettings:statusSettingsFor(p),documents:items.map(d=>({name:d.name,file:safeName(d.name)+'.md',mapPositions:d.mapPositions||{},mapCollapsedPaths:d.mapCollapsedPaths||[]}))},null,2)],...items.map(d=>[safeName(d.name)+'.md',d.content])];download(makeZip(entries),safeName(p.name)+'.zip');toast('Projekt exportiert')}
+async function importProject(file){try{let entries=await readZip(await file.arrayBuffer()),meta=entries.find(x=>x[0]==='mindstorm-project.json'),metadata=meta?JSON.parse(meta[1]):null,pname=metadata?.name||file.name.replace(/\.zip$/i,'');let mapping=metadata?metadata.documents:entries.filter(x=>x[0].endsWith('.md')).map(x=>({name:x[0].split('/').pop().replace(/\.md$/i,''),file:x[0]}));if(!mapping.length)throw Error('Keine Markdown-Dateien gefunden');let p={id:uid(),name:pname+' (Import)',created:Date.now(),statusSettings:statusSettingsFor({statusSettings:metadata?.statusSettings})};await put('projects',p);for(let item of mapping){let found=entries.find(x=>x[0]===item.file);if(found)await put('docs',{id:uid(),projectId:p.id,name:item.name,content:found[1],mapPositions:item.mapPositions||{},mapCollapsedPaths:item.mapCollapsedPaths||[]})}await refresh();selectProject(p.id);toast('Projekt importiert')}catch(e){toast('Import fehlgeschlagen: '+e.message)}}
 $('#addProject').onclick=()=>{setMobileMenu(false);createProject()};$('#addDocument').onclick=()=>{setMobileMenu(false);createDocument()};$('#renameDoc').onclick=renameDocument;$('#undoAction').onclick=()=>changeHistory('undo');$('#redoAction').onclick=()=>changeHistory('redo');$('#exportZip').onclick=()=>{setMobileMenu(false);exportProject()};$('#importZip').onclick=()=>{setMobileMenu(false);$('#fileImport').click()};$('#fileImport').onchange=async e=>{if(e.target.files[0])await importProject(e.target.files[0]);e.target.value=''};document.querySelectorAll('[data-view]').forEach(e=>e.onclick=async()=>{if(view==='markdown')await saveSource();setView(e.dataset.view);render()});$('#menuToggle').onclick=()=>setMobileMenu(!$('.app').classList.contains('menu-open'));$('#sidebarScrim').onclick=()=>setMobileMenu(false);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.app').classList.contains('menu-open'))setMobileMenu(false)});window.addEventListener('resize',()=>setMobileMenu($('.app').classList.contains('menu-open')));
 document.addEventListener('keydown',e=>{
   if(e.defaultPrevented||e.altKey||$('#modalBack')&&!$('#modalBack').classList.contains('hidden'))return;

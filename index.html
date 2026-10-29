@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>mindfagg v14 — Markdown Mindmaps</title>
+<title>mindfagg v16 — Markdown Mindmaps</title>
 <style>
 :root{color-scheme:dark;--bg:#0b0e14;--panel:#111722;--panel2:#171f2c;--line:#263144;--text:#ecf1fa;--muted:#8898b0;--accent:#9b8cff;--accent2:#62d5c7;--warn:#eac17a;--danger:#f07587;--radius:13px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button,input,textarea,select{font:inherit}button{border:0;cursor:pointer;color:inherit}button:disabled{opacity:.4;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.app{display:grid;grid-template-columns:260px minmax(0,1fr);height:100dvh}.sidebar{background:#101520;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}.brand{padding:24px 21px 25px;display:flex;gap:11px;align-items:center}.mark{width:35px;height:35px;background:linear-gradient(145deg,#a69aff,#5c72dc);border-radius:11px;display:grid;place-items:center;font-size:23px;color:white;box-shadow:0 7px 25px #7466dc33}.brand strong{font-size:21px;font-weight:750;letter-spacing:-.9px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.6px}.side-section{padding:0 13px}.side-head{display:flex;align-items:center;justify-content:space-between;margin:7px 8px 10px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}.iconbtn{background:transparent;border-radius:8px;padding:4px 9px;color:var(--muted);font-size:19px}.iconbtn:hover,.navitem:hover{background:#222b3b;color:var(--text)}.navlist{display:flex;flex-direction:column;gap:3px}.navitem{display:flex;align-items:center;gap:11px;padding:10px 12px;width:100%;text-align:left;border-radius:9px;color:#aab6c8;background:transparent;min-width:0}.navitem.active{background:#26233e;color:#d3cdff}.navitem span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.navitem .sym{font-size:16px;opacity:.9}.projectlabel{background:#141b29;border:1px solid var(--line);border-radius:9px;padding:11px 12px;margin:0 7px 18px;font-weight:650;display:flex;gap:8px;align-items:center;justify-content:space-between}.projectlabel select{width:100%;min-width:0;background:transparent;color:var(--text);border:0;outline-offset:4px;font-weight:650;cursor:pointer}.projectlabel select option{background:#141b29;color:var(--text)}.side-footer{margin-top:auto;border-top:1px solid var(--line);padding:15px 12px;display:grid;gap:7px}.side-footer button{border:1px solid var(--line);background:#171e2b;border-radius:9px;padding:10px;text-align:left;color:#c8d2e2}.side-footer button:hover{border-color:#766cc4}.main{min-width:0;display:flex;flex-direction:column}.topbar{height:73px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 26px;gap:12px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:800}.top-actions{display:flex;gap:8px;align-items:center}.btn{padding:9px 13px;background:#202a3a;border:1px solid #334056;border-radius:9px;font-weight:650;font-size:12px}.btn:hover{background:#2b364b}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111222}.btn.primary:hover{background:#b5aaff}.tabsbar{display:flex;gap:8px;padding:18px 26px 0;align-items:center;justify-content:space-between}.tabs{display:flex;padding:4px;background:#171d29;border:1px solid #242d40;border-radius:11px;gap:3px}.tab{padding:8px 15px;background:none;border-radius:8px;color:var(--muted);font-weight:650;font-size:12px}.tab.active{background:#34304f;color:#eeeaff}.workspace{min-height:0;flex:1;padding:17px 26px 22px;display:flex;flex-direction:column}.surface{flex:1;min-height:0;background:radial-gradient(ellipse at 60% 40%,#141b2a 0%,#111723 58%,#101520 100%);border:1px solid var(--line);border-radius:15px;overflow:hidden;position:relative}.surfacehead{position:absolute;z-index:2;top:17px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.surfacehead>*{pointer-events:auto}.subtle{color:var(--muted);font-size:12px}.pill{padding:6px 11px;border:1px solid #38445b;background:#1c2535;border-radius:30px;color:#bdc8da;font-size:11px}.mindcanvas{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;padding:75px 30px 60px}.mindtree{min-width:max-content;display:flex;align-items:center;gap:55px}.treecol{display:flex;flex-direction:column;gap:21px;align-items:flex-start;position:relative}.treebranch{display:flex;align-items:center;gap:39px;position:relative}.treeroot{background:#544b91!important;border-color:#887bd8!important;color:white!important;padding:18px 23px!important;font-size:17px!important}.node{position:relative;text-align:left;display:flex;align-items:center;gap:10px;background:#202b3a;border:1px solid #3c4c61;border-radius:11px;padding:12px 15px;color:#f2f4ff;min-width:130px;max-width:280px;box-shadow:0 10px 25px #0002;white-space:normal}.node:hover{border-color:#a69aff;transform:translateY(-1px)}.node.selected{border-color:#b5aaff;box-shadow:0 0 0 2px #a99aff36}.node .dot{width:8px;height:8px;background:#9d90ff;border-radius:50%;flex:none}.node .nodeinner{min-width:0;display:flex;flex-direction:column;gap:5px}.node .nodetitle{font-size:13px;font-weight:650;overflow-wrap:anywhere}.node .nodefoot{display:flex;gap:7px;align-items:center;font-size:10px;color:#a2b1c6}.bar{height:4px;min-width:55px;width:85px;border-radius:8px;overflow:hidden;background:#364154}.bar>i{display:block;height:100%;background:#7dd5c4}.children{display:flex;flex-direction:column;gap:12px;border-left:1px solid #4a536c;padding-left:24px;position:relative}.children>.treebranch:before{content:"";position:absolute;width:24px;height:1px;background:#4a536c;left:-24px;top:50%}.treebranch:has(>.children)>.node:after{content:"";position:absolute;width:39px;height:1px;background:#4a536c;right:-40px;top:50%}.empty{text-align:center;color:var(--muted);padding:80px 20px}.kanban{display:flex;gap:14px;overflow:auto;height:100%;padding:55px 18px 22px}.lane{flex:1;min-width:178px;max-width:350px;background:#19212f;border:1px solid #283447;border-radius:11px;display:flex;flex-direction:column;padding:12px;gap:10px}.laneheading{display:flex;justify-content:space-between;align-items:center;padding:3px 2px 7px;letter-spacing:.2px;font-size:12px;font-weight:750}.count{background:#2b3648;color:#abb9ce;border-radius:20px;padding:1px 8px;font-size:11px}.ticket{background:#252f3f;border:1px solid #354358;border-radius:9px;padding:12px;display:grid;gap:9px;cursor:pointer}.ticket:hover{border-color:#8d84dc}.ticket b{font-size:12px}.ticket small{color:var(--muted)}.scope{background:#202a3a;color:var(--text);border:1px solid #3b4860;border-radius:7px;padding:7px 10px;max-width:230px}.editor{display:flex;flex-direction:column;height:100%;padding:14px 18px 18px;gap:10px}.editor textarea{width:100%;flex:1;resize:none;border:1px solid #303b50;background:#0d131d;color:#dce6f6;border-radius:9px;padding:21px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}.editfoot{display:flex;align-items:center;justify-content:space-between}.editfoot small{color:var(--muted)}.modalback{position:fixed;z-index:20;inset:0;background:#03060acb;display:grid;place-items:center;padding:18px}.modal{width:min(540px,100%);max-height:88dvh;overflow-y:auto;background:#1a2230;border:1px solid #38465b;border-radius:17px;padding:24px;box-shadow:0 24px 90px #0009}.modal h2{margin:0 0 6px;font-size:19px}.modal p{margin:0 0 18px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:13px 0}.field label{font-size:11px;font-weight:700;color:#abb9ce}.field input,.field textarea,.field select{width:100%;background:#101724;color:var(--text);border:1px solid #39485e;border-radius:8px;padding:10px}.field textarea{resize:vertical;min-height:105px}.modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.toast{position:fixed;bottom:20px;right:20px;z-index:40;background:#2b354a;border:1px solid #5a6580;padding:11px 17px;border-radius:10px;box-shadow:0 12px 50px #0007}.hidden{display:none!important}@media(max-width:850px){.app{grid-template-columns:67px 1fr}.brand{padding:20px 15px}.brand strong,.brand small,.side-head,.projectlabel,.navitem span:last-child,.side-footer button{display:none}.side-section{padding:0 7px}.navitem{justify-content:center}.navitem .sym{font-size:21px}.side-footer{min-height:72px}.topbar{padding:0 14px}.tabsbar{padding:12px 12px 0}.workspace{padding:12px}.top-actions .btn{padding:8px}.mindcanvas{justify-content:flex-start}.lane{min-width:175px}}
 
@@ -408,6 +408,12 @@
 .mm-node .nodefoot .bar>i{background:var(--node-accent)}
 .node-properties.single{grid-template-columns:minmax(0,1fr)}
 @media(max-width:480px){.status-setting-head,.status-setting-row{grid-template-columns:64px minmax(0,1fr) 49px;gap:5px}.status-setting-row{padding:7px 5px}.status-setting-row input[type=color]{width:39px}}
+
+/* mindfagg v16: immediate document deletion in the rename dialog. */
+.document-modal-actions{align-items:center;flex-wrap:wrap}
+.document-modal-actions .document-action-spacer{flex:1;min-width:8px}
+.document-modal-actions .delete-document{background:#4b2735;border-color:#99576a;color:#ffcfda}
+.document-modal-actions .delete-document:not(:disabled):hover{background:#673144;border-color:#cf798e;color:#fff}
 </style>
 </head>
 <body>
@@ -450,7 +456,14 @@ function req(r){return new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.o
 async function all(store){return req(tx(store).getAll())}
 // Undo/redo stores content and document names per document. Typing is grouped by autosave pauses.
 const docHistory=new Map(),persistedDocSnapshots=new Map();
-let historyBusy=false;
+// Deletions are project-wide history entries because the selected document changes.
+const deletionHistory=new Map();
+let historyBusy=false,historySerial=0,redoSerial=0;
+function deletionHistoryFor(id){
+  if(!deletionHistory.has(id))deletionHistory.set(id,{undo:[],redo:[]});
+  return deletionHistory.get(id);
+}
+
 function docSnapshot(doc){return {content:doc.content,name:doc.name,mapCollapsedPaths:Array.isArray(doc.mapCollapsedPaths)?[...doc.mapCollapsedPaths]:[]}}
 function equalDocSnapshot(a,b){return a?.content===b?.content&&a?.name===b?.name}
 function docHistoryFor(id){
@@ -471,10 +484,11 @@ function updateSaveStatus(){
 }
 function updateHistoryButtons(){
   const d=documentNow(),h=d?docHistory.get(d.id):null;
+  const structural=projectId?deletionHistory.get(projectId):null;
   const hasUnsaved=!!d&&!equalDocSnapshot(docSnapshot(d),persistedDocSnapshots.get(d.id));
   const undo=$('#undoAction'),redo=$('#redoAction');
-  if(undo)undo.disabled=historyBusy||!d||!((h?.undo.length||0)>0||hasUnsaved);
-  if(redo)redo.disabled=historyBusy||!d||!((h?.redo.length||0)>0);
+  if(undo)undo.disabled=historyBusy||!d||!((h?.undo.length||0)>0||hasUnsaved||(structural?.undo.length||0)>0);
+  if(redo)redo.disabled=historyBusy||!d||!((h?.redo.length||0)>0||(structural?.redo.length||0)>0);
 }
 async function put(store,value,options={}){
   const isDoc=store==='docs';
@@ -490,8 +504,9 @@ async function put(store,value,options={}){
       const after=docSnapshot(value);
       if(before&&!equalDocSnapshot(before,after)&&options.record!==false){
         const h=docHistoryFor(value.id);
-        h.undo.push({...before});if(h.undo.length>100)h.undo.shift();
+        h.undo.push({...before,stamp:++historySerial});if(h.undo.length>100)h.undo.shift();
         h.redo.length=0;
+        deletionHistoryFor(value.projectId).redo.length=0;
       }
       persistedDocSnapshots.set(value.id,after);
     }
@@ -513,22 +528,35 @@ async function changeHistory(direction){
   if(historyBusy||!documentNow())return;
   historyBusy=true;updateHistoryButtons();
   try{
-    // Commit pending Markdown edits first, so a click during the autosave delay still works.
+    // First persist unsaved Markdown to preserve the order of undo actions.
     if(view==='markdown')await flushSource();
-    const d=documentNow(),h=docHistoryFor(d.id);
-    const from=direction==='undo'?h.undo:h.redo;
+    const d=documentNow(),h=docHistoryFor(d.id),structural=deletionHistoryFor(projectId);
+    const local=direction==='undo'?h.undo:h.redo;
+    const global=direction==='undo'?structural.undo:structural.redo;
+    const localLast=local[local.length-1],globalLast=global[global.length-1];
+    const key=direction==='undo'?'stamp':'redoStamp';
+    if(globalLast&&(!localLast||(globalLast[key]||0)>(localLast[key]||0))){
+      const ok=direction==='undo'?await restoreDeletedDocument(globalLast):await repeatDeletedDocument(globalLast);
+      if(!ok)return;
+      global.pop();
+      if(direction==='undo')structural.redo.push({...globalLast,redoStamp:++redoSerial});
+      else structural.undo.push({...globalLast,stamp:++historySerial});
+      render();
+      toast(direction==='undo'?'Dokument wiederhergestellt':'Dokument erneut gel\u00f6scht');
+      return;
+    }
+    if(!local.length)return;
+    const target=local.pop(),current=docSnapshot(d);
     const other=direction==='undo'?h.redo:h.undo;
-    if(!from.length)return;
-    const target=from.pop(),current=docSnapshot(d);
-    other.push({...current});if(other.length>100)other.shift();
+    other.push({...current,...(direction==='undo'?{redoStamp:++redoSerial}:{stamp:++historySerial})});
+    if(other.length>100)other.shift();
     d.content=target.content;d.name=target.name;d.mapCollapsedPaths=[...(target.mapCollapsedPaths||[])];
     try{await put('docs',{...d},{record:false})}
     catch(e){
       d.content=current.content;d.name=current.name;d.mapCollapsedPaths=[...(current.mapCollapsedPaths||[])];
-      other.pop();from.push(target);console.error(e);toast('Verlauf konnte nicht gespeichert werden');return;
+      other.pop();local.push(target);console.error(e);toast('Verlauf konnte nicht gespeichert werden');return;
     }
     clearTimeout(saveTimer);
-    // Paths can change after undo/redo; don't attach the toolbar to an unrelated node.
     mapSelectedPaths.delete(d.id);mapCollapsedPaths.set(d.id,new Set(d.mapCollapsedPaths));
     const editorCursor=view==='markdown'?$('#source')?.selectionStart:null;
     const editorScroll=view==='markdown'?$('#source')?.scrollTop:null;
@@ -536,8 +564,79 @@ async function changeHistory(direction){
     if(view==='markdown'&&editorCursor!==null){
       const source=$('#source');if(source){const i=Math.min(editorCursor,source.value.length);source.setSelectionRange(i,i);source.scrollTop=editorScroll||0;syncCodeScroll()}
     }
-    toast(direction==='undo'?'Änderung rückgängig gemacht':'Änderung wiederhergestellt');
-  }finally{historyBusy=false;updateHistoryButtons()}
+    toast(direction==='undo'?'\u00c4nderung r\u00fcckg\u00e4ngig gemacht':'\u00c4nderung wiederhergestellt');
+  }catch(error){console.error(error);toast('R\u00fcckg\u00e4ngig fehlgeschlagen')}
+  finally{historyBusy=false;updateHistoryButtons()}
+}
+
+// Both deleting and auto-creating a fallback happen in one IndexedDB transaction.
+function commitDocumentChanges(upserts=[],deletedIds=[]){
+  return new Promise((resolve,reject)=>{
+    const transaction=db.transaction('docs','readwrite'),store=transaction.objectStore('docs');
+    for(const id of deletedIds)store.delete(id);
+    for(const item of upserts)store.put(item);
+    transaction.oncomplete=()=>resolve();
+    transaction.onerror=()=>reject(transaction.error||new Error('Dokumenttransaktion fehlgeschlagen'));
+    transaction.onabort=()=>reject(transaction.error||new Error('Dokumenttransaktion abgebrochen'));
+  });
+}
+function applyDocumentChanges(upserts=[],deletedIds=[]){
+  const removed=new Set(deletedIds);
+  docs=docs.filter(item=>!removed.has(item.id));
+  for(const id of deletedIds){
+    persistedDocSnapshots.delete(id);pendingDocWrites.delete(id);failedDocWrites.delete(id);
+  }
+  for(const item of upserts){
+    const index=docs.findIndex(existing=>existing.id===item.id);
+    if(index===-1)docs.push(item);else docs[index]=item;
+    persistedDocSnapshots.set(item.id,docSnapshot(item));failedDocWrites.delete(item.id);
+  }
+}
+function newProjectDocument(id=uid(),idOfProject=projectId){
+  return {id,projectId:idOfProject,name:'Projekt',content:'# Projekt\n'};
+}
+async function restoreDeletedDocument(action){
+  const restored=structuredClone(action.document);
+  if(docs.some(item=>item.id===restored.id)){
+    toast('Dokument ist bereits vorhanden');return false;
+  }
+  // An untouched, automatically created replacement is no longer needed after undo.
+  const placeholder=action.placeholder&&docs.find(item=>item.id===action.placeholder.id);
+  const removePlaceholder=placeholder&&placeholder.name===action.placeholder.name&&placeholder.content===action.placeholder.content;
+  const deletes=removePlaceholder?[placeholder.id]:[];
+  const names=docs.filter(item=>item.projectId===restored.projectId&&!deletes.includes(item.id)).map(item=>item.name.toLowerCase());
+  if(names.includes(restored.name.toLowerCase())){
+    const base=restored.name;let index=1;
+    do{restored.name=base+' (Wiederhergestellt'+(index===1?'':' '+index)+')';index++}while(names.includes(restored.name.toLowerCase()));
+  }
+  await commitDocumentChanges([restored],deletes);
+  applyDocumentChanges([restored],deletes);
+  if(removePlaceholder){
+    docHistory.delete(placeholder.id);mapCollapsedPaths.delete(placeholder.id);
+    mapSelectedPaths.delete(placeholder.id);mapSessionViews.delete(placeholder.id);
+  }
+  projectId=restored.projectId;docId=restored.id;scopePath='0';
+  mapCollapsedPaths.set(restored.id,new Set(restored.mapCollapsedPaths||[]));
+  return true;
+}
+async function repeatDeletedDocument(action){
+  const deleted=docs.find(item=>item.id===action.document.id);
+  if(!deleted){toast('Dokument ist nicht mehr vorhanden');return false}
+  const remaining=docs.filter(item=>item.projectId===deleted.projectId&&item.id!==deleted.id);
+  let replacement=null;
+  if(!remaining.length){
+    const former=action.placeholder;
+    replacement=former?structuredClone(former):newProjectDocument(uid(),deleted.projectId);
+    if(docs.some(item=>item.id===replacement.id))replacement.id=uid();
+  }
+  await commitDocumentChanges(replacement?[replacement]:[],[deleted.id]);
+  applyDocumentChanges(replacement?[replacement]:[],[deleted.id]);
+  if(replacement)action.placeholder=structuredClone(replacement);
+  projectId=deleted.projectId;
+  docId=(remaining.find(item=>item.id===action.successorId)||remaining[0]||replacement).id;
+  scopePath='0';
+  docHistoryFor(deleted.id).redo.length=0;
+  return true;
 }
 async function del(store,key){return req(tx(store,'readwrite').delete(key))}
 async function init(){db=await new Promise((res,rej)=>{let r=indexedDB.open('mindfagg-db',1);r.onupgradeneeded=()=>{let d=r.result;d.createObjectStore('projects',{keyPath:'id'});d.createObjectStore('docs',{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});await refresh();if(!projects.length){let p={id:uid(),name:'Mein Workspace',created:Date.now(),statusSettings:statusSettingsFor(null)};await put('projects',p);await put('docs',{id:uid(),projectId:p.id,name:'Projekt',content:SAMPLE});}await refresh();try{const lastView=localStorage.getItem('msView');if(VIEWS.includes(lastView))view=lastView}catch(e){console.warn('Letzte Ansicht konnte nicht geladen werden:',e)}projectId=localStorage.getItem('msProject');if(!projects.some(p=>p.id===projectId))projectId=projects[0].id;selectProject(projectId)}
@@ -2205,7 +2304,7 @@ function renderEditor(){
     const text=source.value;
     const doc=docs.find(item=>item.id===editorDocId);
     if(doc){
-      if(doc.content!==text){const h=docHistoryFor(doc.id);h.redo.length=0}
+      if(doc.content!==text){const h=docHistoryFor(doc.id);h.redo.length=0;deletionHistoryFor(doc.projectId).redo.length=0}
       doc.content=text;
       failedDocWrites.delete(doc.id);
     }
@@ -2305,8 +2404,54 @@ function openProjectSettings(){
   };
 }
 function createProject(){openModal(`<h2>Neues Projekt</h2><p>Projekte und Dokumente werden lokal in deinem Browser gespeichert.</p><form id="projectForm"><div class="field"><label>Projektname</label><input id="projectName" maxlength="90" required placeholder="Mein neues Projekt" autofocus></div>${formActions('Projekt erstellen')}</form>`);wireCancel();$('#projectForm').onsubmit=async e=>{e.preventDefault();let p={id:uid(),name:$('#projectName').value.trim(),created:Date.now(),statusSettings:statusSettingsFor(null)};if(!p.name)return;await put('projects',p);await refresh();selectProject(p.id);closeModal();toast('Projekt erstellt')}}
-function createDocument(){if(!projectId)return createProject();openModal(`<h2>Neues Dokument</h2><p>Jedes Dokument besitzt einen eindeutigen Namen innerhalb des Projekts.</p><form id="docForm"><div class="field"><label>Dokumentname</label><input id="newDocName" required maxlength="100" placeholder="Planung"></div>${formActions('Dokument erstellen')}</form>`);wireCancel();$('#docForm').onsubmit=async e=>{e.preventDefault();let name=$('#newDocName').value.trim().replace(/\.md$/i,'');if(!name||docs.some(d=>d.projectId===projectId&&d.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname existiert bereits');let d={id:uid(),projectId,name,content:'# '+name+'\n'};await put('docs',d);await refresh();selectDocument(d.id);closeModal();toast('Dokument erstellt')}}
-function renameDocument(){let d=documentNow();if(!d)return;openModal(`<h2>Dokument umbenennen</h2><form id="renameForm"><div class="field"><label>Name</label><input id="renameValue" required value="${escapeHtml(d.name)}"></div>${formActions()}</form>`);wireCancel();$('#renameForm').onsubmit=async e=>{e.preventDefault();let name=$('#renameValue').value.trim().replace(/\.md$/i,'');if(!name||docs.some(x=>x.projectId===projectId&&x.id!==d.id&&x.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname bereits vergeben');d.name=name;await put('docs',d);closeModal();render()}}
+function createDocument(){if(!projectId)return createProject();openModal(`<h2>Neues Dokument</h2><p>Jedes Dokument besitzt einen eindeutigen Namen innerhalb des Projekts.</p><form id="docForm"><div class="field"><label>Dokumentname</label><input id="newDocName" required maxlength="100" placeholder="Planung"></div>${formActions('Dokument erstellen')}</form>`);wireCancel();$('#docForm').onsubmit=async e=>{e.preventDefault();let name=$('#newDocName').value.trim().replace(/\.md$/i,'');if(!name||docs.some(d=>d.projectId===projectId&&d.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname existiert bereits');let d={id:uid(),projectId,name,content:'# '+name+'\n'};await put('docs',d);deletionHistoryFor(d.projectId).redo.length=0;await refresh();selectDocument(d.id);closeModal();toast('Dokument erstellt')}}
+function renameDocument(){
+  const d=documentNow();if(!d)return;
+  openModal(`<h2>Dokument umbenennen</h2><form id="renameForm">
+    <div class="field"><label for="renameValue">Name</label><input id="renameValue" required maxlength="100" value="${escapeHtml(d.name)}"></div>
+    <div class="modalactions document-modal-actions">
+      <button type="button" class="btn delete-document" id="deleteDocument">L\u00f6schen</button>
+      <span class="document-action-spacer" aria-hidden="true"></span>
+      <button class="btn" type="button" id="cancelModal">Abbrechen</button>
+      <button class="btn primary" type="submit">Speichern</button>
+    </div></form>`);
+  wireCancel();
+  $('#deleteDocument').onclick=deleteCurrentDocument;
+  $('#renameForm').onsubmit=async e=>{
+    e.preventDefault();let name=$('#renameValue').value.trim().replace(/\.md$/i,'');
+    if(!name||docs.some(x=>x.projectId===projectId&&x.id!==d.id&&x.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname bereits vergeben');
+    const previous=d.name;d.name=name;
+    try{await put('docs',{...d})}
+    catch(error){d.name=previous;console.error(error);toast('Umbenennen fehlgeschlagen');return}
+    closeModal();render();
+  };
+}
+async function deleteCurrentDocument(){
+  if(historyBusy||!documentNow())return;
+  historyBusy=true;updateHistoryButtons();
+  const button=$('#deleteDocument');if(button)button.disabled=true;
+  try{
+    // Save any pending editor input before preserving the deleted document for undo.
+    if(view==='markdown')await flushSource();
+    clearTimeout(saveTimer);
+    const current=documentNow();
+    const others=docs.filter(item=>item.projectId===current.projectId&&item.id!==current.id);
+    const replacement=others.length?null:newProjectDocument(uid(),current.projectId);
+    const next=others[0]||replacement;
+    const record={document:structuredClone(current),projectId:current.projectId,
+      placeholder:replacement?structuredClone(replacement):null,successorId:next.id};
+    await commitDocumentChanges(replacement?[replacement]:[],[current.id]);
+    applyDocumentChanges(replacement?[replacement]:[],[current.id]);
+    docHistoryFor(current.id).redo.length=0;
+    const history=deletionHistoryFor(current.projectId);
+    history.undo.push({...record,stamp:++historySerial});
+    if(history.undo.length>100)history.undo.shift();
+    history.redo.length=0;
+    docId=next.id;scopePath='0';
+    closeModal();render();toast('Dokument gel\u00f6scht \u00b7 R\u00fcckg\u00e4ngig zum Wiederherstellen');
+  }catch(error){console.error(error);toast('Dokument konnte nicht gel\u00f6scht werden')}
+  finally{historyBusy=false;if(button?.isConnected)button.disabled=false;updateHistoryButtons()}
+}
 function lineEdit(n,props){
   const d=documentNow(),ls=d.content.replace(/\r\n?/g,'\n').split('\n'),line=ls[n.start];
   if(line===undefined)return false;

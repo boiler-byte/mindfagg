@@ -1,7 +1,7 @@
 /* mindfagg Service Worker — Offline-Cache */
 'use strict';
 
-const VERSION = 'mindfagg-v1';
+const VERSION = 'mindfagg-v2';
 const CORE_CACHE = `${VERSION}-core`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 

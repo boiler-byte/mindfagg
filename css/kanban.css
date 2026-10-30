@@ -1,33 +1,440 @@
 /* mindfagg v23 — Kanban & Tierlist: eigenständige Ansichtsregeln. */
-.kanban{display:flex;gap:14px;overflow:auto;height:100%;padding:55px 18px 22px}.lane{flex:1;min-width:178px;max-width:350px;background:#19212f;border:1px solid #283447;border-radius:11px;display:flex;flex-direction:column;padding:12px;gap:10px}.laneheading{display:flex;justify-content:space-between;align-items:center;padding:3px 2px 7px;letter-spacing:.2px;font-size:12px;font-weight:750}.count{background:#2b3648;color:#abb9ce;border-radius:20px;padding:1px 8px;font-size:11px}.ticket{background:#252f3f;border:1px solid #354358;border-radius:9px;padding:12px;display:grid;gap:9px;cursor:pointer}.ticket:hover{border-color:#8d84dc}.ticket b{font-size:12px}.ticket small{color:var(--muted)}.scope{background:#202a3a;color:var(--text);border:1px solid #3b4860;border-radius:7px;padding:7px 10px;max-width:230px}@media(max-width:850px){.lane{min-width:175px}}@media (max-width:850px){
-  .kanban{padding:53px 7px 10px;gap:8px}
-  .lane{min-width:176px;padding:9px}
-}.surfacehead.kanban-head{justify-content:flex-end}.surfacehead.kanban-head .scope{max-width:min(380px,95%)}.ticket b{display:block;overflow-wrap:anywhere}.ticket .node-text{display:inline;overflow-wrap:anywhere}@media(max-width:850px){.surfacehead.kanban-head{left:7px;right:7px}}.kanban .ticket{touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}.kanban .ticket:active{cursor:grab}.kanban .ticket.kb-drag-source{opacity:.33;border-style:dashed}.kb-drag-ghost{position:fixed;pointer-events:none;z-index:1000;opacity:.96;box-shadow:0 16px 44px #000d,0 0 0 2px #ada0ff!important;border-color:#b7aaff!important;transform:scale(1.03);transform-origin:center center;cursor:grabbing!important;overflow:hidden}.kb-is-dragging, .kb-is-dragging *{cursor:grabbing!important}.lane.kb-drop-target{border-color:#ac9cff;background:#252a45;box-shadow:inset 0 0 0 2px #8e80ff66}.kanban .lane{--lane-accent:#b4a3ff}.kanban .lane[data-lane-status="story"]{--lane-accent:#b6a4f9}.kanban .lane[data-lane-status="todo"]{--lane-accent:#8ebdff}.kanban .lane[data-lane-status="doing"]{--lane-accent:#eabc7c}.kanban .lane[data-lane-status="review"]{--lane-accent:#e7a9d4}.kanban .lane[data-lane-status="done"]{--lane-accent:#77d9b9}.kanban .laneheading .count{color:var(--lane-accent);background:color-mix(in srgb,var(--lane-accent) 16%,#172031);border:1px solid color-mix(in srgb,var(--lane-accent) 34%,#172031);font-weight:750;min-width:27px;text-align:center}.kanban .ticket{position:relative;overflow:hidden;padding-bottom:16px;gap:8px}.kanban .ticket-progress{height:5px;position:absolute;bottom:0;left:0;right:0;background:#131d2c;overflow:hidden;pointer-events:none}.kanban .ticket-progress>span{display:block;width:0;height:100%;background:#75d1bb;transition:width .16s ease}.kanban .ticket .ticket-subcount{font-size:10px;color:#92a4bb}.kanban .ticket .ticket-subcount:empty{display:none}.kanban .ticket.kb-drag-source .ticket-progress{opacity:.5}.kanban .ticket:focus-visible{outline:2px solid #a89aff;outline-offset:2px}@media(max-width:850px){
-  .kanban{padding:49px 5px 8px;gap:6px}
-  .kanban .lane{min-width:160px;padding:6px;gap:6px;border-radius:9px}
-  .kanban .laneheading{padding:1px 1px 5px;font-size:11px;gap:4px}
-  .kanban .ticket{padding:8px 7px 13px;gap:6px;border-radius:7px}
-  .kanban .ticket b{font-size:11px;line-height:1.35}
-  .kanban .ticket [data-scope]{padding:5px 6px;font-size:10px}
-  .kanban .ticket-progress{height:4px}
-  .kanban .laneheading .count{min-width:22px;padding:0 5px}
-}@media(max-width:380px){
-  .kanban .lane{min-width:155px;padding:5px}
-  .kanban .ticket{padding:7px 6px 12px}
-}.kanban .laneheading>span:first-child{color:var(--lane-accent)}.kanban .ticket{border-left:3px solid var(--lane-accent)}.kanban-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:9px;max-width:100%;min-width:0}.kanban-toolbar .scope{min-width:0;flex:1;max-width:min(380px,58vw)}.kanban-layout-toggle{display:flex;align-items:center;gap:6px;min-height:36px;flex:none;white-space:nowrap;color:#c9c4f3}.kanban-layout-toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.kanban-layout-toggle.active{background:#373251;border-color:#8f7fda;color:#f0eaff;box-shadow:inset 0 0 0 1px #8f7fda44}.kanban-layout-toggle:hover{border-color:#887cce}.kanban .lane-tickets{display:flex;flex-direction:column;gap:10px;min-height:0}.kanban.tierlist{flex-direction:column;align-items:stretch;gap:11px;overflow-x:hidden;overflow-y:auto}.kanban.tierlist .lane{display:grid;grid-template-columns:145px minmax(0,1fr);align-items:stretch;gap:12px;flex:none;min-width:0;max-width:none;width:100%;min-height:128px;padding:10px}.kanban.tierlist .laneheading{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;min-width:0;margin:0;padding:12px 13px;border-radius:8px;background:color-mix(in srgb,var(--lane-accent) 12%,#131d2c);border-left:4px solid var(--lane-accent)}.kanban.tierlist .laneheading span:first-child{overflow-wrap:anywhere;line-height:1.35;font-size:13px}.kanban.tierlist .lane-tickets{flex-direction:row;align-items:stretch;gap:10px;min-width:0;min-height:106px;padding:1px 2px 5px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:thin}.kanban.tierlist .ticket{flex:0 0 215px;width:215px;align-self:stretch;min-height:100px;max-width:calc(100% - 4px)}.kanban.tierlist .ticket .node-text{overflow-wrap:anywhere}.kanban.tierlist .lane.kb-drop-target .laneheading{background:color-mix(in srgb,var(--lane-accent) 22%,#131d2c)}@media(max-width:850px){
-  .kanban-toolbar{gap:5px;width:100%}
-  .kanban-toolbar .scope{max-width:none}
-  .kanban-layout-toggle{min-height:34px;padding:6px 8px;font-size:11px}
-  .kanban-layout-toggle svg{width:15px;height:15px}
-  .kanban .lane-tickets{gap:6px}
-  .kanban.tierlist{padding:49px 6px 10px;gap:7px}
-  .kanban.tierlist .lane{grid-template-columns:91px minmax(0,1fr);gap:6px;min-height:103px;padding:6px}
-  .kanban.tierlist .laneheading{padding:7px;gap:7px}
-  .kanban.tierlist .laneheading span:first-child{font-size:11px}
-  .kanban.tierlist .lane-tickets{min-height:90px;gap:6px;padding:1px 1px 4px}
-  .kanban.tierlist .ticket{flex-basis:170px;width:170px;min-height:86px}
-}@media(max-width:380px){
-  .kanban.tierlist .lane{grid-template-columns:75px minmax(0,1fr)}
-  .kanban.tierlist .laneheading{padding:5px}
-  .kanban-layout-toggle{padding:5px 6px}
-}.kanban .ticket:focus-visible{outline-color:var(--accent)}.kanban-layout-toggle.active{background:color-mix(in srgb,var(--accent) 27%,#171d29);border-color:var(--accent);color:var(--accent-foreground)}.kanban-layout-toggle{color:var(--accent-foreground)}.kanban-layout-toggle:hover, .kanban-layout-toggle:focus-visible{border-color:var(--accent)}.kanban .ticket:hover{border-top-color:var(--accent);border-right-color:var(--accent);border-bottom-color:var(--accent)}.kanban .ticket-progress>span{background:var(--accent)}.kanban .lane.kb-drop-target{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,#19212f);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 42%,transparent)}.kanban.tierlist .lane.kb-drop-target .laneheading{background:color-mix(in srgb,var(--accent) 20%,#131d2c)}
+.kanban {
+  display: flex;
+  gap: 14px;
+  overflow: auto;
+  height: 100%;
+  padding: 55px 18px 22px;
+}
+.lane {
+  flex: 1;
+  min-width: 178px;
+  max-width: 350px;
+  background: #19212f;
+  border: 1px solid #283447;
+  border-radius: 11px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 10px;
+}
+.laneheading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 2px 7px;
+  letter-spacing: 0.2px;
+  font-size: 12px;
+  font-weight: 750;
+}
+.count {
+  background: #2b3648;
+  color: #abb9ce;
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 11px;
+}
+.ticket {
+  background: #252f3f;
+  border: 1px solid #354358;
+  border-radius: 9px;
+  padding: 12px;
+  display: grid;
+  gap: 9px;
+  cursor: pointer;
+}
+.ticket:hover {
+  border-color: #8d84dc;
+}
+.ticket b {
+  font-size: 12px;
+}
+.ticket small {
+  color: var(--muted);
+}
+.scope {
+  background: #202a3a;
+  color: var(--text);
+  border: 1px solid #3b4860;
+  border-radius: 7px;
+  padding: 7px 10px;
+  max-width: 230px;
+}
+@media (max-width: 850px) {
+  .lane {
+    min-width: 175px;
+  }
+}
+@media (max-width: 850px) {
+  .kanban {
+    padding: 53px 7px 10px;
+    gap: 8px;
+  }
+  .lane {
+    min-width: 176px;
+    padding: 9px;
+  }
+}
+.surfacehead.kanban-head {
+  justify-content: flex-end;
+}
+.surfacehead.kanban-head .scope {
+  max-width: min(380px, 95%);
+}
+.ticket b {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.ticket .node-text {
+  display: inline;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 850px) {
+  .surfacehead.kanban-head {
+    left: 7px;
+    right: 7px;
+  }
+}
+.kanban .ticket{touch-action:pan-x pan-y;user-select:none;-webkit-user-select:none;cursor:pointer}
+.kanban .ticket:active {
+  cursor: grab;
+}
+.kanban .ticket.kb-drag-source {
+  opacity: 0.33;
+  border-style: dashed;
+}
+.kb-drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.96;
+  box-shadow:
+    0 16px 44px #000d,
+    0 0 0 2px #ada0ff !important;
+  border-color: #b7aaff !important;
+  transform: scale(1.03);
+  transform-origin: center center;
+  cursor: grabbing !important;
+  overflow: hidden;
+}
+.kb-is-dragging,
+.kb-is-dragging * {
+  cursor: grabbing !important;
+}
+.lane.kb-drop-target {
+  border-color: #ac9cff;
+  background: #252a45;
+  box-shadow: inset 0 0 0 2px #8e80ff66;
+}
+.kanban .lane {
+  --lane-accent: #b4a3ff;
+}
+.kanban .lane[data-lane-status="story"] {
+  --lane-accent: #b6a4f9;
+}
+.kanban .lane[data-lane-status="todo"] {
+  --lane-accent: #8ebdff;
+}
+.kanban .lane[data-lane-status="doing"] {
+  --lane-accent: #eabc7c;
+}
+.kanban .lane[data-lane-status="review"] {
+  --lane-accent: #e7a9d4;
+}
+.kanban .lane[data-lane-status="done"] {
+  --lane-accent: #77d9b9;
+}
+.kanban .laneheading .count {
+  color: var(--lane-accent);
+  background: color-mix(in srgb, var(--lane-accent) 16%, #172031);
+  border: 1px solid color-mix(in srgb, var(--lane-accent) 34%, #172031);
+  font-weight: 750;
+  min-width: 27px;
+  text-align: center;
+}
+.kanban .ticket {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 16px;
+  gap: 8px;
+}
+.kanban .ticket-progress {
+  height: 5px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #131d2c;
+  overflow: hidden;
+  pointer-events: none;
+}
+.kanban .ticket-progress > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: #75d1bb;
+  transition: width 0.16s ease;
+}
+.kanban .ticket .ticket-subcount {
+  font-size: 10px;
+  color: #92a4bb;
+}
+.kanban .ticket .ticket-subcount:empty {
+  display: none;
+}
+.kanban .ticket.kb-drag-source .ticket-progress {
+  opacity: 0.5;
+}
+.kanban .ticket:focus-visible {
+  outline: 2px solid #a89aff;
+  outline-offset: 2px;
+}
+@media (max-width: 850px) {
+  .kanban {
+    padding: 49px 5px 8px;
+    gap: 6px;
+  }
+  .kanban .lane {
+    min-width: 160px;
+    padding: 6px;
+    gap: 6px;
+    border-radius: 9px;
+  }
+  .kanban .laneheading {
+    padding: 1px 1px 5px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .kanban .ticket {
+    padding: 8px 7px 13px;
+    gap: 6px;
+    border-radius: 7px;
+  }
+  .kanban .ticket b {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .kanban .ticket [data-scope] {
+    padding: 5px 6px;
+    font-size: 10px;
+  }
+  .kanban .ticket-progress {
+    height: 4px;
+  }
+  .kanban .laneheading .count {
+    min-width: 22px;
+    padding: 0 5px;
+  }
+}
+@media (max-width: 380px) {
+  .kanban .lane {
+    min-width: 155px;
+    padding: 5px;
+  }
+  .kanban .ticket {
+    padding: 7px 6px 12px;
+  }
+}
+.kanban .laneheading > span:first-child {
+  color: var(--lane-accent);
+}
+.kanban .ticket {
+  border-left: 3px solid var(--lane-accent);
+}
+.kanban-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  max-width: 100%;
+  min-width: 0;
+}
+.kanban-toolbar .scope {
+  min-width: 0;
+  flex: 1;
+  max-width: min(380px, 58vw);
+}
+.kanban-layout-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  flex: none;
+  white-space: nowrap;
+  color: #c9c4f3;
+}
+.kanban-layout-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.kanban-layout-toggle.active {
+  background: #373251;
+  border-color: #8f7fda;
+  color: #f0eaff;
+  box-shadow: inset 0 0 0 1px #8f7fda44;
+}
+.kanban-layout-toggle:hover {
+  border-color: #887cce;
+}
+.kanban .lane-tickets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+.kanban.tierlist {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 11px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.kanban.tierlist .lane {
+  display: grid;
+  grid-template-columns: 145px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 12px;
+  flex: none;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  min-height: 128px;
+  padding: 10px;
+}
+.kanban.tierlist .laneheading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 12px 13px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--lane-accent) 12%, #131d2c);
+}
+.kanban.tierlist .laneheading span:first-child {
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  font-size: 13px;
+}
+.kanban.tierlist .lane-tickets {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+  min-height: 106px;
+  padding: 1px 2px 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+.kanban.tierlist .ticket {
+  flex: 0 0 215px;
+  width: 215px;
+  align-self: stretch;
+  min-height: 100px;
+  max-width: calc(100% - 4px);
+}
+.kanban.tierlist .ticket .node-text {
+  overflow-wrap: anywhere;
+}
+.kanban.tierlist .lane.kb-drop-target .laneheading {
+  background: color-mix(in srgb, var(--lane-accent) 22%, #131d2c);
+}
+@media (max-width: 850px) {
+  .kanban-toolbar {
+    gap: 5px;
+    width: 100%;
+  }
+  .kanban-toolbar .scope {
+    max-width: none;
+  }
+  .kanban-layout-toggle {
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  .kanban-layout-toggle svg {
+    width: 15px;
+    height: 15px;
+  }
+  .kanban .lane-tickets {
+    gap: 6px;
+  }
+  .kanban.tierlist {
+    padding: 49px 6px 10px;
+    gap: 7px;
+  }
+  .kanban.tierlist .lane {
+    grid-template-columns: 75px minmax(0, 1fr);
+    gap: 6px;
+    min-height: 103px;
+    padding: 6px;
+  }
+  .kanban.tierlist .laneheading {
+    padding: 7px;
+    gap: 7px;
+  }
+  .kanban.tierlist .laneheading span:first-child {
+    font-size: 11px;
+  }
+  .kanban.tierlist .lane-tickets {
+    min-height: 90px;
+    gap: 6px;
+    padding: 1px 1px 4px;
+  }
+  .kanban.tierlist .ticket {
+    flex-basis: 126px;
+    width: 170px;
+    min-height: 86px;
+  }
+}
+@media (max-width: 380px) {
+  .kanban.tierlist .lane {
+    grid-template-columns: 75px minmax(0, 1fr);
+  }
+  .kanban.tierlist .laneheading {
+    padding: 5px;
+  }
+  .kanban-layout-toggle {
+    padding: 5px 6px;
+  }
+}
+.kanban .ticket:focus-visible {
+  outline-color: var(--accent);
+}
+.kanban-layout-toggle.active {
+  background: color-mix(in srgb, var(--accent) 27%, #171d29);
+  border-color: var(--accent);
+  color: var(--accent-foreground);
+}
+.kanban-layout-toggle {
+  color: var(--accent-foreground);
+}
+.kanban-layout-toggle:hover,
+.kanban-layout-toggle:focus-visible {
+  border-color: var(--accent);
+}
+.kanban .ticket:hover {
+  border-top-color: var(--accent);
+  border-right-color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.kanban .ticket-progress > span {
+  background: var(--accent);
+}
+.kanban .lane.kb-drop-target {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, #19212f);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 42%, transparent);
+}
+.kanban.tierlist .lane.kb-drop-target .laneheading {
+  background: color-mix(in srgb, var(--accent) 20%, #131d2c);
+}

@@ -147,6 +147,9 @@ function wireKanbanDrag(){
     ticket.addEventListener('pointercancel',e=>{if(gesture?.ticket===ticket&&gesture.pointerId===e.pointerId)clear(gesture)});
     ticket.addEventListener('lostpointercapture',e=>{if(gesture?.ticket===ticket&&gesture.pointerId===e.pointerId)clear(gesture)});
     ticket.addEventListener('contextmenu',e=>{if(gesture?.ticket===ticket||Boolean(ticket._suppressClickUntil&&Date.now()<ticket._suppressClickUntil))e.preventDefault()});
+    ticket.addEventListener('touchmove',e=>{
+      if(gesture&&gesture.ticket===ticket&&gesture.dragging)e.preventDefault();
+    },{passive:false});
   }
 }
 

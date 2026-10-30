@@ -487,9 +487,59 @@ async function repeatDeletedDocument(action){
   return true;
 }
 async function del(store,key){return req(tx(store,'readwrite').delete(key))}
-async function init(){db=await new Promise((res,rej)=>{let r=indexedDB.open('mindfagg-db',1);r.onupgradeneeded=()=>{let d=r.result;d.createObjectStore('projects',{keyPath:'id'});d.createObjectStore('docs',{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});await refresh();if(!projects.length){let p={id:uid(),name:'Mein Workspace',created:Date.now(),statusSettings:statusSettingsFor(null),accentColor:DEFAULT_PROJECT_ACCENT};await put('projects',p);await put('docs',{id:uid(),projectId:p.id,name:'Projekt',content:SAMPLE});}await refresh();try{kanbanTierlist=localStorage.getItem('mfKanbanLayout')==='tierlist'}catch(e){console.warn('Kanban-Darstellung konnte nicht geladen werden:',e)}try{const savedView=localStorage.getItem('mfLastView');view=VIEWS.includes(savedView)?savedView:'markdown'}catch(error){view='markdown';console.warn('Letzte Ansicht konnte nicht geladen werden:',error)}projectId=localStorage.getItem('msProject');if(!projects.some(p=>p.id===projectId))projectId=[...projects].sort((a,b)=>projectChangedAt(b)-projectChangedAt(a))[0].id;selectProject(projectId)}
+async function init(){
+  db = await new Promise((res, rej) => {
+    let r = indexedDB.open("mindfagg-db", 1);
+    r.onupgradeneeded = () => {
+      let d = r.result;
+      d.createObjectStore("projects", { keyPath: "id" });
+      d.createObjectStore("docs", { keyPath: "id" });
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  await refresh();
+  if (!projects.length) {
+    let p = {
+      id: uid(),
+      name: "Mein Workspace",
+      created: Date.now(),
+      statusSettings: statusSettingsFor(null),
+      accentColor: DEFAULT_PROJECT_ACCENT,
+    };
+    await put("projects", p);
+    await put("docs", { id: uid(), projectId: p.id, name: "Projekt", content: SAMPLE });
+  }
+  await refresh();
+  try {
+    kanbanTierlist = localStorage.getItem("mfKanbanLayout") === "tierlist";
+  } catch (e) {
+    console.warn("Kanban-Darstellung konnte nicht geladen werden:", e);
+  }
+  try {
+    const savedView = localStorage.getItem("mfLastView");
+    view = VIEWS.includes(savedView) ? savedView : "markdown";
+  } catch (error) {
+    view = "markdown";
+    console.warn("Letzte Ansicht konnte nicht geladen werden:", error);
+  }
+  projectId=localStorage.getItem('msProject');
+  if(!projects.some(p=>p.id===projectId))projectId=[...projects].sort((a,b)=>projectChangedAt(b)-projectChangedAt(a))[0].id;
+  try{
+    const savedDoc=localStorage.getItem('msDoc');
+    if(savedDoc&&docs.some(item=>item.id===savedDoc&&item.projectId===projectId))docId=savedDoc;
+  }catch(e){console.warn('Letztes Dokument konnte nicht geladen werden:',e)}
+  selectProject(projectId);
+
+}
 async function refresh(){projects=await all('projects');docs=await all('docs');for(const d of docs)persistedDocSnapshots.set(d.id,docSnapshot(d));updateHistoryButtons()}
 function project(){return projects.find(p=>p.id===projectId)}function documentNow(){return docs.find(d=>d.id===docId)}
+function persistDocId(){
+  try{
+    if(docId)localStorage.setItem('msDoc',docId);
+    else localStorage.removeItem('msDoc');
+  }catch(e){console.warn('Dokumentauswahl konnte nicht gespeichert werden:',e)}
+}
 function selectProject(id,{keepSidebarOpen=false}={}){if(!keepSidebarOpen)setMobileMenu(false);projectId=id||null;try{if(projectId)localStorage.setItem('msProject',projectId);else localStorage.removeItem('msProject')}catch(e){console.warn('Projektauswahl konnte nicht gespeichert werden:',e)}let pd=docs.filter(d=>d.projectId===projectId);let old=docId;docId=pd.some(d=>d.id===old)?old:pd[0]?.id||null;scopePath='0';render()}
 function selectDocument(id){setMobileMenu(false);docId=id;scopePath='0';render()}
 
@@ -630,6 +680,7 @@ function toast(s){let e=$('#toast');e.textContent=s;e.classList.remove('hidden')
 
 function render(){
   let p=project(),d=documentNow();
+  persistDocId();
   applyProjectAccent(p);
   $('#projectLabel').innerHTML=`<select id="projectSelect" aria-label="Projekt auswählen, nach letzter Änderung sortiert">${projectOptionsHtml()}</select><button type="button" class="project-settings-button" id="projectSettings" aria-label="Projekteinstellungen" title="Status-Bezeichnungen und -Farben bearbeiten">⚙</button>`;
   $('#projectSelect').disabled=!projects.length;

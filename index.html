@@ -1,82 +1,29 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>mindfagg v16 — Markdown Mindmaps</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
+<meta name="theme-color" content="#0b0e14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0b0e14" media="(prefers-color-scheme: light)">
+<meta name="description" content="mindfagg — Mindmap, Kanban, Kalender und Markdown in einer offline-fähigen App.">
+<meta name="application-name" content="mindfagg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="mindfagg">
+<meta name="mobile-web-app-capable" content="yes">
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
+<title>mindfagg — Mindmap Markdown</title>
 <style>
-:root{color-scheme:dark;--bg:#0b0e14;--panel:#111722;--panel2:#171f2c;--line:#263144;--text:#ecf1fa;--muted:#8898b0;--accent:#9b8cff;--accent2:#62d5c7;--warn:#eac17a;--danger:#f07587;--radius:13px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button,input,textarea,select{font:inherit}button{border:0;cursor:pointer;color:inherit}button:disabled{opacity:.4;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.app{display:grid;grid-template-columns:260px minmax(0,1fr);height:100dvh}.sidebar{background:#101520;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}.brand{padding:24px 21px 25px;display:flex;gap:11px;align-items:center}.mark{width:35px;height:35px;background:linear-gradient(145deg,#a69aff,#5c72dc);border-radius:11px;display:grid;place-items:center;font-size:23px;color:white;box-shadow:0 7px 25px #7466dc33}.brand strong{font-size:21px;font-weight:750;letter-spacing:-.9px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.6px}.side-section{padding:0 13px}.side-head{display:flex;align-items:center;justify-content:space-between;margin:7px 8px 10px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}.iconbtn{background:transparent;border-radius:8px;padding:4px 9px;color:var(--muted);font-size:19px}.iconbtn:hover,.navitem:hover{background:#222b3b;color:var(--text)}.navlist{display:flex;flex-direction:column;gap:3px}.navitem{display:flex;align-items:center;gap:11px;padding:10px 12px;width:100%;text-align:left;border-radius:9px;color:#aab6c8;background:transparent;min-width:0}.navitem.active{background:#26233e;color:#d3cdff}.navitem span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.navitem .sym{font-size:16px;opacity:.9}.projectlabel{background:#141b29;border:1px solid var(--line);border-radius:9px;padding:11px 12px;margin:0 7px 18px;font-weight:650;display:flex;gap:8px;align-items:center;justify-content:space-between}.projectlabel select{width:100%;min-width:0;background:transparent;color:var(--text);border:0;outline-offset:4px;font-weight:650;cursor:pointer}.projectlabel select option{background:#141b29;color:var(--text)}.side-footer{margin-top:auto;border-top:1px solid var(--line);padding:15px 12px;display:grid;gap:7px}.side-footer button{border:1px solid var(--line);background:#171e2b;border-radius:9px;padding:10px;text-align:left;color:#c8d2e2}.side-footer button:hover{border-color:#766cc4}.main{min-width:0;display:flex;flex-direction:column}.topbar{height:73px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 26px;gap:12px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:800}.top-actions{display:flex;gap:8px;align-items:center}.btn{padding:9px 13px;background:#202a3a;border:1px solid #334056;border-radius:9px;font-weight:650;font-size:12px}.btn:hover{background:#2b364b}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111222}.btn.primary:hover{background:#b5aaff}.tabsbar{display:flex;gap:8px;padding:18px 26px 0;align-items:center;justify-content:space-between}.tabs{display:flex;padding:4px;background:#171d29;border:1px solid #242d40;border-radius:11px;gap:3px}.tab{padding:8px 15px;background:none;border-radius:8px;color:var(--muted);font-weight:650;font-size:12px}.tab.active{background:#34304f;color:#eeeaff}.workspace{min-height:0;flex:1;padding:17px 26px 22px;display:flex;flex-direction:column}.surface{flex:1;min-height:0;background:radial-gradient(ellipse at 60% 40%,#141b2a 0%,#111723 58%,#101520 100%);border:1px solid var(--line);border-radius:15px;overflow:hidden;position:relative}.surfacehead{position:absolute;z-index:2;top:17px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.surfacehead>*{pointer-events:auto}.subtle{color:var(--muted);font-size:12px}.pill{padding:6px 11px;border:1px solid #38445b;background:#1c2535;border-radius:30px;color:#bdc8da;font-size:11px}.mindcanvas{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;padding:75px 30px 60px}.mindtree{min-width:max-content;display:flex;align-items:center;gap:55px}.treecol{display:flex;flex-direction:column;gap:21px;align-items:flex-start;position:relative}.treebranch{display:flex;align-items:center;gap:39px;position:relative}.treeroot{background:#544b91!important;border-color:#887bd8!important;color:white!important;padding:18px 23px!important;font-size:17px!important}.node{position:relative;text-align:left;display:flex;align-items:center;gap:10px;background:#202b3a;border:1px solid #3c4c61;border-radius:11px;padding:12px 15px;color:#f2f4ff;min-width:130px;max-width:280px;box-shadow:0 10px 25px #0002;white-space:normal}.node:hover{border-color:#a69aff;transform:translateY(-1px)}.node.selected{border-color:#b5aaff;box-shadow:0 0 0 2px #a99aff36}.node .dot{width:8px;height:8px;background:#9d90ff;border-radius:50%;flex:none}.node .nodeinner{min-width:0;display:flex;flex-direction:column;gap:5px}.node .nodetitle{font-size:13px;font-weight:650;overflow-wrap:anywhere}.node .nodefoot{display:flex;gap:7px;align-items:center;font-size:10px;color:#a2b1c6}.bar{height:4px;min-width:55px;width:85px;border-radius:8px;overflow:hidden;background:#364154}.bar>i{display:block;height:100%;background:#7dd5c4}.children{display:flex;flex-direction:column;gap:12px;border-left:1px solid #4a536c;padding-left:24px;position:relative}.children>.treebranch:before{content:"";position:absolute;width:24px;height:1px;background:#4a536c;left:-24px;top:50%}.treebranch:has(>.children)>.node:after{content:"";position:absolute;width:39px;height:1px;background:#4a536c;right:-40px;top:50%}.empty{text-align:center;color:var(--muted);padding:80px 20px}.kanban{display:flex;gap:14px;overflow:auto;height:100%;padding:55px 18px 22px}.lane{flex:1;min-width:178px;max-width:350px;background:#19212f;border:1px solid #283447;border-radius:11px;display:flex;flex-direction:column;padding:12px;gap:10px}.laneheading{display:flex;justify-content:space-between;align-items:center;padding:3px 2px 7px;letter-spacing:.2px;font-size:12px;font-weight:750}.count{background:#2b3648;color:#abb9ce;border-radius:20px;padding:1px 8px;font-size:11px}.ticket{background:#252f3f;border:1px solid #354358;border-radius:9px;padding:12px;display:grid;gap:9px;cursor:pointer}.ticket:hover{border-color:#8d84dc}.ticket b{font-size:12px}.ticket small{color:var(--muted)}.scope{background:#202a3a;color:var(--text);border:1px solid #3b4860;border-radius:7px;padding:7px 10px;max-width:230px}.editor{display:flex;flex-direction:column;height:100%;padding:14px 18px 18px;gap:10px}.editor textarea{width:100%;flex:1;resize:none;border:1px solid #303b50;background:#0d131d;color:#dce6f6;border-radius:9px;padding:21px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}.editfoot{display:flex;align-items:center;justify-content:space-between}.editfoot small{color:var(--muted)}.modalback{position:fixed;z-index:20;inset:0;background:#03060acb;display:grid;place-items:center;padding:18px}.modal{width:min(540px,100%);max-height:88dvh;overflow-y:auto;background:#1a2230;border:1px solid #38465b;border-radius:17px;padding:24px;box-shadow:0 24px 90px #0009}.modal h2{margin:0 0 6px;font-size:19px}.modal p{margin:0 0 18px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:13px 0}.field label{font-size:11px;font-weight:700;color:#abb9ce}.field input,.field textarea,.field select{width:100%;background:#101724;color:var(--text);border:1px solid #39485e;border-radius:8px;padding:10px}.field textarea{resize:vertical;min-height:105px}.modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.toast{position:fixed;bottom:20px;right:20px;z-index:40;background:#2b354a;border:1px solid #5a6580;padding:11px 17px;border-radius:10px;box-shadow:0 12px 50px #0007}.hidden{display:none!important}@media(max-width:850px){.app{grid-template-columns:67px 1fr}.brand{padding:20px 15px}.brand strong,.brand small,.side-head,.projectlabel,.navitem span:last-child,.side-footer button{display:none}.side-section{padding:0 7px}.navitem{justify-content:center}.navitem .sym{font-size:21px}.side-footer{min-height:72px}.topbar{padding:0 14px}.tabsbar{padding:12px 12px 0}.workspace{padding:12px}.top-actions .btn{padding:8px}.mindcanvas{justify-content:flex-start}.lane{min-width:175px}}
-
-/* Mindstorm v3: syntax-aware source editor and interactive minimap. */
-.editor{padding:14px 14px 16px;gap:9px}
-.editor .codeframe{display:grid;grid-template-columns:43px minmax(0,1fr) 77px;flex:1;min-height:0;border:1px solid #35435a;border-radius:12px;overflow:hidden;background:#0c121d;box-shadow:inset 0 1px 0 #ffffff05}
-.codegutter{position:relative;overflow:hidden;background:#101724;border-right:1px solid #273246;user-select:none}
-.codegutter pre{position:absolute;left:0;top:0;width:100%;margin:0;padding:17px 0;white-space:pre;font:12px/23px ui-monospace,SFMono-Regular,Consolas,monospace;color:#66778f;pointer-events:none;will-change:transform}
-.gline{display:block;height:23px;padding-right:9px;text-align:right;box-sizing:border-box}
-.gline.h1{color:#c4b4ff;font-weight:700}
-.gline.error{color:#ffc2cb;background:#772c3d3b}
-.codepane{min-width:0;min-height:0;position:relative;overflow:hidden}
-.syntaxlayer,.editor #source{font:13px/23px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:0;tab-size:2;padding:17px 19px;white-space:pre;overflow-wrap:normal;word-break:normal}
-.syntaxlayer{position:absolute;top:0;left:0;margin:0;min-width:max-content;min-height:100%;pointer-events:none;color:#a9b8cc;will-change:transform;z-index:1}
-.editor #source{position:absolute;inset:0;width:100%;height:100%;min-height:0;resize:none;border:0!important;border-radius:0;outline:none;background:transparent;color:transparent;-webkit-text-fill-color:transparent;caret-color:#eeeaff;overflow:auto;scrollbar-width:none;overscroll-behavior:contain;z-index:2}
-.editor #source::-webkit-scrollbar{width:0;height:0;display:none}
-.editor #source::selection{background:#6960ab75}
-.editor #source:focus-visible{outline:none}
-.codeframe:focus-within{border-color:#786fbb;box-shadow:0 0 0 1px #786fbb55}
-.syn-line{color:#94a6bc}
-.syn-line.syn-root{background:#aaa0ff13}
-.syn-line.syn-invalid{background:#fc708325;text-decoration:underline;text-decoration-color:#f27f8e;text-decoration-style:wavy;text-underline-offset:3px}
-.syn-heading{color:#b5a1ff;font-weight:800}
-.syn-heading-title{color:#e4ddff;font-weight:650}
-.syn-bullet{color:#6bd9d2;font-weight:700}
-.syn-checkbox{color:#f2c477}
-.syn-checkbox-done{color:#6dd7ad;font-weight:750}
-.syn-status{color:#d2a4ff}
-.syn-status-done{color:#6dd7ad}
-.syn-status-doing{color:#f0ba79}
-.syn-status-todo{color:#84baff}
-.syn-status-review{color:#efadcf}
-.syn-link{color:#73cfe7;text-decoration:underline;text-decoration-color:#73cfe744}
-.syn-strong{color:#f4c887;font-weight:750}
-.syn-em{color:#a1d8ca;font-style:italic}
-.syn-code{color:#edb6de;background:#8f548125}
-.syn-fence{color:#a28dc6}
-.syn-codecontent{color:#8b9bb2}
-.syn-quote{color:#a1ccb3}
-.syn-table{color:#9db7d5}
-.syn-comment{color:#66778f;font-style:italic}
-.minimap{position:relative;min-width:0;overflow:hidden;background:#101724;border-left:1px solid #2c364b;cursor:ns-resize;touch-action:none;user-select:none;outline-offset:-3px;contain:layout paint}
-.minimap:focus-visible{outline:2px solid var(--accent)}
-.minimap canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.mini-viewport{position:absolute;left:0;right:0;border:1px solid #aaa1ff99;border-left:2px solid #b9acff;background:#857bd727;box-shadow:inset 0 0 0 1px #8c82ec22;pointer-events:none;border-radius:2px;min-height:18px}
-.minimap::after{content:'MINIMAP';position:absolute;bottom:6px;right:5px;font:700 8px/1 ui-monospace,monospace;letter-spacing:.8px;color:#8696b0;opacity:.65;pointer-events:none}
-.editor .editfoot{gap:8px;flex-wrap:wrap;min-height:30px}
-.editor .editfoot small{font-size:11px}
-.root-state{padding:6px 11px;border:1px solid #2e4c4d;background:#14302e;color:#9ddac9;border-radius:8px;font-size:11px;font-weight:700;text-align:left;cursor:default}
-.root-state.invalid{background:#38212b;border-color:#754254;color:#ffbdca;cursor:pointer}
-.root-state.invalid:hover{background:#482532}
-.editor .codehelp{color:#7d8ba3}
-.source-invalid{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:13px}
-.source-invalid .warningicon{display:grid;place-items:center;width:45px;height:45px;border:1px solid #845064;border-radius:12px;color:#ffc0cb;background:#432530;font-size:23px}
-.source-invalid h2{margin:0;font-size:19px}
-.source-invalid p{max-width:440px;color:var(--muted);margin:0;font-size:13px}
-.source-invalid code{color:#ead9f8}
-@media(max-width:850px){.editor{padding:12px 8px 9px}.editor .codeframe{grid-template-columns:33px minmax(0,1fr) 52px}.syntaxlayer,.editor #source{font-size:16px;line-height:24px;padding:13px 11px}.codegutter pre{font-size:11px;line-height:24px;padding:13px 0}.gline{height:24px;padding-right:5px}.minimap::after{font-size:6px;right:3px}.editor .editfoot{align-items:flex-start}.editor .codehelp{display:none}}
-@media(max-width:440px){.editor .codeframe{grid-template-columns:29px minmax(0,1fr) 47px}.editor{padding-top:10px}.surfacehead{left:11px;right:11px}.surfacehead .subtle{font-size:10px}}
-
-
-/* Mindstorm v4: responsive top navigation, off-canvas project menu and compact mobile workspace. */
-.modalback{z-index:45}
-.toast{z-index:55}
-.mobile-menu,.rename-icon,.add-node-small,.sidebar-scrim{display:none}
-.top-title{min-width:0;flex:1}
-@media (max-width:850px){
+:root{color-scheme:dark;--bg:#0b0e14;--panel:#111722;--panel2:#171f2c;--line:#263144;--text:#ecf1fa;--muted:#8898b0;--accent:#9b8cff;--accent2:#62d5c7;--warn:#eac17a;--danger:#f07587;--radius:13px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button, input, textarea, select{font:inherit}button{border:0;cursor:pointer;color:inherit}button:disabled{opacity:.4;cursor:not-allowed}button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.app{display:grid;grid-template-columns:260px minmax(0,1fr);height:100dvh}.sidebar{background:#101520;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}.brand{padding:24px 21px 25px;display:flex;gap:11px;align-items:center}.mark{width:35px;height:35px;background:linear-gradient(145deg,#a69aff,#5c72dc);border-radius:11px;display:grid;place-items:center;font-size:23px;color:white;box-shadow:0 7px 25px #7466dc33}.brand strong{font-size:21px;font-weight:750;letter-spacing:-.9px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.6px}.side-section{padding:0 13px}.side-head{display:flex;align-items:center;justify-content:space-between;margin:7px 8px 10px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}.iconbtn{background:transparent;border-radius:8px;padding:4px 9px;color:var(--muted);font-size:19px}.iconbtn:hover, .navitem:hover{background:#222b3b;color:var(--text)}.navlist{display:flex;flex-direction:column;gap:3px}.navitem{display:flex;align-items:center;gap:11px;padding:10px 12px;width:100%;text-align:left;border-radius:9px;color:#aab6c8;background:transparent;min-width:0}.navitem.active{background:#26233e;color:#d3cdff}.navitem span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.navitem .sym{font-size:16px;opacity:.9}.projectlabel{background:#141b29;border:1px solid var(--line);border-radius:9px;padding:11px 12px;margin:0 7px 18px;font-weight:650;display:flex;gap:8px;align-items:center;justify-content:space-between}.projectlabel select{width:100%;min-width:0;background:transparent;color:var(--text);border:0;outline-offset:4px;font-weight:650;cursor:pointer}.projectlabel select option{background:#141b29;color:var(--text)}.side-footer{margin-top:auto;border-top:1px solid var(--line);padding:15px 12px;display:grid;gap:7px}.side-footer button{border:1px solid var(--line);background:#171e2b;border-radius:9px;padding:10px;text-align:left;color:#c8d2e2}.side-footer button:hover{border-color:#766cc4}.main{min-width:0;display:flex;flex-direction:column}.topbar{height:73px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 26px;gap:12px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted);font-weight:800}.top-actions{display:flex;gap:8px;align-items:center}.btn{padding:9px 13px;background:#202a3a;border:1px solid #334056;border-radius:9px;font-weight:650;font-size:12px}.btn:hover{background:#2b364b}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111222}.btn.primary:hover{background:#b5aaff}.tabsbar{display:flex;gap:8px;padding:18px 26px 0;align-items:center;justify-content:space-between}.tabs{display:flex;padding:4px;background:#171d29;border:1px solid #242d40;border-radius:11px;gap:3px}.tab{padding:8px 15px;background:none;border-radius:8px;color:var(--muted);font-weight:650;font-size:12px}.tab.active{background:#34304f;color:#eeeaff}.workspace{min-height:0;flex:1;padding:17px 26px 22px;display:flex;flex-direction:column}.surface{flex:1;min-height:0;background:radial-gradient(ellipse at 60% 40%,#141b2a 0%,#111723 58%,#101520 100%);border:1px solid var(--line);border-radius:15px;overflow:hidden;position:relative}.surfacehead{position:absolute;z-index:2;top:17px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.surfacehead>*{pointer-events:auto}.subtle{color:var(--muted);font-size:12px}.pill{padding:6px 11px;border:1px solid #38445b;background:#1c2535;border-radius:30px;color:#bdc8da;font-size:11px}.mindcanvas{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;padding:75px 30px 60px}.mindtree{min-width:max-content;display:flex;align-items:center;gap:55px}.treecol{display:flex;flex-direction:column;gap:21px;align-items:flex-start;position:relative}.treebranch{display:flex;align-items:center;gap:39px;position:relative}.treeroot{background:#544b91!important;border-color:#887bd8!important;color:white!important;padding:18px 23px!important;font-size:17px!important}.node{position:relative;text-align:left;display:flex;align-items:center;gap:10px;background:#202b3a;border:1px solid #3c4c61;border-radius:11px;padding:12px 15px;color:#f2f4ff;min-width:130px;max-width:280px;box-shadow:0 10px 25px #0002;white-space:normal}.node:hover{border-color:#a69aff;transform:translateY(-1px)}.node.selected{border-color:#b5aaff;box-shadow:0 0 0 2px #a99aff36}.node .dot{width:8px;height:8px;background:#9d90ff;border-radius:50%;flex:none}.node .nodeinner{min-width:0;display:flex;flex-direction:column;gap:5px}.node .nodetitle{font-size:13px;font-weight:650;overflow-wrap:anywhere}.node .nodefoot{display:flex;gap:7px;align-items:center;font-size:10px;color:#a2b1c6}.bar{height:4px;min-width:55px;width:85px;border-radius:8px;overflow:hidden;background:#364154}.bar>i{display:block;height:100%;background:#7dd5c4}.children{display:flex;flex-direction:column;gap:12px;border-left:1px solid #4a536c;padding-left:24px;position:relative}.children>.treebranch:before{content:"";position:absolute;width:24px;height:1px;background:#4a536c;left:-24px;top:50%}.treebranch:has(>.children)>.node:after{content:"";position:absolute;width:39px;height:1px;background:#4a536c;right:-40px;top:50%}.empty{text-align:center;color:var(--muted);padding:80px 20px}.editor{display:flex;flex-direction:column;height:100%;padding:14px 18px 18px;gap:10px}.editor textarea{width:100%;flex:1;resize:none;border:1px solid #303b50;background:#0d131d;color:#dce6f6;border-radius:9px;padding:21px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}.editfoot{display:flex;align-items:center;justify-content:space-between}.editfoot small{color:var(--muted)}.modalback{position:fixed;z-index:20;inset:0;background:#03060acb;display:grid;place-items:center;padding:18px}.modal{width:min(540px,100%);max-height:88dvh;overflow-y:auto;background:#1a2230;border:1px solid #38465b;border-radius:17px;padding:24px;box-shadow:0 24px 90px #0009}.modal h2{margin:0 0 6px;font-size:19px}.modal p{margin:0 0 18px;color:var(--muted);font-size:12px}.field{display:grid;gap:6px;margin:13px 0}.field label{font-size:11px;font-weight:700;color:#abb9ce}.field input, .field textarea, .field select{width:100%;background:#101724;color:var(--text);border:1px solid #39485e;border-radius:8px;padding:10px}.field textarea{resize:vertical;min-height:105px}.modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.toast{position:fixed;bottom:20px;right:20px;z-index:40;background:#2b354a;border:1px solid #5a6580;padding:11px 17px;border-radius:10px;box-shadow:0 12px 50px #0007}.hidden{display:none!important}@media(max-width:850px){.app{grid-template-columns:67px 1fr}.brand{padding:20px 15px}.brand strong, .brand small, .side-head, .projectlabel, .navitem span:last-child, .side-footer button{display:none}.side-section{padding:0 7px}.navitem{justify-content:center}.navitem .sym{font-size:21px}.side-footer{min-height:72px}.topbar{padding:0 14px}.tabsbar{padding:12px 12px 0}.workspace{padding:12px}.top-actions .btn{padding:8px}.mindcanvas{justify-content:flex-start}}/* Mindstorm v3: syntax-aware source editor and interactive minimap. */.editor{padding:14px 14px 16px;gap:9px}.editor .codeframe{display:grid;grid-template-columns:43px minmax(0,1fr) 77px;flex:1;min-height:0;border:1px solid #35435a;border-radius:12px;overflow:hidden;background:#0c121d;box-shadow:inset 0 1px 0 #ffffff05}.codegutter{position:relative;overflow:hidden;background:#101724;border-right:1px solid #273246;user-select:none}.codegutter pre{position:absolute;left:0;top:0;width:100%;margin:0;padding:17px 0;white-space:pre;font:12px/23px ui-monospace,SFMono-Regular,Consolas,monospace;color:#66778f;pointer-events:none;will-change:transform}.gline{display:block;height:23px;padding-right:9px;text-align:right;box-sizing:border-box}.gline.h1{color:#c4b4ff;font-weight:700}.gline.error{color:#ffc2cb;background:#772c3d3b}.codepane{min-width:0;min-height:0;position:relative;overflow:hidden}.syntaxlayer, .editor #source{font:13px/23px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:0;tab-size:2;padding:17px 19px;white-space:pre;overflow-wrap:normal;word-break:normal}.syntaxlayer{position:absolute;top:0;left:0;margin:0;min-width:max-content;min-height:100%;pointer-events:none;color:#a9b8cc;will-change:transform;z-index:1}.editor #source{position:absolute;inset:0;width:100%;height:100%;min-height:0;resize:none;border:0!important;border-radius:0;outline:none;background:transparent;color:transparent;-webkit-text-fill-color:transparent;caret-color:#eeeaff;overflow:auto;scrollbar-width:none;overscroll-behavior:contain;z-index:2}.editor #source::-webkit-scrollbar{width:0;height:0;display:none}.editor #source::selection{background:#6960ab75}.editor #source:focus-visible{outline:none}.codeframe:focus-within{border-color:#786fbb;box-shadow:0 0 0 1px #786fbb55}.syn-line{color:#94a6bc}.syn-line.syn-root{background:#aaa0ff13}.syn-line.syn-invalid{background:#fc708325;text-decoration:underline;text-decoration-color:#f27f8e;text-decoration-style:wavy;text-underline-offset:3px}.syn-heading{color:#b5a1ff;font-weight:800}.syn-heading-title{color:#e4ddff;font-weight:650}.syn-bullet{color:#6bd9d2;font-weight:700}.syn-checkbox{color:#f2c477}.syn-checkbox-done{color:#6dd7ad;font-weight:750}.syn-status{color:#d2a4ff}.syn-status-done{color:#6dd7ad}.syn-status-doing{color:#f0ba79}.syn-status-todo{color:#84baff}.syn-status-review{color:#efadcf}.syn-link{color:#73cfe7;text-decoration:underline;text-decoration-color:#73cfe744}.syn-strong{color:#f4c887;font-weight:750}.syn-em{color:#a1d8ca;font-style:italic}.syn-code{color:#edb6de;background:#8f548125}.syn-fence{color:#a28dc6}.syn-codecontent{color:#8b9bb2}.syn-quote{color:#a1ccb3}.syn-table{color:#9db7d5}.syn-comment{color:#66778f;font-style:italic}.minimap{position:relative;min-width:0;overflow:hidden;background:#101724;border-left:1px solid #2c364b;cursor:ns-resize;touch-action:none;user-select:none;outline-offset:-3px;contain:layout paint}.minimap:focus-visible{outline:2px solid var(--accent)}.minimap canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.mini-viewport{position:absolute;left:0;right:0;border:1px solid #aaa1ff99;border-left:2px solid #b9acff;background:#857bd727;box-shadow:inset 0 0 0 1px #8c82ec22;pointer-events:none;border-radius:2px;min-height:18px}.minimap::after{content:'MINIMAP';position:absolute;bottom:6px;right:5px;font:700 8px/1 ui-monospace,monospace;letter-spacing:.8px;color:#8696b0;opacity:.65;pointer-events:none}.editor .editfoot{gap:8px;flex-wrap:wrap;min-height:30px}.editor .editfoot small{font-size:11px}.root-state{padding:6px 11px;border:1px solid #2e4c4d;background:#14302e;color:#9ddac9;border-radius:8px;font-size:11px;font-weight:700;text-align:left;cursor:default}.root-state.invalid{background:#38212b;border-color:#754254;color:#ffbdca;cursor:pointer}.root-state.invalid:hover{background:#482532}.editor .codehelp{color:#7d8ba3}.source-invalid{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:13px}.source-invalid .warningicon{display:grid;place-items:center;width:45px;height:45px;border:1px solid #845064;border-radius:12px;color:#ffc0cb;background:#432530;font-size:23px}.source-invalid h2{margin:0;font-size:19px}.source-invalid p{max-width:440px;color:var(--muted);margin:0;font-size:13px}.source-invalid code{color:#ead9f8}@media(max-width:850px){.editor{padding:12px 8px 9px}.editor .codeframe{grid-template-columns:33px minmax(0,1fr) 52px}.syntaxlayer, .editor #source{font-size:16px;line-height:24px;padding:13px 11px}.codegutter pre{font-size:11px;line-height:24px;padding:13px 0}.gline{height:24px;padding-right:5px}.minimap::after{font-size:6px;right:3px}.editor .editfoot{align-items:flex-start}.editor .codehelp{display:none}}@media(max-width:440px){.editor .codeframe{grid-template-columns:29px minmax(0,1fr) 47px}.editor{padding-top:10px}.surfacehead{left:11px;right:11px}.surfacehead .subtle{font-size:10px}}/* Mindstorm v4: responsive top navigation, off-canvas project menu and compact mobile workspace. */.modalback{z-index:45}.toast{z-index:55}.mobile-menu, .rename-icon, .add-node-small, .sidebar-scrim{display:none}.top-title{min-width:0;flex:1}@media (max-width:850px){
   .app{grid-template-columns:minmax(0,1fr)}
   .sidebar{position:fixed;z-index:32;top:0;bottom:0;left:0;width:min(310px,calc(100vw - 44px));height:100dvh;overflow-y:auto;overscroll-behavior:contain;transform:translateX(-105%);visibility:hidden;pointer-events:none;transition:transform .2s ease,visibility .2s ease;box-shadow:14px 0 44px #0009}
   .app.menu-open .sidebar{transform:translateX(0);visibility:visible;pointer-events:auto}
   .sidebar-scrim{display:block;position:fixed;inset:0;background:#010308aa;z-index:31;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease,visibility .2s ease}
   .app.menu-open .sidebar-scrim{opacity:1;visibility:visible;pointer-events:auto}
   .brand{padding:18px 18px 20px}
-  .brand strong,.brand small{display:block}
+  .brand strong, .brand small{display:block}
   .side-head{display:flex}
   .projectlabel{display:flex}
   .side-section{padding:0 11px}
@@ -92,8 +39,8 @@
   .eyebrow{font-size:9px;letter-spacing:.55px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .top-actions{gap:6px;flex:none}
   .top-actions .btn{min-width:37px;height:37px;padding:6px 9px;display:grid;place-items:center}
-  .rename-label,.add-node-wide{display:none}
-  .rename-icon,.add-node-small{display:block}
+  .rename-label, .add-node-wide{display:none}
+  .rename-icon, .add-node-small{display:block}
   .add-node-small{font-size:22px;line-height:1;font-weight:500}
   .tabsbar{padding:7px 7px 7px;gap:0}
   .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:2px;padding:3px}
@@ -105,190 +52,51 @@
   .surfacehead .subtle{font-size:10px;max-width:48%;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pill{padding:5px 8px;font-size:10px}
   .mindcanvas{justify-content:flex-start;padding:52px 10px 18px}
-  .kanban{padding:53px 7px 10px;gap:8px}
-  .lane{min-width:176px;padding:9px}
   .editor{padding:8px 0 0;gap:0}
   .editor .codeframe{border-left:0;border-right:0;border-bottom:0;border-radius:0;box-shadow:none}
   .editor .editfoot{padding:5px 9px}
-}
-@media (max-width:380px){
+}@media (max-width:380px){
   .topbar{gap:6px;padding:0 6px}
   .top-actions{gap:4px}
   .mobile-menu{width:35px;height:35px}
   .top-actions .btn{min-width:34px;height:35px;padding:5px 8px}
   .eyebrow{font-size:8px}
-}
-@media (prefers-reduced-motion:reduce){.sidebar,.sidebar-scrim{transition:none}}
-
-
-/* Mindstorm v5: direct MMMD syntax controls, autocomplete and compact mobile title. */
-/* The current document is shown in the breadcrumb; the save status is visible on mobile too. */
-.editor .editor-tools{display:flex;align-items:center;gap:5px;overflow-x:auto;flex-shrink:0;min-height:37px;scrollbar-width:thin;scrollbar-color:#45536d transparent;overscroll-behavior-x:contain;padding:0 1px 3px}
-.editor-tools .tool{flex:none;border:1px solid #36445c;border-radius:7px;background:#1c2635;color:#bfcce0;padding:6px 10px;font:650 11px/1.3 ui-sans-serif,system-ui,sans-serif;min-height:32px;white-space:nowrap}
-.editor-tools .tool:hover,.editor-tools .tool:focus-visible{background:#34304f;color:#f0eaff;border-color:#8579d3}
-.editor-tools .tool[data-tool="link"]{color:#7acde2}
-.editor-tools .tool[data-tool="checkbox"]{color:#f0c980}
-.editor-tools .tool[data-tool="status"]{color:#cbadff}
-.code-interactions{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
-.token-hit{position:absolute;display:block;border:1px solid transparent;border-radius:4px;background:transparent;pointer-events:auto;cursor:pointer;padding:0;margin:0;color:transparent;box-sizing:border-box;touch-action:manipulation}
-.token-hit:hover,.token-hit:focus-visible{border-color:#a59aff99;background:#a49aff22;outline:none}
-.token-hit-checkbox{min-width:27px}
-.token-hit-status{min-width:32px;-webkit-appearance:none;appearance:none;color:transparent;-webkit-text-fill-color:transparent;font-size:13px;line-height:1;border:1px solid transparent}
-.token-hit-status:focus{border-color:#a59aff99;background:#a49aff20}
-.token-hit-status option{color:#e9effb;-webkit-text-fill-color:#e9effb;background:#1a2433;font:13px ui-sans-serif,system-ui,sans-serif}
-.completion-popup{position:absolute;z-index:6;width:290px;max-height:253px;overflow-y:auto;overscroll-behavior:contain;background:#1c2636;border:1px solid #627092;border-radius:11px;box-shadow:0 14px 38px #000b;padding:5px;touch-action:pan-y}
-.completion-popup.hidden{display:none!important}
-.completion-heading{color:#9daecd;text-transform:uppercase;font-size:9px;letter-spacing:.9px;font-weight:800;padding:6px 8px 5px}
-.completion-item{width:100%;padding:8px 9px;border-radius:7px;border:0;background:transparent;color:#ecf1ff;display:flex;align-items:center;justify-content:space-between;gap:9px;text-align:left;min-height:35px}
-.completion-item:hover,.completion-item.active{background:#373253}
-.completion-item strong{font-size:12px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.completion-item small{font-size:10px;color:#a0abc3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.completion-tip{border-top:1px solid #37425a;padding:5px 8px 3px;font-size:10px;color:#91a0b7}
-.node-check-group{display:grid;gap:12px;background:#131c29;border:1px solid #35435b;border-radius:9px;padding:12px}
-.node-check-group label{display:flex;align-items:center;gap:10px;font-size:13px;color:#e2e9f6;cursor:pointer}
-.node-check-group input[type=checkbox]{width:17px;height:17px;accent-color:#a79bff;flex:none}
-.node-check-group label:has(input:disabled){opacity:.46;cursor:not-allowed}
-@media(max-width:850px){.editor .editor-tools{min-height:42px;padding:3px 8px}.editor-tools .tool{min-height:36px;padding:7px 12px;font-size:12px}.completion-item{min-height:43px;padding:11px 9px}.completion-popup{max-height:235px}}
-
-
-/* mindstorm v7: heading selector and direct link navigation. */
-.editor-tools .tool-heading{appearance:auto;-webkit-appearance:menulist;max-width:108px;padding-right:6px;color:#c5b4ff;cursor:pointer}
-.editor-tools .tool-heading option{background:#1c2635;color:#edf1fb}
-.completion-open{width:100%;display:flex;align-items:center;gap:8px;padding:10px 9px;margin:0 0 3px;background:#29334a;color:#d4fff6;border:1px solid #567a86;border-radius:8px;min-height:40px;text-align:left;font-size:12px;font-weight:700;cursor:pointer}
-.completion-open:hover,.completion-open:focus-visible{background:#324963;border-color:#87c8c5}
-.completion-open span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-/* mindstorm v6: an accessible pan/zoom mindmap for touch and mouse. */
-.mm-viewport{position:absolute;inset:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;outline-offset:-3px}
-.mm-viewport.is-panning{cursor:grabbing}
-.mm-world{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;pointer-events:none}
-.mm-links{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
-.mm-links path{fill:none;stroke:#66758f;stroke-width:2;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.88}
-.mm-node{position:absolute;width:196px;max-width:none;min-width:0;min-height:66px;padding:12px 13px;touch-action:none;pointer-events:auto;cursor:grab;user-select:none;-webkit-user-select:none;transform:none!important;transition:border-color .12s,box-shadow .12s}
-.mm-node:active{cursor:grabbing}
-.mm-node.is-dragging{border-color:#ccbfff;box-shadow:0 0 0 2px #9b8cff66,0 15px 38px #0008;z-index:2}
-.mm-node .nodetitle{font-size:13px;line-height:1.4}
-.mm-node .nodeinner{flex:1}
-.mm-node .nodefoot{white-space:nowrap;flex-wrap:nowrap;gap:5px}
-.mm-node .nodefoot .bar{flex:1;min-width:24px;width:auto}
-.mm-node .draggrip{font-size:14px;color:#71819b;line-height:1;letter-spacing:-1px;align-self:center;pointer-events:none}
-.mm-node.treeroot{width:210px;min-height:75px}
-.mm-node.treeroot .nodetitle{font-size:15px}
-.mm-controls{position:absolute;right:14px;bottom:14px;z-index:5;display:flex;align-items:center;gap:5px;padding:5px;border:1px solid #36445c;background:#141b29ed;border-radius:13px;box-shadow:0 8px 27px #0007;backdrop-filter:blur(8px)}
-.mm-controls button{min-width:37px;height:38px;padding:0 9px;border-radius:8px;background:#232d3f;color:#e5ebfa;font-weight:750;font-size:18px;display:grid;place-items:center}
-.mm-controls button:hover,.mm-controls button:focus-visible{background:#3a345a;color:white}
-.mm-controls button.label{font-size:11px;min-width:53px;color:#c5bcff;font-variant-numeric:tabular-nums}
-.mm-controls .mm-divider{width:1px;height:23px;background:#39465a;margin:0 2px}
-@media(max-width:850px){
+}@media (prefers-reduced-motion:reduce){.sidebar, .sidebar-scrim{transition:none}}/* Mindstorm v5: direct MMMD syntax controls, autocomplete and compact mobile title. *//* The current document is shown in the breadcrumb; the save status is visible on mobile too. */.editor .editor-tools{display:flex;align-items:center;gap:5px;overflow-x:auto;flex-shrink:0;min-height:37px;scrollbar-width:thin;scrollbar-color:#45536d transparent;overscroll-behavior-x:contain;padding:0 1px 3px}.editor-tools .tool{flex:none;border:1px solid #36445c;border-radius:7px;background:#1c2635;color:#bfcce0;padding:6px 10px;font:650 11px/1.3 ui-sans-serif,system-ui,sans-serif;min-height:32px;white-space:nowrap}.editor-tools .tool:hover, .editor-tools .tool:focus-visible{background:#34304f;color:#f0eaff;border-color:#8579d3}.editor-tools .tool[data-tool="link"]{color:#7acde2}.editor-tools .tool[data-tool="checkbox"]{color:#f0c980}.editor-tools .tool[data-tool="status"]{color:#cbadff}.code-interactions{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}.token-hit{position:absolute;display:block;border:1px solid transparent;border-radius:4px;background:transparent;pointer-events:auto;cursor:pointer;padding:0;margin:0;color:transparent;box-sizing:border-box;touch-action:manipulation}.token-hit:hover, .token-hit:focus-visible{border-color:#a59aff99;background:#a49aff22;outline:none}.token-hit-checkbox{min-width:27px}.token-hit-status{min-width:32px;-webkit-appearance:none;appearance:none;color:transparent;-webkit-text-fill-color:transparent;font-size:13px;line-height:1;border:1px solid transparent}.token-hit-status:focus{border-color:#a59aff99;background:#a49aff20}.token-hit-status option{color:#e9effb;-webkit-text-fill-color:#e9effb;background:#1a2433;font:13px ui-sans-serif,system-ui,sans-serif}.completion-popup{position:absolute;z-index:6;width:290px;max-height:253px;overflow-y:auto;overscroll-behavior:contain;background:#1c2636;border:1px solid #627092;border-radius:11px;box-shadow:0 14px 38px #000b;padding:5px;touch-action:pan-y}.completion-popup.hidden{display:none!important}.completion-heading{color:#9daecd;text-transform:uppercase;font-size:9px;letter-spacing:.9px;font-weight:800;padding:6px 8px 5px}.completion-item{width:100%;padding:8px 9px;border-radius:7px;border:0;background:transparent;color:#ecf1ff;display:flex;align-items:center;justify-content:space-between;gap:9px;text-align:left;min-height:35px}.completion-item:hover, .completion-item.active{background:#373253}.completion-item strong{font-size:12px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.completion-item small{font-size:10px;color:#a0abc3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.completion-tip{border-top:1px solid #37425a;padding:5px 8px 3px;font-size:10px;color:#91a0b7}.node-check-group{display:grid;gap:12px;background:#131c29;border:1px solid #35435b;border-radius:9px;padding:12px}.node-check-group label{display:flex;align-items:center;gap:10px;font-size:13px;color:#e2e9f6;cursor:pointer}.node-check-group input[type=checkbox]{width:17px;height:17px;accent-color:#a79bff;flex:none}.node-check-group label:has(input:disabled){opacity:.46;cursor:not-allowed}@media(max-width:850px){.editor .editor-tools{min-height:42px;padding:3px 8px}.editor-tools .tool{min-height:36px;padding:7px 12px;font-size:12px}.completion-item{min-height:43px;padding:11px 9px}.completion-popup{max-height:235px}}/* mindstorm v7: heading selector and direct link navigation. */.editor-tools .tool-heading{appearance:auto;-webkit-appearance:menulist;max-width:108px;padding-right:6px;color:#c5b4ff;cursor:pointer}.editor-tools .tool-heading option{background:#1c2635;color:#edf1fb}.completion-open{width:100%;display:flex;align-items:center;gap:8px;padding:10px 9px;margin:0 0 3px;background:#29334a;color:#d4fff6;border:1px solid #567a86;border-radius:8px;min-height:40px;text-align:left;font-size:12px;font-weight:700;cursor:pointer}.completion-open:hover, .completion-open:focus-visible{background:#324963;border-color:#87c8c5}.completion-open span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}/* mindstorm v6: an accessible pan/zoom mindmap for touch and mouse. */.mm-viewport{position:absolute;inset:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;outline-offset:-3px}.mm-viewport.is-panning{cursor:grabbing}.mm-world{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;pointer-events:none}.mm-links{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}.mm-links path{fill:none;stroke:#66758f;stroke-width:2;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.88}.mm-node{position:absolute;width:196px;max-width:none;min-width:0;min-height:66px;padding:12px 13px;touch-action:none;pointer-events:auto;cursor:grab;user-select:none;-webkit-user-select:none;transform:none!important;transition:border-color .12s,box-shadow .12s}.mm-node:active{cursor:grabbing}.mm-node.is-dragging{border-color:#ccbfff;box-shadow:0 0 0 2px #9b8cff66,0 15px 38px #0008;z-index:2}.mm-node .nodetitle{font-size:13px;line-height:1.4}.mm-node .nodeinner{flex:1}.mm-node .nodefoot{white-space:nowrap;flex-wrap:nowrap;gap:5px}.mm-node .nodefoot .bar{flex:1;min-width:24px;width:auto}.mm-node .draggrip{font-size:14px;color:#71819b;line-height:1;letter-spacing:-1px;align-self:center;pointer-events:none}.mm-node.treeroot{width:210px;min-height:75px}.mm-node.treeroot .nodetitle{font-size:15px}.mm-controls{position:absolute;right:14px;bottom:14px;z-index:5;display:flex;align-items:center;gap:5px;padding:5px;border:1px solid #36445c;background:#141b29ed;border-radius:13px;box-shadow:0 8px 27px #0007;backdrop-filter:blur(8px)}.mm-controls button{min-width:37px;height:38px;padding:0 9px;border-radius:8px;background:#232d3f;color:#e5ebfa;font-weight:750;font-size:18px;display:grid;place-items:center}.mm-controls button:hover, .mm-controls button:focus-visible{background:#3a345a;color:white}.mm-controls button.label{font-size:11px;min-width:53px;color:#c5bcff;font-variant-numeric:tabular-nums}.mm-controls .mm-divider{width:1px;height:23px;background:#39465a;margin:0 2px}@media(max-width:850px){
  .mm-controls{right:8px;bottom:max(8px,env(safe-area-inset-bottom));gap:4px;padding:4px}
  .mm-controls button{min-width:41px;height:42px;padding:0 8px;font-size:21px}
  .mm-controls button.label{min-width:50px;font-size:11px}
  .mm-node{min-height:69px;padding:12px 13px}
- .editor-tools .tool[data-tool="indent"],.editor-tools .tool[data-tool="outdent"]{color:#a9d8ce}
-}
-
-/* mindstorm v8: node types and streamlined view headings */
-.surfacehead.editor-head,.surfacehead.kanban-head{justify-content:flex-end}
-.surfacehead.kanban-head .scope{max-width:min(380px,95%)}
-.node-type{flex:none;white-space:nowrap;color:#bdb0ff;background:#342c52;border:1px solid #564c80;border-radius:5px;padding:2px 5px;font:700 10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.15px}
-.nodetitle{display:block;white-space:normal;overflow-wrap:anywhere}
-.ticket b{display:block;overflow-wrap:anywhere}
-.node-type{display:inline-block;vertical-align:baseline;margin-right:6px}
-.ticket .node-text,.nodetitle .node-text{display:inline;overflow-wrap:anywhere}
-.treeroot .node-type{color:#eee9ff;background:#49417c;border-color:#7d70ca}
-.token-hit-marker{cursor:pointer;border-radius:3px;min-width:12px}
-.token-hit-marker:hover,.token-hit-marker:focus-visible{background:#9883ff4a;border-color:#c4b8ff;outline:none}
-.field-note{color:var(--muted);font-size:11px;line-height:1.45}
-@media(max-width:850px){.editor-tools .tool-heading{max-width:74px}.surfacehead.kanban-head{left:7px;right:7px}}
-
-/* mindstorm v9: comfortable mobile dialog and deliberate Kanban long-press dragging */
-.modal.node-modal{padding:18px 20px;max-height:calc(100dvh - 24px)}
-.node-modal h2{font-size:19px;line-height:1.3;margin:0 0 8px}
-.node-modal h2 label{display:block;cursor:text}
-.node-form .field{margin:8px 0;gap:5px}
-.node-form .field>input,.node-form .field>select{min-height:39px}
-.node-properties{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.node-properties>.field{min-width:0}
-.node-modal .node-check-group{display:flex;flex-wrap:wrap;gap:10px 18px;padding:9px 10px}
-.node-modal .node-check-group label{font-size:12px}
-.node-modal #nodeDescription{min-height:200px;height:clamp(200px,31dvh,360px);resize:vertical}
-.node-modal .modalactions{margin-top:12px}
-.kanban .ticket{touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
-.kanban .ticket:active{cursor:grab}
-.kanban .ticket.kb-drag-source{opacity:.33;border-style:dashed}
-.kb-drag-ghost{position:fixed;pointer-events:none;z-index:1000;opacity:.96;box-shadow:0 16px 44px #000d,0 0 0 2px #ada0ff!important;border-color:#b7aaff!important;transform:scale(1.03);transform-origin:center center;cursor:grabbing!important;overflow:hidden}
-.kb-is-dragging,.kb-is-dragging *{cursor:grabbing!important}
-.lane.kb-drop-target{border-color:#ac9cff;background:#252a45;box-shadow:inset 0 0 0 2px #8e80ff66}
-@media(max-width:850px){
+ .editor-tools .tool[data-tool="indent"], .editor-tools .tool[data-tool="outdent"]{color:#a9d8ce}
+}/* mindstorm v8: node types and streamlined view headings */.surfacehead.editor-head{justify-content:flex-end}.node-type{flex:none;white-space:nowrap;color:#bdb0ff;background:#342c52;border:1px solid #564c80;border-radius:5px;padding:2px 5px;font:700 10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.15px}.nodetitle{display:block;white-space:normal;overflow-wrap:anywhere}.node-type{display:inline-block;vertical-align:baseline;margin-right:6px}.nodetitle .node-text{display:inline;overflow-wrap:anywhere}.treeroot .node-type{color:#eee9ff;background:#49417c;border-color:#7d70ca}.token-hit-marker{cursor:pointer;border-radius:3px;min-width:12px}.token-hit-marker:hover, .token-hit-marker:focus-visible{background:#9883ff4a;border-color:#c4b8ff;outline:none}.field-note{color:var(--muted);font-size:11px;line-height:1.45}@media(max-width:850px){.editor-tools .tool-heading{max-width:74px}}/* mindstorm v9: comfortable mobile dialog and deliberate Kanban long-press dragging */.modal.node-modal{padding:18px 20px;max-height:calc(100dvh - 24px)}.node-modal h2{font-size:19px;line-height:1.3;margin:0 0 8px}.node-modal h2 label{display:block;cursor:text}.node-form .field{margin:8px 0;gap:5px}.node-form .field>input, .node-form .field>select{min-height:39px}.node-properties{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.node-properties>.field{min-width:0}.node-modal .node-check-group{display:flex;flex-wrap:wrap;gap:10px 18px;padding:9px 10px}.node-modal .node-check-group label{font-size:12px}.node-modal #nodeDescription{min-height:200px;height:clamp(200px,31dvh,360px);resize:vertical}.node-modal .modalactions{margin-top:12px}@media(max-width:850px){
  .modal.node-modal{padding:13px 14px;max-height:calc(100dvh - 16px)}
  .node-form .field{margin:6px 0;gap:4px}
  .node-modal .node-check-group{padding:7px 9px}
  .node-modal #nodeDescription{min-height:200px}
-}
-/* mindstorm v10: structured Mindomo-style map; the hierarchy, not pixel offsets, determines placement. */
-.mm-viewport{cursor:grab}
-.mm-viewport.is-panning{cursor:grabbing}
-.mm-world{pointer-events:none}
-.mm-node{
+}/* mindstorm v10: structured Mindomo-style map; the hierarchy, not pixel offsets, determines placement. */.mm-viewport{cursor:grab}.mm-viewport.is-panning{cursor:grabbing}.mm-world{pointer-events:none}.mm-node{
   width:205px;min-height:68px;max-width:none;min-width:0;
   border-radius:12px;position:absolute;padding:12px 12px 12px 17px;
   cursor:grab;gap:9px;overflow:visible;
   --node-accent:#a99cff;
   transition:border-color .15s,box-shadow .15s,opacity .15s;
   z-index:1;
-}
-.mm-node.treeroot{width:218px;min-height:74px;padding:16px 14px 16px 19px!important}
-.mm-node:before{
+}.mm-node.treeroot{width:218px;min-height:74px;padding:16px 14px 16px 19px!important}.mm-node:before{
   content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
   border-radius:11px 0 0 11px;background:var(--node-accent);
   pointer-events:none;
-}
-.mm-node .nodeinner{flex:1;min-width:0}
-.mm-node .nodefoot{gap:7px}
-.mm-node .nodefoot .bar{min-width:28px}
-.mm-node .nodetitle{font-size:13px;line-height:1.4}
-.mm-node .node-type{margin-right:6px}
-.mm-node:hover{transform:none;box-shadow:0 10px 25px #0003;border-color:#a59aff}
-.mm-node.selected{z-index:3;border-color:#c0b5ff;box-shadow:0 0 0 2px #a99aff44,0 12px 28px #0005}
-.mm-node.mm-drag-source{opacity:.36;border-style:dashed}
-.mm-node.mm-drop-child{border-color:#81d9c9;box-shadow:0 0 0 3px #62d5c755,0 10px 25px #0004}
-.mm-node.mm-drop-before:after,.mm-node.mm-drop-after:after{
+}.mm-node .nodeinner{flex:1;min-width:0}.mm-node .nodefoot{gap:7px}.mm-node .nodefoot .bar{min-width:28px}.mm-node .nodetitle{font-size:13px;line-height:1.4}.mm-node .node-type{margin-right:6px}.mm-node:hover{transform:none;box-shadow:0 10px 25px #0003;border-color:#a59aff}.mm-node.selected{z-index:3;border-color:#c0b5ff;box-shadow:0 0 0 2px #a99aff44,0 12px 28px #0005}.mm-node.mm-drag-source{opacity:.36;border-style:dashed}.mm-node.mm-drop-child{border-color:#81d9c9;box-shadow:0 0 0 3px #62d5c755,0 10px 25px #0004}.mm-node.mm-drop-before:after, .mm-node.mm-drop-after:after{
   content:"";position:absolute;height:4px;left:-10px;right:-10px;
   background:#86e1d4;border-radius:5px;box-shadow:0 0 0 3px #62d5c72b;pointer-events:none;
-}
-.mm-node.mm-drop-before:after{top:-12px}
-.mm-node.mm-drop-after:after{bottom:-12px}
-.mm-node .mm-fold{
+}.mm-node.mm-drop-before:after{top:-12px}.mm-node.mm-drop-after:after{bottom:-12px}.mm-node .mm-fold{
   position:relative;flex:none;width:25px;height:26px;display:grid;place-items:center;
   background:#354259;border:1px solid #52627d;border-radius:7px;
   color:#e0e8fa;cursor:pointer;align-self:center;padding:0;
-}
-.mm-node.treeroot .mm-fold{background:#7368ae;border-color:#a092e0}
-.mm-node .mm-fold svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.3;fill:none;stroke-linecap:round}
-.mm-node .mm-fold:hover,.mm-node .mm-fold:focus-visible{background:#6e64a6;color:#fff;border-color:#ac9fff}
-.mm-node .dot,.mm-node .draggrip{display:none!important}
-.mm-actions{
+}.mm-node.treeroot .mm-fold{background:#7368ae;border-color:#a092e0}.mm-node .mm-fold svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.3;fill:none;stroke-linecap:round}.mm-node .mm-fold:hover, .mm-node .mm-fold:focus-visible{background:#6e64a6;color:#fff;border-color:#ac9fff}.mm-node .dot, .mm-node .draggrip{display:none!important}.mm-actions{
   position:absolute;z-index:7;display:flex;gap:4px;padding:5px;
   background:#182236f5;border:1px solid #637092;border-radius:11px;
   box-shadow:0 9px 30px #0009;pointer-events:auto;
-}
-.mm-actions button{width:31px;height:31px;padding:0;display:grid;place-items:center;border-radius:7px;background:transparent;color:#e5eafa;cursor:pointer}
-.mm-actions button:not(:disabled):hover,.mm-actions button:not(:disabled):focus-visible{background:#3d395e;color:#fff}
-.mm-actions button:disabled{opacity:.28;cursor:not-allowed}
-.mm-actions button.danger:not(:disabled):hover{background:#613347;color:#ffc9d1}
-.mm-actions svg,.mm-controls svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.mm-controls{z-index:8;gap:7px;padding:7px;right:17px;bottom:17px}
-.mm-controls button{width:44px;min-width:44px;height:43px;background:#26324a}
-.mm-controls button:disabled{opacity:.28;cursor:not-allowed}
-.mm-controls button:disabled:hover{background:#26324a;color:#e5ebfa}
-.mm-controls button:not(:disabled):hover{background:#514678}
-.mm-controls svg{width:22px;height:22px}
-.mm-drop-hint{position:absolute;z-index:6;left:50%;bottom:18px;transform:translateX(-50%);max-width:calc(100% - 150px);padding:8px 13px;
-  border:1px solid #51897f;background:#1b3840ed;color:#c8fff1;border-radius:9px;font-size:11px;pointer-events:none;box-shadow:0 5px 20px #0006;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mm-drag-ghost{position:fixed!important;z-index:900!important;pointer-events:none!important;margin:0!important;opacity:.94;
-  border-color:#c2b6ff!important;box-shadow:0 12px 36px #000b,0 0 0 2px #ada0ff44!important;will-change:left,top;transform-origin:top left!important;transition:none!important}
-.mm-viewport.drag-active,.mm-viewport.drag-active *{cursor:grabbing!important}
-@media(max-width:850px){
+}.mm-actions button{width:31px;height:31px;padding:0;display:grid;place-items:center;border-radius:7px;background:transparent;color:#e5eafa;cursor:pointer}.mm-actions button:not(:disabled):hover, .mm-actions button:not(:disabled):focus-visible{background:#3d395e;color:#fff}.mm-actions button:disabled{opacity:.28;cursor:not-allowed}.mm-actions button.danger:not(:disabled):hover{background:#613347;color:#ffc9d1}.mm-actions svg, .mm-controls svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.mm-controls{z-index:8;gap:7px;padding:7px;right:17px;bottom:17px}.mm-controls button{width:44px;min-width:44px;height:43px;background:#26324a}.mm-controls button:disabled{opacity:.28;cursor:not-allowed}.mm-controls button:disabled:hover{background:#26324a;color:#e5ebfa}.mm-controls button:not(:disabled):hover{background:#514678}.mm-controls svg{width:22px;height:22px}.mm-drop-hint{position:absolute;z-index:6;left:50%;bottom:18px;transform:translateX(-50%);max-width:calc(100% - 150px);padding:8px 13px;
+  border:1px solid #51897f;background:#1b3840ed;color:#c8fff1;border-radius:9px;font-size:11px;pointer-events:none;box-shadow:0 5px 20px #0006;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mm-drag-ghost{position:fixed!important;z-index:900!important;pointer-events:none!important;margin:0!important;opacity:.94;
+  border-color:#c2b6ff!important;box-shadow:0 12px 36px #000b,0 0 0 2px #ada0ff44!important;will-change:left,top;transform-origin:top left!important;transition:none!important}.mm-viewport.drag-active, .mm-viewport.drag-active *{cursor:grabbing!important}@media(max-width:850px){
  .mm-node{width:195px;min-height:68px;padding:12px 10px 12px 16px}
  .mm-node.treeroot{width:209px;min-height:72px}
  .mm-actions{padding:4px;gap:2px}
@@ -297,130 +105,73 @@
  .mm-controls{right:10px;bottom:max(10px,env(safe-area-inset-bottom))}
  .mm-controls button{width:45px;min-width:45px;height:45px}
  .mm-drop-hint{left:12px;bottom:72px;max-width:calc(100% - 24px);transform:none}
-}
-
-/* mindstorm v11: document-wide undo/redo, Kanban refinements and map zoom. */
-.top-actions .history-action{display:grid;place-items:center;flex:none;width:39px;height:39px;padding:0}
-.history-action svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.history-action:disabled{opacity:.28;cursor:not-allowed}
-.history-action:disabled:hover{background:#202a3a}
-.mm-controls .mm-divider{height:27px;margin:0 1px}
-.mm-controls button.mm-zoom{font-size:23px;font-weight:500;line-height:1}
-.kanban .lane{--lane-accent:#b4a3ff}
-.kanban .lane[data-lane-status="story"]{--lane-accent:#b6a4f9}
-.kanban .lane[data-lane-status="todo"]{--lane-accent:#8ebdff}
-.kanban .lane[data-lane-status="doing"]{--lane-accent:#eabc7c}
-.kanban .lane[data-lane-status="review"]{--lane-accent:#e7a9d4}
-.kanban .lane[data-lane-status="done"]{--lane-accent:#77d9b9}
-.kanban .laneheading .count{color:var(--lane-accent);background:color-mix(in srgb,var(--lane-accent) 16%,#172031);border:1px solid color-mix(in srgb,var(--lane-accent) 34%,#172031);font-weight:750;min-width:27px;text-align:center}
-.kanban .ticket{position:relative;overflow:hidden;padding-bottom:16px;gap:8px}
-.kanban .ticket-progress{height:5px;position:absolute;bottom:0;left:0;right:0;background:#131d2c;overflow:hidden;pointer-events:none}
-.kanban .ticket-progress>span{display:block;width:0;height:100%;background:#75d1bb;transition:width .16s ease}
-.kanban .ticket .ticket-subcount{font-size:10px;color:#92a4bb}
-.kanban .ticket .ticket-subcount:empty{display:none}
-.kanban .ticket.kb-drag-source .ticket-progress{opacity:.5}
-.kanban .ticket:focus-visible{outline:2px solid #a89aff;outline-offset:2px}
-@media(max-width:850px){
+}/* mindstorm v11: document-wide undo/redo, Kanban refinements and map zoom. */.top-actions .history-action{display:grid;place-items:center;flex:none;width:39px;height:39px;padding:0}.history-action svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.history-action:disabled{opacity:.28;cursor:not-allowed}.history-action:disabled:hover{background:#202a3a}.mm-controls .mm-divider{height:27px;margin:0 1px}.mm-controls button.mm-zoom{font-size:23px;font-weight:500;line-height:1}@media(max-width:850px){
   .editor .editfoot{display:none!important}
   .editor{padding-bottom:0}
   .top-actions .history-action{width:36px;height:36px;min-width:36px;padding:0}
-  .kanban{padding:49px 5px 8px;gap:6px}
-  .kanban .lane{min-width:160px;padding:6px;gap:6px;border-radius:9px}
-  .kanban .laneheading{padding:1px 1px 5px;font-size:11px;gap:4px}
-  .kanban .ticket{padding:8px 7px 13px;gap:6px;border-radius:7px}
-  .kanban .ticket b{font-size:11px;line-height:1.35}
-  .kanban .ticket [data-scope]{padding:5px 6px;font-size:10px}
-  .kanban .ticket-progress{height:4px}
-  .kanban .laneheading .count{min-width:22px;padding:0 5px}
-}
-@media(max-width:380px){
+}@media(max-width:380px){
   .top-actions .history-action{width:34px;height:35px;min-width:34px}
-  .kanban .lane{min-width:155px;padding:5px}
-  .kanban .ticket{padding:7px 6px 12px}
-}
-
-/* mindstorm v12: inline node editing and persistent fold controls. */
-.mm-node .mm-fold{
+}/* mindstorm v12: inline node editing and persistent fold controls. */.mm-node .mm-fold{
   position:absolute;top:50%;right:-13px;transform:translateY(-50%);
   z-index:5;width:26px;height:28px;margin:0;
   box-shadow:0 3px 12px #0005;
-}
-.mm-node.treeroot .mm-fold{right:-13px}
-.mm-node:has(.mm-fold){padding-right:19px}
-.mm-node .node-text{cursor:text;border-radius:3px}
-.mm-node .node-text:hover{text-decoration:underline;text-decoration-color:#b7aaffaa;text-underline-offset:3px}
-.mm-node .node-text:focus-visible{outline:2px solid #b7aaff;outline-offset:2px}
-.mm-node.mm-inline-editing{cursor:default;z-index:6;min-height:112px}
-.mm-node.mm-inline-editing .nodetitle{display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%}
-.mm-inline-editor{display:flex;flex-direction:column;gap:7px;width:100%;min-width:0;user-select:text;-webkit-user-select:text;touch-action:manipulation}
-.mm-inline-input{
+}.mm-node.treeroot .mm-fold{right:-13px}.mm-node:has(.mm-fold){padding-right:19px}.mm-node .node-text{cursor:grab;border-radius:3px;touch-action:none;user-select:none;-webkit-user-select:none}.mm-node .node-text:hover{text-decoration:underline;text-decoration-color:#b7aaffaa;text-underline-offset:3px}.mm-node .node-text:focus-visible{outline:2px solid #b7aaff;outline-offset:2px}.mm-node.mm-inline-editing{cursor:default;z-index:6;min-height:112px}.mm-node.mm-inline-editing .nodetitle{display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%}.mm-inline-editor{display:flex;flex-direction:column;gap:7px;width:100%;min-width:0;user-select:text;-webkit-user-select:text;touch-action:manipulation}.mm-inline-input{
   display:block;width:100%;min-width:0;max-width:100%;border:1px solid #9389e3;
   border-radius:6px;background:#10182a;color:#f4f2ff;font:650 13px/1.4 Inter,ui-sans-serif,system-ui,sans-serif;
   padding:7px 8px;outline:none;box-shadow:0 0 0 2px #a99aff1f;
   user-select:text;-webkit-user-select:text;touch-action:manipulation;
-}
-.mm-inline-input:focus{border-color:#c6bbff;box-shadow:0 0 0 2px #9b8cff55}
-.mm-inline-actions{display:flex;gap:6px;justify-content:flex-end;align-items:center;width:100%}
-.mm-inline-actions button{
-  display:grid;place-items:center;flex:none;width:30px;height:28px;padding:0;
-  border:1px solid #485971;border-radius:7px;background:#2b364b;color:#dfe7f6;
-  cursor:pointer;touch-action:manipulation;
-}
-.mm-inline-actions button[data-inline-save]{background:#23493e;border-color:#367b68;color:#a9f0ce}
-.mm-inline-actions button:hover,.mm-inline-actions button:focus-visible{border-color:#b2a8ff;background:#40395d;color:#fff}
-.mm-inline-actions svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.mm-inline-actions button:disabled{opacity:.4;cursor:wait}
-@media(max-width:850px){
- .mm-node .mm-fold,.mm-node.treeroot .mm-fold{right:-13.5px;width:27px;height:29px}
+}.mm-inline-input:focus{border-color:#c6bbff;box-shadow:0 0 0 2px #9b8cff55}@media(max-width:850px){
+ .mm-node .mm-fold, .mm-node.treeroot .mm-fold{right:-13.5px;width:27px;height:29px}
  .mm-node.mm-inline-editing{min-height:115px}
  .mm-inline-input{font-size:16px}
- .mm-inline-actions button{width:35px;height:33px}
-}
-/* mindfagg v13: consolidated branding and persistent save feedback. */
-.brand .mark{flex:none;overflow:hidden}
-.brand .mark svg{display:block;filter:drop-shadow(0 1px 1px #30264b55)}
-.brand>strong{font-size:21px;line-height:1.25;font-weight:750;letter-spacing:-.9px}
-.top-title{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:5px;min-width:0}
-.top-title .eyebrow{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.save-indicator{display:block;color:#9dafc6;font-size:11px;font-weight:600;line-height:1.3;white-space:nowrap}
-.save-indicator[data-state="saving"]{color:#eac17a}
-.save-indicator[data-state="error"]{color:#f07587}
-@media(max-width:850px){
+}/* mindfagg v13: consolidated branding and persistent save feedback. */.brand .mark{flex:none;overflow:hidden}.brand .mark svg{display:block;filter:drop-shadow(0 1px 1px #30264b55)}.brand>strong{font-size:21px;line-height:1.25;font-weight:750;letter-spacing:-.9px}.top-title{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:5px;min-width:0}.top-title .eyebrow{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.save-indicator{display:block;color:#9dafc6;font-size:11px;font-weight:600;line-height:1.3;white-space:nowrap}.save-indicator[data-state="saving"]{color:#eac17a}.save-indicator[data-state="error"]{color:#f07587}@media(max-width:850px){
   .brand>strong{font-size:21px}
   .top-title{gap:3px}
   .save-indicator{font-size:10px}
-}
-
-/* mindfagg v14: project-specific status labels and colors. */
-.projectlabel select{flex:1;width:auto}
-.project-settings-button{flex:none;display:grid;place-items:center;width:31px;height:31px;border:1px solid #37445a;border-radius:7px;background:#202a3a;color:#c8b9ff;font-size:19px;line-height:1}
-.project-settings-button:hover,.project-settings-button:focus-visible{background:#373251;border-color:#887cce;color:#fff}
-.status-settings-grid{display:grid;gap:8px;margin-top:8px}
-.status-setting-head,.status-setting-row{display:grid;grid-template-columns:79px minmax(0,1fr) 58px;align-items:center;gap:9px}
-.status-setting-head{font-size:10px;font-weight:750;letter-spacing:.4px;text-transform:uppercase;color:#9dacbf}
-.status-setting-row{padding:7px 9px;background:#131b29;border:1px solid #34425a;border-radius:9px}
-.status-setting-row .status-code{font:650 11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;color:#a7b5cc}
-.status-setting-row input[type=text]{min-width:0;padding:8px 9px}
-.status-setting-row input[type=color]{width:45px;height:37px;min-width:0;justify-self:center;border:1px solid #53617b;border-radius:8px;background:#202a3b;padding:3px;cursor:pointer}
-.status-settings-note{margin-top:10px}
-.kanban .laneheading>span:first-child{color:var(--lane-accent)}
-.kanban .ticket{border-left:3px solid var(--lane-accent)}
-.mm-node .nodefoot .bar>i{background:var(--node-accent)}
-.node-properties.single{grid-template-columns:minmax(0,1fr)}
-@media(max-width:480px){.status-setting-head,.status-setting-row{grid-template-columns:64px minmax(0,1fr) 49px;gap:5px}.status-setting-row{padding:7px 5px}.status-setting-row input[type=color]{width:39px}}
-
-/* mindfagg v16: immediate document deletion in the rename dialog. */
-.document-modal-actions{align-items:center;flex-wrap:wrap}
-.document-modal-actions .document-action-spacer{flex:1;min-width:8px}
-.document-modal-actions .delete-document{background:#4b2735;border-color:#99576a;color:#ffcfda}
-.document-modal-actions .delete-document:not(:disabled):hover{background:#673144;border-color:#cf798e;color:#fff}
+}/* mindfagg v14: project-specific status labels and colors. */.projectlabel select{flex:1;width:auto}.project-settings-button{flex:none;display:grid;place-items:center;width:31px;height:31px;border:1px solid #37445a;border-radius:7px;background:#202a3a;color:#c8b9ff;font-size:19px;line-height:1}.project-settings-button:hover, .project-settings-button:focus-visible{background:#373251;border-color:#887cce;color:#fff}.status-settings-grid{display:grid;gap:8px;margin-top:8px}.status-setting-head, .status-setting-row{display:grid;grid-template-columns:79px minmax(0,1fr) 58px;align-items:center;gap:9px}.status-setting-head{font-size:10px;font-weight:750;letter-spacing:.4px;text-transform:uppercase;color:#9dacbf}.status-setting-row{padding:7px 9px;background:#131b29;border:1px solid #34425a;border-radius:9px}.status-setting-row .status-code{font:650 11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;color:#a7b5cc}.status-setting-row input[type=text]{min-width:0;padding:8px 9px}.status-setting-row input[type=color]{width:45px;height:37px;min-width:0;justify-self:center;border:1px solid #53617b;border-radius:8px;background:#202a3b;padding:3px;cursor:pointer}.status-settings-note{margin-top:10px}.mm-node .nodefoot .bar>i{background:var(--node-accent)}.node-properties.single{grid-template-columns:minmax(0,1fr)}@media(max-width:480px){.status-setting-head, .status-setting-row{grid-template-columns:64px minmax(0,1fr) 49px;gap:5px}.status-setting-row{padding:7px 5px}.status-setting-row input[type=color]{width:39px}}/* mindfagg v16: immediate document deletion in the rename dialog. */.document-modal-actions{align-items:center;flex-wrap:wrap}.document-modal-actions .document-action-spacer{flex:1;min-width:8px}.document-modal-actions .delete-document{background:#4b2735;border-color:#99576a;color:#ffcfda}.document-modal-actions .delete-document:not(:disabled):hover{background:#673144;border-color:#cf798e;color:#fff}/* mindfagg v17: Markdown-first navigation, child counts and rotatable Kanban layout. */.mm-node .mm-fold.is-collapsed{font-size:11px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.3px}.mm-node .mm-fold .mm-child-count{display:block;max-width:100%;overflow:hidden;text-overflow:clip}/* Tierlist: fixed status labels at left, cards arranged horizontally per status row. *//* mindfagg v18: node dates and calendar-duration selectors. */.syn-date{color:#76d8d1;font-weight:650}.syn-date-invalid{color:#ff9eaa;text-decoration:underline wavy #ef7f91;text-underline-offset:3px}.token-hit-date{cursor:pointer;border-radius:4px}.node-date-fields{border:1px solid #34435b;background:#151e2d;border-radius:10px;padding:11px;margin:11px 0}.node-date-label{font-size:11px;font-weight:750;color:#b6c6dd}.node-date-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr);gap:12px;align-items:end}.node-date-start, .node-date-durations{display:grid;gap:6px;min-width:0}.node-date-start label, .node-date-durations>span, .node-duration-selects label{font-size:11px;color:#aebed4;font-weight:650}.node-date-durations>span{display:block}.node-duration-selects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.node-duration-selects>div{display:grid;gap:5px;min-width:0}.node-date-start input, .node-duration-selects select{min-width:0;width:100%;background:#0f1725;color:var(--text);border:1px solid #40516c;border-radius:7px;padding:8px 7px;min-height:38px}.node-duration-selects select:disabled{opacity:.43;cursor:not-allowed}.node-date-preview{margin-top:3px;color:#84d5c9}@media(max-width:520px){.node-date-layout{grid-template-columns:minmax(0,1fr);gap:10px}.node-date-fields{padding:9px}.node-duration-selects{gap:8px}.node-modal:has(.node-date-fields) #nodeDescription{height:clamp(110px,16dvh,180px);min-height:110px}}/* mindfagg v19: keyboard-safe Markdown editing on narrow screens.
+   The visual viewport is smaller than the layout viewport while the iOS keyboard is open. */@media (max-width:850px) {
+  body.mobile-markdown-active {overflow:hidden;overscroll-behavior:none}
+  .app.mobile-markdown-active {
+    position:fixed;left:0;right:0;top:var(--mf-visual-top,0px);bottom:auto;
+    width:100%;height:var(--mf-visual-height,100dvh);overflow:hidden;
+  }
+  .app.mobile-markdown-active .main, .app.mobile-markdown-active .workspace, .app.mobile-markdown-active .surface, .app.mobile-markdown-active .editor {min-height:0}
+  .app.mobile-markdown-active .editor {
+    height:100%;padding:0;gap:0;display:flex;flex-direction:column;
+  }
+  .app.mobile-markdown-active .editor .codeframe {
+    order:1;flex:1 1 0;min-height:0;
+  }
+  .app.mobile-markdown-active .editor .editor-tools {
+    order:2;position:relative;z-index:8;flex:0 0 auto;
+    width:100%;min-height:48px;max-height:none;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+    gap:6px;overflow-x:auto;overflow-y:hidden;
+    background:#161e2c;border-top:1px solid #394761;
+    box-shadow:0 -5px 20px #0307106e;
+    scrollbar-width:thin;overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .app.mobile-markdown-active.mobile-keyboard-open .editor .editor-tools {padding-bottom:6px}
+  .app.mobile-markdown-active .editor .editor-tools .tool {flex:none}
+  .app.mobile-markdown-active .editor .editfoot {order:3}
+  .app.mobile-markdown-active.mobile-keyboard-open .topbar {height:49px;min-height:49px}
+  .app.mobile-markdown-active.mobile-keyboard-open .tabsbar {padding:3px 7px}
+  .app.mobile-markdown-active.mobile-keyboard-open .tab {padding:6px 4px}
+}/* mindfagg v20: responsive, date-only monthly calendar. */@media(max-width:850px){
+  .tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tab{padding:8px 2px;font-size:10px}
+}/* mindfagg v21: compact editor with immediate inline autosave. */.mm-node.mm-inline-editing{min-height:78px}.mm-node.mm-inline-editing .nodetitle{gap:4px}.mm-node.mm-inline-editing .node-text{cursor:text}.mm-inline-editor{gap:0}/* mindfagg v22: project accent and denser deep-level map nodes. */:root{--accent-foreground:#f4f1ff;--accent-contrast:#101521}.brand .mark{background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 88%,#fff),color-mix(in srgb,var(--accent) 67%,#12162c));box-shadow:0 7px 25px color-mix(in srgb,var(--accent) 23%,transparent)}.navitem.active{background:color-mix(in srgb,var(--accent) 19%,#171d29);color:var(--accent-foreground)}.tab.active{background:color-mix(in srgb,var(--accent) 27%,#171d29);color:var(--accent-foreground)}.btn.primary{color:var(--accent-contrast)}.btn.primary:hover{background:color-mix(in srgb,var(--accent) 83%,#fff)}.project-settings-button{color:var(--accent-foreground)}.project-settings-button:hover, .project-settings-button:focus-visible{background:color-mix(in srgb,var(--accent) 25%,#171d29);border-color:var(--accent)}.editor-tools .tool:hover, .editor-tools .tool:focus-visible, .completion-item:hover, .completion-item.active{background:color-mix(in srgb,var(--accent) 24%,#1c2635);border-color:var(--accent)}.codeframe:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 42%,transparent)}.editor-tools .tool-heading, .syn-heading, .node-type{color:var(--accent-foreground)}.mm-node .node-type{background:color-mix(in srgb,var(--accent) 22%,#222942);border-color:color-mix(in srgb,var(--accent) 40%,#46516d)}.mm-node .node-text:hover{text-decoration-color:var(--accent)}.mm-node .node-text:focus-visible{outline-color:var(--accent)}.mm-node.mm-drag-source, .mm-node.is-dragging{border-color:var(--accent)}.mm-controls button.label{color:var(--accent-foreground)}.mini-viewport{border-color:color-mix(in srgb,var(--accent) 62%,#526177);border-left-color:var(--accent);background:color-mix(in srgb,var(--accent) 24%,transparent)}.mm-node.treeroot{background:color-mix(in srgb,var(--accent) 43%,#20283a)!important;border-color:color-mix(in srgb,var(--accent) 76%,#62738a)!important}.mm-node.treeroot .node-type{background:color-mix(in srgb,var(--accent) 34%,#222942);border-color:color-mix(in srgb,var(--accent) 59%,#536078)}.mm-node:hover{border-color:var(--accent)}.mm-node.selected{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 37%,transparent),0 12px 28px #0005}.mm-node .mm-fold:hover, .mm-node .mm-fold:focus-visible{background:color-mix(in srgb,var(--accent) 36%,#2b354b);border-color:var(--accent)}.mm-controls button:not(:disabled):hover, .mm-actions button:not(:disabled):hover, .mm-actions button:not(:disabled):focus-visible{background:color-mix(in srgb,var(--accent) 35%,#26324a)}.mm-inline-input{border-color:var(--accent)}.mm-inline-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 34%,transparent)}.project-name-display{width:100%;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px dashed #52627d;border-radius:9px;background:#121b2b;color:var(--text);font-weight:700;font-size:15px;text-align:left}.project-name-display:hover, .project-name-display:focus-visible{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,#121b2b)}.project-name-display .project-name-pencil{color:var(--accent-foreground);font-size:15px;flex:none}.project-name-display .project-name-value{min-width:0;overflow-wrap:anywhere}.project-accent-field{display:flex;align-items:center;gap:12px;border:1px solid #35445a;border-radius:9px;padding:9px 11px;background:#131b29}.project-accent-field input[type=color]{width:54px;height:42px;flex:none;padding:3px;background:#222d3f;border:1px solid #526178;border-radius:8px;cursor:pointer}.project-accent-field .field-note{min-width:0;flex:1}.project-modal-actions{display:flex;align-items:center;flex-wrap:wrap}.project-modal-actions .project-action-spacer{flex:1;min-width:8px}.delete-project{background:#4b2735;border-color:#99576a;color:#ffcfda}.delete-project:not(:disabled):hover{background:#673144;border-color:#cf798e;color:#fff}.project-delete-warning{padding:10px 12px;background:#33212d;border:1px solid #754254;border-radius:9px;color:#f4cad3;margin-bottom:14px;font-size:12px}/* Depth is relative to the actual root: H1 = 1, direct children = 2. */.mm-node.mm-level-3{min-height:56px;padding:9px 12px 9px 15px;gap:7px}.mm-node.mm-level-3 .nodetitle{font-weight:400}.mm-node.mm-level-deep{min-height:43px;padding:7px 11px 9px 14px;gap:6px}.mm-node.mm-level-deep .nodetitle{font-weight:400}.mm-node.mm-level-deep .nodeinner{gap:3px}.mm-node.mm-level-deep .nodefoot.mm-bottom-progress{position:absolute;bottom:0;left:0;right:0;height:5px;min-height:5px;display:block;overflow:hidden;background:#1a2535;border-radius:0 0 10px 10px;pointer-events:none}.mm-node.mm-level-deep .nodefoot.mm-bottom-progress .bar{display:block;width:100%;height:100%;min-width:0;border-radius:0;background:transparent}.mm-node.mm-level-deep .nodefoot.mm-bottom-progress .bar>i{border-radius:0 3px 3px 0}@media(max-width:850px){.mm-node.mm-level-3{min-height:55px;padding:9px 10px 9px 14px}.mm-node.mm-level-deep{min-height:43px;padding:7px 9px 9px 13px}.project-modal-actions{gap:7px}.project-modal-actions .delete-project{margin-right:auto}}/* mindfagg v23: Kanban and calendar controls follow the active project's accent.
+   Status-specific lane and event colors remain independently configurable. */
 </style>
+<link rel="stylesheet" href="css/kanban.css">
+<link rel="stylesheet" href="css/calendar.css">
 </head>
 <body>
 <div class="app">
 <aside class="sidebar" id="mainSidebar" aria-label="Hauptmenü"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="27" height="27" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.4 1.3 19.2 10l8.1-4.2-3.5 8.6 7.2 2.4-8 3.6 3.1 8.9-9-5-5.5 6.5-1.5-8.9-9.1 1.6 6.2-7-5.3-7.4 9.6 2.4 3.9-9.8Z" fill="currentColor"/><path d="m15 10.1-2.6 7.1h4l-1 5.8 5-9h-4Z" fill="#6A5BC8"/></svg></div><strong>mindfagg</strong></div><div class="side-section"><div class="side-head"><span>PROJEKTE</span><button class="iconbtn" id="addProject" title="Projekt hinzufügen">+</button></div><div class="projectlabel" id="projectLabel"><select id="projectSelect" aria-label="Projekt auswählen"><option>Kein Projekt</option></select><button type="button" class="project-settings-button" id="projectSettings" aria-label="Projekteinstellungen" title="Projekteinstellungen">⚙</button></div><div class="side-head"><span>DOKUMENTE</span><button class="iconbtn" id="addDocument" title="Dokument hinzufügen">+</button></div><div class="navlist" id="docList"></div></div><div class="side-footer"><button id="exportZip">⇩ &nbsp; Projekt exportieren</button><button id="importZip">⇧ &nbsp; ZIP importieren</button><input id="fileImport" type="file" accept=".zip,application/zip" class="hidden"></div></aside>
 <div class="sidebar-scrim" id="sidebarScrim" aria-hidden="true"></div>
-<main class="main"><header class="topbar"><button class="mobile-menu" id="menuToggle" aria-label="Hauptmenü öffnen" title="Hauptmenü" aria-controls="mainSidebar" aria-expanded="false"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="top-title"><div class="eyebrow" id="breadcrumb">WORKSPACE / PROJEKT</div><span class="save-indicator" id="saveLabel" role="status" aria-live="polite" data-state="saved">Automatisch gespeichert</span></div><div class="top-actions"><button class="btn rename-btn" id="renameDoc" aria-label="Dokument umbenennen" title="Dokument umbenennen"><svg class="rename-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L10 16l-4 1 1-4z"/><path d="m15 5 4 4"/></svg><span class="rename-label">Umbenennen</span></button><button type="button" class="btn history-action" id="undoAction" title="Rückgängig (Strg+Z)" aria-label="Rückgängig" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-2"/></svg></button><button type="button" class="btn history-action" id="redoAction" title="Wiederherstellen (Strg+Umschalt+Z)" aria-label="Wiederherstellen" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h2"/></svg></button></div></header><div class="tabsbar"><div class="tabs"><button class="tab active" data-view="mindmap">✳ &nbsp; Mindmap</button><button class="tab" data-view="kanban">▥ &nbsp; Kanban</button><button class="tab" data-view="markdown">⌘ &nbsp; Markdown</button></div></div><div class="workspace"><section class="surface" id="surface"></section></div></main>
+<main class="main"><header class="topbar"><button class="mobile-menu" id="menuToggle" aria-label="Hauptmenü öffnen" title="Hauptmenü" aria-controls="mainSidebar" aria-expanded="false"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="top-title"><div class="eyebrow" id="breadcrumb">WORKSPACE / PROJEKT</div><span class="save-indicator" id="saveLabel" role="status" aria-live="polite" data-state="saved">Automatisch gespeichert</span></div><div class="top-actions"><button class="btn rename-btn" id="renameDoc" aria-label="Dokument umbenennen" title="Dokument umbenennen"><svg class="rename-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L10 16l-4 1 1-4z"/><path d="m15 5 4 4"/></svg><span class="rename-label">Umbenennen</span></button><button type="button" class="btn history-action" id="undoAction" title="Rückgängig (Strg+Z)" aria-label="Rückgängig" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-2"/></svg></button><button type="button" class="btn history-action" id="redoAction" title="Wiederherstellen (Strg+Umschalt+Z)" aria-label="Wiederherstellen" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h2"/></svg></button></div></header><div class="tabsbar"><div class="tabs"><button class="tab active" data-view="markdown">⌘ &nbsp; Markdown</button><button class="tab" data-view="mindmap">✳ &nbsp; Mindmap</button><button class="tab" data-view="kanban">▥ &nbsp; Kanban</button><button class="tab" data-view="calendar">▦ &nbsp; Kalender</button></div></div><div class="workspace"><section class="surface" id="surface"></section></div></main>
 </div><div class="modalback hidden" id="modalBack"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div><div id="toast" class="toast hidden"></div>
 <script>
 'use strict';
@@ -443,11 +194,29 @@ function statusSetting(key,p=project()){
 function statusLabel(key){return statusSetting(key).label}
 function statusColor(key){return statusSetting(key).color}
 function statusSettingsFor(p){return Object.fromEntries(STATUS.map(key=>[key,statusSetting(key,p)]))}
+const DEFAULT_PROJECT_ACCENT='#9b8cff';
+function projectAccentColor(p=project()){
+  return typeof p?.accentColor==='string'&&/^#[0-9a-f]{6}$/i.test(p.accentColor)?p.accentColor.toLowerCase():DEFAULT_PROJECT_ACCENT;
+}
+function applyProjectAccent(p){
+  document.documentElement.style.setProperty('--accent',projectAccentColor(p));
+  document.documentElement.style.setProperty('--accent-foreground',`color-mix(in srgb, ${projectAccentColor(p)} 28%, white)`);
+  const hex=projectAccentColor(p).slice(1),channels=[0,2,4].map(i=>parseInt(hex.slice(i,i+2),16)/255);
+  const rgb=channels.map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);
+  const brightness=.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];
+  document.documentElement.style.setProperty('--accent-contrast',brightness>.179?'#101521':'#ffffff');
+}
+
 
 const SAMPLE=`# [ ] Mein Projekt\nEine zentrale Mindmap für Ideen, Aufgaben und Fortschritt.\n\n## [status:done] Planung\nDie Anforderungen und das Konzept werden vorbereitet.\n\n- [x] Ziele definieren\n- [x] Anforderungen sammeln\n\n## [status:doing] Entwicklung\nDie App wird Schritt für Schritt umgesetzt.\n\n- [x] Markdown-Parser\n- [ ] [status:doing] Mindmap-Ansicht\n- [ ] [status:todo] Kanban-Ansicht\n- [ ] [status:review] Dokumentation\n\n## Ideen\nHier ist Platz für neue Gedanken.\n\n- [ ] Später umsetzen\n- [[Planung]]\n`;
-let db,projects=[],docs=[],projectId=null,docId=null,view='mindmap',scopePath='0',currentModel=null,saveTimer;
-const VIEWS=['mindmap','kanban','markdown'];
-function setView(next){if(!VIEWS.includes(next))return;view=next;try{localStorage.setItem('msView',next)}catch(e){console.warn('Ansicht konnte nicht gespeichert werden:',e)}}
+let db,projects=[],docs=[],projectId=null,docId=null,view='markdown',scopePath='0',currentModel=null,saveTimer;
+const VIEWS=['markdown','mindmap','kanban','calendar'];
+// Markdown is the fallback for new users. Later visits restore the last selected tab.
+function setView(next){
+  if(!VIEWS.includes(next))return;
+  view=next;
+  try{localStorage.setItem('mfLastView',next)}catch(error){console.warn('Letzte Ansicht konnte nicht gespeichert werden:',error)}
+}
 function setMobileMenu(open){const mobile=window.matchMedia('(max-width:850px)').matches;const active=mobile&&Boolean(open);$('.app').classList.toggle('menu-open',active);$('#mainSidebar').inert=mobile&&!active;$('#menuToggle').setAttribute('aria-expanded',String(active));$('#menuToggle').setAttribute('aria-label',active?'Hauptmenü schließen':'Hauptmenü öffnen')}
 
 const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random());
@@ -458,6 +227,8 @@ async function all(store){return req(tx(store).getAll())}
 const docHistory=new Map(),persistedDocSnapshots=new Map();
 // Deletions are project-wide history entries because the selected document changes.
 const deletionHistory=new Map();
+const projectDeletionHistory={undo:[],redo:[]};
+function invalidateProjectRedo(){projectDeletionHistory.redo.length=0}
 let historyBusy=false,historySerial=0,redoSerial=0;
 function deletionHistoryFor(id){
   if(!deletionHistory.has(id))deletionHistory.set(id,{undo:[],redo:[]});
@@ -487,8 +258,44 @@ function updateHistoryButtons(){
   const structural=projectId?deletionHistory.get(projectId):null;
   const hasUnsaved=!!d&&!equalDocSnapshot(docSnapshot(d),persistedDocSnapshots.get(d.id));
   const undo=$('#undoAction'),redo=$('#redoAction');
-  if(undo)undo.disabled=historyBusy||!d||!((h?.undo.length||0)>0||hasUnsaved||(structural?.undo.length||0)>0);
-  if(redo)redo.disabled=historyBusy||!d||!((h?.redo.length||0)>0||(structural?.redo.length||0)>0);
+  if(undo)undo.disabled=historyBusy||!((h?.undo.length||0)>0||hasUnsaved||(structural?.undo.length||0)>0||projectDeletionHistory.undo.length>0);
+  if(redo)redo.disabled=historyBusy||!((h?.redo.length||0)>0||(structural?.redo.length||0)>0||projectDeletionHistory.redo.length>0);
+}
+function projectChangedAt(p){
+  const inDocuments=docs.filter(d=>d.projectId===p.id).reduce((latest,d)=>Math.max(latest,Number(d.updatedAt)||0),0);
+  return Math.max(Number(p.updatedAt)||0,Number(p.created)||0,inDocuments);
+}
+function nextProjectChange(p){return Math.max(Date.now(),(Number(p?.updatedAt)||0)+1)}
+function projectChangeLabel(p){
+  const when=projectChangedAt(p);
+  return when?new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(when)):'-';
+}
+function projectOptionsHtml(){
+  if(!projects.length)return '<option value="">Kein Projekt</option>';
+  return [...projects].sort((a,b)=>projectChangedAt(b)-projectChangedAt(a)||a.name.localeCompare(b.name,'de'))
+    .map(item=>`<option value="${item.id}" ${item.id===projectId?'selected':''}>${escapeHtml(item.name)} · ${escapeHtml(projectChangeLabel(item))}</option>`).join('');
+}
+function refreshProjectSelect(){
+  const select=$('#projectSelect');if(!select)return;
+  select.innerHTML=projectOptionsHtml();
+}
+function writeDocumentWithProject(value){
+  return new Promise((resolve,reject)=>{
+    const p=projects.find(item=>item.id===value.projectId),stamp=nextProjectChange(p);
+    const record={...value,updatedAt:stamp};
+    const transaction=db.transaction(['docs','projects'],'readwrite');
+    transaction.objectStore('docs').put(record);
+    if(p)transaction.objectStore('projects').put({...p,updatedAt:stamp});
+    transaction.oncomplete=()=>{
+      value.updatedAt=stamp;
+      const stored=docs.find(d=>d.id===value.id);if(stored)stored.updatedAt=stamp;
+      if(p)p.updatedAt=stamp;
+      refreshProjectSelect();
+      resolve(record.id);
+    };
+    transaction.onerror=()=>reject(transaction.error||new Error('Dokument konnte nicht gespeichert werden'));
+    transaction.onabort=()=>reject(transaction.error||new Error('Dokumenttransaktion abgebrochen'));
+  });
 }
 async function put(store,value,options={}){
   const isDoc=store==='docs';
@@ -499,7 +306,17 @@ async function put(store,value,options={}){
     updateSaveStatus();
   }
   try{
-    const result=await req(tx(store,'readwrite').put(value));
+    let result;
+    if(isDoc)result=await writeDocumentWithProject(value);
+    else if(store==='projects'){
+      const active=projects.find(item=>item.id===value.id);
+      const stamp=nextProjectChange(active||value);
+      result=await req(tx(store,'readwrite').put({...value,updatedAt:stamp}));
+      value.updatedAt=stamp;
+      if(active)active.updatedAt=stamp;
+      refreshProjectSelect();
+    }else result=await req(tx(store,'readwrite').put(value));
+    if(options.invalidateProjectRedo!==false)invalidateProjectRedo();
     if(isDoc){
       const after=docSnapshot(value);
       if(before&&!equalDocSnapshot(before,after)&&options.record!==false){
@@ -525,16 +342,29 @@ async function put(store,value,options={}){
   }
 }
 async function changeHistory(direction){
-  if(historyBusy||!documentNow())return;
+  if(historyBusy||(!documentNow()&&!projectDeletionHistory[direction].length))return;
   historyBusy=true;updateHistoryButtons();
   try{
-    // First persist unsaved Markdown to preserve the order of undo actions.
+    // First persist unsaved Markdown or inline edits to preserve undo order.
+    if(view==='mindmap')await flushMapInlineEdit();
     if(view==='markdown')await flushSource();
-    const d=documentNow(),h=docHistoryFor(d.id),structural=deletionHistoryFor(projectId);
-    const local=direction==='undo'?h.undo:h.redo;
-    const global=direction==='undo'?structural.undo:structural.redo;
-    const localLast=local[local.length-1],globalLast=global[global.length-1];
+    const d=documentNow(),h=d?docHistoryFor(d.id):null,structural=projectId?deletionHistoryFor(projectId):null;
+    const local=direction==='undo'?(h?.undo||[]):(h?.redo||[]);
+    const global=direction==='undo'?(structural?.undo||[]):(structural?.redo||[]);
+    const projectStack=projectDeletionHistory[direction];
+    const localLast=local[local.length-1],globalLast=global[global.length-1],projectLast=projectStack[projectStack.length-1];
     const key=direction==='undo'?'stamp':'redoStamp';
+    if(projectLast&&(projectLast[key]||0)>Math.max(localLast?.[key]||0,globalLast?.[key]||0)){
+      const ok=direction==='undo'?await restoreDeletedProject(projectLast):await repeatDeletedProject(projectLast);
+      if(!ok)return;
+      projectStack.pop();
+      if(direction==='undo')projectDeletionHistory.redo.push({...projectLast,redoStamp:++redoSerial});
+      else projectDeletionHistory.undo.push({...projectLast,stamp:++historySerial});
+      updateHistoryButtons();
+      toast(direction==='undo'?'Projekt wiederhergestellt':'Projekt erneut gelöscht');
+      return;
+    }
+    if(!d)return;
     if(globalLast&&(!localLast||(globalLast[key]||0)>(localLast[key]||0))){
       const ok=direction==='undo'?await restoreDeletedDocument(globalLast):await repeatDeletedDocument(globalLast);
       if(!ok)return;
@@ -551,7 +381,7 @@ async function changeHistory(direction){
     other.push({...current,...(direction==='undo'?{redoStamp:++redoSerial}:{stamp:++historySerial})});
     if(other.length>100)other.shift();
     d.content=target.content;d.name=target.name;d.mapCollapsedPaths=[...(target.mapCollapsedPaths||[])];
-    try{await put('docs',{...d},{record:false})}
+    try{await put('docs',{...d},{record:false,invalidateProjectRedo:false})}
     catch(e){
       d.content=current.content;d.name=current.name;d.mapCollapsedPaths=[...(current.mapCollapsedPaths||[])];
       other.pop();local.push(target);console.error(e);toast('Verlauf konnte nicht gespeichert werden');return;
@@ -570,12 +400,30 @@ async function changeHistory(direction){
 }
 
 // Both deleting and auto-creating a fallback happen in one IndexedDB transaction.
-function commitDocumentChanges(upserts=[],deletedIds=[]){
+function commitDocumentChanges(upserts=[],deletedIds=[],options={}){
   return new Promise((resolve,reject)=>{
-    const transaction=db.transaction('docs','readwrite'),store=transaction.objectStore('docs');
+    const affected=new Set(upserts.map(item=>item.projectId));
+    for(const id of deletedIds){const old=docs.find(d=>d.id===id);if(old)affected.add(old.projectId)}
+    const transaction=db.transaction(['docs','projects'],'readwrite'),store=transaction.objectStore('docs');
+    const timestamps=[];
+    for(const id of affected){
+      const p=projects.find(item=>item.id===id);if(!p)continue;
+      const stamp=nextProjectChange(p);
+      transaction.objectStore('projects').put({...p,updatedAt:stamp});
+      timestamps.push({p,stamp});
+    }
     for(const id of deletedIds)store.delete(id);
-    for(const item of upserts)store.put(item);
-    transaction.oncomplete=()=>resolve();
+    for(const item of upserts){
+      const stamp=timestamps.find(t=>t.p.id===item.projectId)?.stamp||Date.now();
+      store.put({...item,updatedAt:stamp});
+    }
+    transaction.oncomplete=()=>{
+      for(const {p,stamp} of timestamps)p.updatedAt=stamp;
+      for(const item of upserts)item.updatedAt=timestamps.find(t=>t.p.id===item.projectId)?.stamp||Date.now();
+      if(!options.preserveProjectRedo)invalidateProjectRedo();
+      refreshProjectSelect();
+      resolve();
+    };
     transaction.onerror=()=>reject(transaction.error||new Error('Dokumenttransaktion fehlgeschlagen'));
     transaction.onabort=()=>reject(transaction.error||new Error('Dokumenttransaktion abgebrochen'));
   });
@@ -609,7 +457,7 @@ async function restoreDeletedDocument(action){
     const base=restored.name;let index=1;
     do{restored.name=base+' (Wiederhergestellt'+(index===1?'':' '+index)+')';index++}while(names.includes(restored.name.toLowerCase()));
   }
-  await commitDocumentChanges([restored],deletes);
+  await commitDocumentChanges([restored],deletes,{preserveProjectRedo:true});
   applyDocumentChanges([restored],deletes);
   if(removePlaceholder){
     docHistory.delete(placeholder.id);mapCollapsedPaths.delete(placeholder.id);
@@ -629,7 +477,7 @@ async function repeatDeletedDocument(action){
     replacement=former?structuredClone(former):newProjectDocument(uid(),deleted.projectId);
     if(docs.some(item=>item.id===replacement.id))replacement.id=uid();
   }
-  await commitDocumentChanges(replacement?[replacement]:[],[deleted.id]);
+  await commitDocumentChanges(replacement?[replacement]:[],[deleted.id],{preserveProjectRedo:true});
   applyDocumentChanges(replacement?[replacement]:[],[deleted.id]);
   if(replacement)action.placeholder=structuredClone(replacement);
   projectId=deleted.projectId;
@@ -639,10 +487,10 @@ async function repeatDeletedDocument(action){
   return true;
 }
 async function del(store,key){return req(tx(store,'readwrite').delete(key))}
-async function init(){db=await new Promise((res,rej)=>{let r=indexedDB.open('mindfagg-db',1);r.onupgradeneeded=()=>{let d=r.result;d.createObjectStore('projects',{keyPath:'id'});d.createObjectStore('docs',{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});await refresh();if(!projects.length){let p={id:uid(),name:'Mein Workspace',created:Date.now(),statusSettings:statusSettingsFor(null)};await put('projects',p);await put('docs',{id:uid(),projectId:p.id,name:'Projekt',content:SAMPLE});}await refresh();try{const lastView=localStorage.getItem('msView');if(VIEWS.includes(lastView))view=lastView}catch(e){console.warn('Letzte Ansicht konnte nicht geladen werden:',e)}projectId=localStorage.getItem('msProject');if(!projects.some(p=>p.id===projectId))projectId=projects[0].id;selectProject(projectId)}
+async function init(){db=await new Promise((res,rej)=>{let r=indexedDB.open('mindfagg-db',1);r.onupgradeneeded=()=>{let d=r.result;d.createObjectStore('projects',{keyPath:'id'});d.createObjectStore('docs',{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});await refresh();if(!projects.length){let p={id:uid(),name:'Mein Workspace',created:Date.now(),statusSettings:statusSettingsFor(null),accentColor:DEFAULT_PROJECT_ACCENT};await put('projects',p);await put('docs',{id:uid(),projectId:p.id,name:'Projekt',content:SAMPLE});}await refresh();try{kanbanTierlist=localStorage.getItem('mfKanbanLayout')==='tierlist'}catch(e){console.warn('Kanban-Darstellung konnte nicht geladen werden:',e)}try{const savedView=localStorage.getItem('mfLastView');view=VIEWS.includes(savedView)?savedView:'markdown'}catch(error){view='markdown';console.warn('Letzte Ansicht konnte nicht geladen werden:',error)}projectId=localStorage.getItem('msProject');if(!projects.some(p=>p.id===projectId))projectId=[...projects].sort((a,b)=>projectChangedAt(b)-projectChangedAt(a))[0].id;selectProject(projectId)}
 async function refresh(){projects=await all('projects');docs=await all('docs');for(const d of docs)persistedDocSnapshots.set(d.id,docSnapshot(d));updateHistoryButtons()}
 function project(){return projects.find(p=>p.id===projectId)}function documentNow(){return docs.find(d=>d.id===docId)}
-function selectProject(id){setMobileMenu(false);projectId=id;localStorage.setItem('msProject',id);let pd=docs.filter(d=>d.projectId===id);let old=docId;docId=pd.some(d=>d.id===old)?old:pd[0]?.id||null;scopePath='0';render()}
+function selectProject(id,{keepSidebarOpen=false}={}){if(!keepSidebarOpen)setMobileMenu(false);projectId=id||null;try{if(projectId)localStorage.setItem('msProject',projectId);else localStorage.removeItem('msProject')}catch(e){console.warn('Projektauswahl konnte nicht gespeichert werden:',e)}let pd=docs.filter(d=>d.projectId===projectId);let old=docId;docId=pd.some(d=>d.id===old)?old:pd[0]?.id||null;scopePath='0';render()}
 function selectDocument(id){setMobileMenu(false);docId=id;scopePath='0';render()}
 
 // A shared scanner keeps root validation, highlighting and the tree parser consistent.
@@ -676,16 +524,62 @@ function validationMessage(scan){
   if(!scan.roots.length)return 'Keine H1 · # Titel ergänzen';
   return scan.roots.length+' H1 gefunden · nur eine erlaubt (Zeilen '+scan.roots.slice(1).map(i=>i+1).join(', ')+')';
 }
+// [date:YYYY-MM-DD +1y +2m +3d] is a node property like [status:...].
+// Units may appear in any order, but must be positive and occur at most once.
+function parseNodeDatePayload(raw){
+  const match=String(raw).match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(.+))?$/);
+  if(!match)return null;
+  const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
+  if(year<1||month<1||month>12||day<1||day>31)return null;
+  const calendar=new Date(0);calendar.setUTCHours(0,0,0,0);calendar.setUTCFullYear(year,month-1,day);
+  if(calendar.getUTCFullYear()!==year||calendar.getUTCMonth()!==month-1||calendar.getUTCDate()!==day)return null;
+  const duration={y:0,m:0,d:0},seen=new Set();
+  if(match[4])for(const component of match[4].split(/\s+/)){
+    const part=component.match(/^\+([1-9]\d*)([ymd])$/);
+    if(!part||seen.has(part[2]))return null;
+    const amount=Number(part[1]);if(!Number.isSafeInteger(amount))return null;
+    seen.add(part[2]);duration[part[2]]=amount;
+  }
+  return {start:String(year).padStart(4,'0')+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0'),duration};
+}
+function nodeDatePrefix(text){
+  const token=String(text).match(/^\[date:([^\]\r\n]+)\](?=\s|$)/);
+  if(!token)return null;
+  const date=parseNodeDatePayload(token[1]);
+  return date?{text:token[0],date}:null;
+}
+function serializeNodeDate(date){
+  if(!date?.start)return '';
+  const pieces=['y','m','d'].filter(unit=>date.duration?.[unit]>0).map(unit=>'+'+date.duration[unit]+unit);
+  return '[date:'+date.start+(pieces.length?' '+pieces.join(' '):'')+']';
+}
+// Calendar months/years are applied before days, clamping the day in short months.
+// All calculations use UTC to avoid daylight-saving shifts.
+function nodeDateEnd(date){
+  if(!date?.start)return null;
+  const [y,m,d]=date.start.split('-').map(Number);
+  const months=y*12+m-1+(date.duration?.y||0)*12+(date.duration?.m||0);
+  const year=Math.floor(months/12),month=months%12+1;
+  if(!Number.isSafeInteger(months)||year<1||year>9999)return null;
+  const endOfMonth=new Date(0);endOfMonth.setUTCHours(0,0,0,0);endOfMonth.setUTCFullYear(year,month,0);
+  const result=new Date(0);result.setUTCHours(0,0,0,0);result.setUTCFullYear(year,month-1,Math.min(d,endOfMonth.getUTCDate()));
+  result.setUTCDate(result.getUTCDate()+(date.duration?.d||0));
+  const endYear=result.getUTCFullYear();
+  if(!Number.isInteger(endYear)||endYear<1||endYear>9999)return null;
+  return String(endYear).padStart(4,'0')+'-'+String(result.getUTCMonth()+1).padStart(2,'0')+'-'+String(result.getUTCDate()).padStart(2,'0');
+}
 function nodeText(raw){
-  let s=raw.trim(),checked=null,status=null;
-  for(let i=0;i<2;i++){
-    let box=s.match(/^\[([ xX])\](?:\s+|$)/);
-    if(box&&checked===null){checked=box[1].toLowerCase()==='x';s=s.slice(box[0].length);continue}
-    let st=s.match(/^\[status:([a-z-]+)\](?:\s+|$)/i);
-    if(st&&status===null){status=st[1].toLowerCase();s=s.slice(st[0].length);continue}
+  let s=raw.trim(),checked=null,status=null,date=null;
+  for(let i=0;i<3;i++){
+    const box=s.match(/^\[([ xX])\](?=\s|$)/);
+    if(box&&checked===null){checked=box[1].toLowerCase()==='x';s=s.slice(box[0].length).trimStart();continue}
+    const st=s.match(/^\[status:([a-z-]+)\](?=\s|$)/i);
+    if(st&&status===null){status=st[1].toLowerCase();s=s.slice(st[0].length).trimStart();continue}
+    const dt=nodeDatePrefix(s);
+    if(dt&&date===null){date=dt.date;s=s.slice(dt.text.length).trimStart();continue}
     break;
   }
-  return {title:s.trim(),checked,status};
+  return {title:s.trim(),checked,status,date};
 }
 
 
@@ -736,23 +630,29 @@ function toast(s){let e=$('#toast');e.textContent=s;e.classList.remove('hidden')
 
 function render(){
   let p=project(),d=documentNow();
-  $('#projectLabel').innerHTML=`<select id="projectSelect" aria-label="Projekt auswählen">${projects.map(item=>`<option value="${item.id}" ${item.id===projectId?'selected':''}>${escapeHtml(item.name)}</option>`).join('')}</select><button type="button" class="project-settings-button" id="projectSettings" aria-label="Projekteinstellungen" title="Status-Bezeichnungen und -Farben bearbeiten">⚙</button>`;
-  $('#projectSelect').onchange=async e=>{await flushSource();selectProject(e.target.value)};
-  $('#projectSettings').onclick=async()=>{await flushSource();setMobileMenu(false);openProjectSettings()};
-  $('#docList').innerHTML=docs.filter(x=>x.projectId===projectId).map(x=>`<button class="navitem ${x.id===docId?'active':''}" data-doc="${x.id}"><span class="sym">▤</span><span>${escapeHtml(x.name)}</span></button>`).join('');
-  document.querySelectorAll('[data-doc]').forEach(e=>e.onclick=async()=>{await flushSource();selectDocument(e.dataset.doc)});
+  applyProjectAccent(p);
+  $('#projectLabel').innerHTML=`<select id="projectSelect" aria-label="Projekt auswählen, nach letzter Änderung sortiert">${projectOptionsHtml()}</select><button type="button" class="project-settings-button" id="projectSettings" aria-label="Projekteinstellungen" title="Status-Bezeichnungen und -Farben bearbeiten">⚙</button>`;
+  $('#projectSelect').disabled=!projects.length;
+  $('#projectSettings').disabled=!p;
+  $('#projectSelect').onchange=async e=>{await flushMapInlineEdit();await flushSource();selectProject(e.target.value,{keepSidebarOpen:true})};
+  $('#projectSettings').onclick=async()=>{await flushMapInlineEdit();await flushSource();setMobileMenu(false);openProjectSettings()};
+  $('#docList').innerHTML=docs.filter(x=>x.projectId===projectId).sort((a,b)=>a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true})).map(x=>`<button class="navitem ${x.id===docId?'active':''}" data-doc="${x.id}"><span class="sym">▤</span><span>${escapeHtml(x.name)}</span></button>`).join('');
+  document.querySelectorAll('[data-doc]').forEach(e=>e.onclick=async()=>{await flushMapInlineEdit();await flushSource();selectDocument(e.dataset.doc)});
   $('#breadcrumb').textContent=`${p?.name||'Workspace'} / ${d?.name||'Kein Dokument'}`;
   $('#renameDoc').disabled=!d;
   updateHistoryButtons();
   updateSaveStatus();
   document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.view===view));
   if(editorResizeObserver){editorResizeObserver.disconnect();editorResizeObserver=null}
-  if(!d){$('#surface').innerHTML='<div class="empty">Lege ein Dokument an, um zu beginnen.</div>';return}
+  if(view!=='markdown'||!d)syncMobileMarkdownViewportInactive();
+  if(!d){$('#surface').innerHTML='<div class="empty">'+(p?'Lege ein Dokument an, um zu beginnen.':'Lege ein Projekt an oder stelle das gelöschte Projekt mit Rückgängig wieder her.')+'</div>';return}
   const inspection=scanMarkdown(d.content);
   currentModel=parseMarkdown(d.content,inspection);
-  if(!flattened(currentModel).some(n=>n.path===scopePath))scopePath=currentRoot().path;
+  if(scopePath!==KANBAN_ALL_SCOPE&&!flattened(currentModel).some(n=>n.path===scopePath))scopePath=currentRoot().path;
   if(view!=='mindmap')activeMap=null;
   if(view==='markdown'){renderEditor();return}
+  // The calendar does not require a valid H1, only valid node date markers.
+  if(view==='calendar'){renderCalendar();return}
   if(!inspection.valid){
     $('#surface').innerHTML=`<div class="source-invalid"><div class="warningicon">!</div><h2>Dokumentstruktur prüfen</h2><p>${escapeHtml(validationMessage(inspection))}. Eine Mindmap benötigt genau eine Überschrift der Ebene 1 (<code># Titel</code>). Der Markdown-Text ist weiterhin gespeichert.</p><button class="btn primary" id="fixRoot">Im Markdown-Editor korrigieren</button></div>`;
     $('#fixRoot').onclick=()=>{setView('markdown');render();focusRootProblem()};return;
@@ -760,6 +660,7 @@ function render(){
   if(view==='mindmap')renderMindmap();
   if(view==='kanban')renderKanban();
 }
+
 
 function plain(s){return s.replace(/!?\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g,(_,d,h,a)=>a||h||d).replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/[*_`~]/g,'').trim()}
 // The type is read from the original Markdown marker, not inferred from status.
@@ -800,6 +701,7 @@ function mapCollapsed(docId){
   return mapCollapsedPaths.get(docId);
 }
 async function persistMapCollapsed(docId){
+  await flushMapInlineEdit();
   const doc=docs.find(d=>d.id===docId);
   if(!doc)return;
   doc.mapCollapsedPaths=[...mapCollapsed(docId)];
@@ -831,9 +733,13 @@ const mapIcons={
 function mapSvg(icon){return `<svg viewBox="0 0 24 24" aria-hidden="true">${mapIcons[icon]}</svg>`}
 function mapNodeHtml(row,root){
   const n=row.node,hasChildren=n.children.length>0,collapsed=mapCollapsed(documentNow().id).has(n.path);
-  const progress=(n.checked!==null||hasChildren)?`<span class="nodefoot">${n.checked===true?'✓ ':''}${Math.round(n.progress)} % <span class="bar"><i style="width:${n.progress}%"></i></span></span>`:'';
-  const fold=hasChildren?`<button type="button" class="mm-fold" data-map-fold="${escapeHtml(n.path)}" aria-label="Unterknoten ${collapsed?'einblenden':'ausblenden'}" title="Unterknoten ${collapsed?'einblenden':'ausblenden'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/>${collapsed?'<path d="M12 5v14"/>':''}</svg></button>`:'';
-  return `<div class="node mm-node ${root?'treeroot':''}" role="button" tabindex="0" data-map-node="${escapeHtml(n.path)}"
+  const deep=row.depth>=3;
+  const progress=(n.checked!==null||hasChildren)?(deep
+    ?`<span class="nodefoot mm-bottom-progress" role="progressbar" aria-label="Fortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(n.progress)}" title="${Math.round(n.progress)} % Fortschritt"><span class="bar"><i style="width:${n.progress}%"></i></span></span>`
+    :`<span class="nodefoot">${n.checked===true?'✓ ':''}${Math.round(n.progress)} % <span class="bar"><i style="width:${n.progress}%"></i></span></span>`):'';
+  const fold=hasChildren?`<button type="button" class="mm-fold${collapsed?' is-collapsed':''}" data-map-fold="${escapeHtml(n.path)}" aria-label="${collapsed?n.children.length+' direkte Unterknoten einblenden':'Unterknoten ausblenden'}" title="${collapsed?n.children.length+' direkte Unterknoten einblenden':'Unterknoten ausblenden'}" aria-expanded="${!collapsed}">${collapsed?`<span class="mm-child-count" aria-hidden="true">${n.children.length}</span>`:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>'}</button>`:'';
+  const levelClass=row.depth===2?'mm-level-3':deep?'mm-level-deep':'';
+  return `<div class="node mm-node ${root?'treeroot':''} ${levelClass}" role="button" tabindex="0" data-map-node="${escapeHtml(n.path)}"
     style="left:${row.x}px;top:${row.y}px;--node-accent:${mapStatusColor(n)}"
     aria-label="${escapeHtml(nodeTypeLabel(n)+' '+plain(n.title))}; auswählen oder ziehen"
     aria-selected="false" ${hasChildren?`aria-expanded="${!collapsed}"`:''} title="Auswählen · Ziehen zum Sortieren oder Umhängen · Doppelklick zum Bearbeiten">
@@ -842,7 +748,7 @@ function mapNodeHtml(row,root){
 function positionMapRows(state){
   const gap=22,step=286;
   function measure(r){
-    r.height=Math.max(64,r.el?.offsetHeight||70);
+    r.height=Math.max(r.depth>=3?43:r.depth===2?56:64,r.el?.offsetHeight||70);
     r.width=r.el?.offsetWidth||r.width;
     const total=r.children.reduce((s,c)=>s+measure(c),0)+Math.max(0,r.children.length-1)*gap;
     r.branchHeight=Math.max(r.height,total);
@@ -926,9 +832,56 @@ function updateMapControls(state){
   if(child)child.disabled=!row;
   if(sibling)sibling.disabled=!row||row===state.rootRow;
 }
+// Sequential writes guarantee that a slower IndexedDB operation cannot overwrite
+// a newer inline edit. Closing the input never discards the current valid text.
+let mapInlineSaveChain=Promise.resolve();
+function applyMapInlineDraft(state,edit){
+  const title=edit.input.value.trim();
+  if(!title)return false;
+  if(title===edit.row.node.title)return true;
+  const d=docs.find(item=>item.id===state.docId);
+  if(!d)return false;
+  const changed=lineEdit(edit.row.node,{title});
+  if(!changed)return false;
+  edit.row.node.title=title;
+  edit.label.textContent=plain(title);
+  edit.row.el.setAttribute('aria-label',nodeTypeLabel(edit.row.node)+' '+plain(title)+'; auswählen oder ziehen');
+  edit.dirty=true;
+  updateSaveStatus();
+  return true;
+}
+async function saveMapInlineEdit(state,edit=state?.inlineEdit){
+  if(!edit)return mapInlineSaveChain;
+  clearTimeout(edit.timer);
+  if(edit.dirty){
+    const d=docs.find(item=>item.id===state.docId);
+    if(!d)return false;
+    const snapshot={...d};
+    const record=!edit.historyRecorded;
+    edit.historyRecorded=true;
+    edit.dirty=false;
+    mapInlineSaveChain=mapInlineSaveChain.catch(()=>{}).then(()=>put('docs',snapshot,{record}))
+      .then(()=>true).catch(error=>{
+        console.error(error);
+        edit.dirty=true;
+        edit.historyRecorded=record?false:edit.historyRecorded;
+        toast('Knotentitel konnte nicht gespeichert werden');
+        return false;
+      });
+  }
+  return mapInlineSaveChain;
+}
+async function flushMapInlineEdit(){
+  const state=activeMap;
+  return state?.inlineEdit?saveMapInlineEdit(state,state.inlineEdit):mapInlineSaveChain;
+}
 function closeMapInlineEdit(state,restoreFocus=false){
   const edit=state.inlineEdit;
   if(!edit)return;
+  clearTimeout(edit.timer);
+  if(!edit.input.value.trim())edit.input.value=edit.row.node.title;
+  else applyMapInlineDraft(state,edit);
+  if(edit.dirty)saveMapInlineEdit(state,edit);
   state.inlineEdit=null;
   edit.host.remove();edit.label.classList.remove('hidden');
   edit.row.el.classList.remove('mm-inline-editing');
@@ -938,30 +891,17 @@ function closeMapInlineEdit(state,restoreFocus=false){
     if(restoreFocus&&edit.row.el.isConnected)edit.row.el.focus({preventScroll:true});
   }
 }
-async function saveMapInlineEdit(state){
-  const edit=state.inlineEdit;
-  if(!edit||edit.saving||activeMap!==state)return;
-  const title=edit.input.value.trim();
-  if(!title){toast('Knotentitel darf nicht leer sein');edit.input.focus();return}
-  if(title===edit.row.node.title){closeMapInlineEdit(state,true);return}
-  const d=documentNow(),oldContent=d.content;
-  const changed=lineEdit(edit.row.node,{title});
-  if(!changed){edit.input.focus();return}
-  edit.saving=true;
-  edit.host.querySelectorAll('button').forEach(btn=>btn.disabled=true);
-  edit.input.disabled=true;
-  try{await put('docs',{...changed})}
-  catch(error){
-    d.content=oldContent;edit.saving=false;edit.input.disabled=false;
-    edit.host.querySelectorAll('button').forEach(btn=>btn.disabled=false);
-    console.error(error);toast('Knotentitel konnte nicht gespeichert werden');edit.input.focus();return;
-  }
-  const path=edit.path;
-  state.inlineEdit=null;
-  mapSelectedPaths.set(d.id,path);
-  render();
-  const row=activeMap?.rows.find(r=>r.path===path);
-  if(row)row.el.focus({preventScroll:true});
+async function finishMapInlineEdit(state,restoreFocus=false){
+  const edit=state?.inlineEdit;
+  // A pending save may resolve to undefined when no editor is active.
+  // Callers require a boolean success value before handling fold controls.
+  if(!edit){const saved=await flushMapInlineEdit();return saved!==false}
+  if(!edit.input.value.trim())edit.input.value=edit.row.node.title;
+  else applyMapInlineDraft(state,edit);
+  const saved=await saveMapInlineEdit(state,edit);
+  if(saved===false)return false;
+  if(state.inlineEdit===edit)closeMapInlineEdit(state,restoreFocus);
+  return true;
 }
 function beginMapInlineEdit(state,path,selectAll=false){
   if(activeMap!==state)return;
@@ -981,23 +921,27 @@ function beginMapInlineEdit(state,path,selectAll=false){
   if(!label||!title)return;
   const host=document.createElement('span');
   host.className='mm-inline-editor';
-  host.innerHTML=`<input type="text" class="mm-inline-input" aria-label="Knotentitel bearbeiten" autocomplete="off" spellcheck="false">
-    <span class="mm-inline-actions"><button type="button" data-inline-save title="Speichern (Enter)" aria-label="Knotentitel speichern"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg></button>
-    <button type="button" data-inline-cancel title="Abbrechen (Escape)" aria-label="Bearbeitung abbrechen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>`;
+  host.innerHTML='<input type="text" class="mm-inline-input" aria-label="Knotentitel bearbeiten; automatisch gespeichert" autocomplete="off" spellcheck="false">';
   label.classList.add('hidden');title.appendChild(host);
   row.el.classList.add('mm-inline-editing');
   row.el.setAttribute('role','group');row.el.tabIndex=-1;
   const input=host.querySelector('input');input.value=row.node.title;
-  state.inlineEdit={row,path,label,host,input,saving:false};
+  const edit={row,path,label,host,input,dirty:false,historyRecorded:false,timer:null};
+  state.inlineEdit=edit;
   host.onpointerdown=e=>e.stopPropagation();
   host.onclick=e=>e.stopPropagation();
   host.onkeydown=e=>{
     e.stopPropagation();
-    if(e.key==='Enter'){e.preventDefault();saveMapInlineEdit(state)}
-    else if(e.key==='Escape'){e.preventDefault();closeMapInlineEdit(state,true)}
+    if(e.key==='Enter'||e.key==='Escape'){
+      e.preventDefault();
+      finishMapInlineEdit(state,true);
+    }
   };
-  host.querySelector('[data-inline-save]').onclick=()=>saveMapInlineEdit(state);
-  host.querySelector('[data-inline-cancel]').onclick=()=>closeMapInlineEdit(state,true);
+  input.addEventListener('input',()=>{
+    if(!applyMapInlineDraft(state,edit))return;
+    clearTimeout(edit.timer);
+    if(edit.dirty)edit.timer=setTimeout(()=>saveMapInlineEdit(state,edit),180);
+  });
   positionMapRows(state);drawMapLinks(state);positionMapToolbar(state);
   input.focus({preventScroll:true});
   if(selectAll)input.select();else input.setSelectionRange(input.value.length,input.value.length);
@@ -1024,9 +968,10 @@ function selectMapNode(state,path){
       <button type="button" data-map-action="copy" title="Knoten auf gleicher Ebene kopieren" aria-label="Knoten kopieren" ${row===state.rootRow?'disabled':''}>${mapSvg('copy')}</button>
       <button type="button" data-map-action="delete" class="danger" title="Knoten samt Unterknoten löschen" aria-label="Knoten löschen" ${row===state.rootRow?'disabled':''}>${mapSvg('delete')}</button>`;
     toolbar.onpointerdown=e=>e.stopPropagation();
-    toolbar.onclick=e=>{
+    toolbar.onclick=async e=>{
       const action=e.target.closest('[data-map-action]');if(!action||action.disabled)return;
       e.stopPropagation();
+      if(!(await finishMapInlineEdit(state)))return;
       if(action.dataset.mapAction==='edit')editNode(row.path);
       if(action.dataset.mapAction==='copy')copyMapNode(row.path);
       if(action.dataset.mapAction==='delete')confirmMapDelete(row.path);
@@ -1044,14 +989,31 @@ function centerMapNode(path){
   state.panY=state.viewport.clientHeight/2-(row.y+row.height/2)*state.scale;
   applyMapView(state);
 }
-function toggleMapChildren(state,path){
+async function toggleMapChildren(state,path){
+  if(!(await finishMapInlineEdit(state)))return;
+  if(activeMap!==state)return;
   const n=flattened(currentModel).find(x=>x.path===path);
   if(!n||!n.children.length)return;
   const collapsed=mapCollapsed(state.docId),wasCollapsed=collapsed.has(path);
   if(wasCollapsed)collapsed.delete(path);else collapsed.add(path);
   if(!wasCollapsed&&state.selectedPath?.startsWith(path+'.'))mapSelectedPaths.set(state.docId,path);
   renderMindmap();
-  persistMapCollapsed(state.docId);
+  await persistMapCollapsed(state.docId);
+}
+async function setAllMapChildrenCollapsed(state,shouldCollapse){
+  if(!state||activeMap!==state)return;
+  if(!(await finishMapInlineEdit(state)))return;
+  if(activeMap!==state)return;
+  const allBranches=flattened(currentRoot()).filter(n=>n.children.length>0);
+  const collapsed=mapCollapsed(state.docId);
+  if(shouldCollapse){
+    collapsed.clear();
+    for(const node of allBranches)collapsed.add(node.path);
+    // The root is the only visible node after collapsing everything.
+    mapSelectedPaths.set(state.docId,currentRoot().path);
+  }else collapsed.clear();
+  renderMindmap();
+  await persistMapCollapsed(state.docId);
 }
 // Scan boundaries rather than using recorded `end`, which is the next markdown node,
 // not necessarily the end of a heading or nested list subtree.
@@ -1121,6 +1083,7 @@ function mapInsertionSpec(source,target,place){
   return {kind:'li',indent:0,marker:'-'};
 }
 async function commitMapContent(content,selectedLine,notice,expectedParentLine,lineRemap){
+  await flushMapInlineEdit();
   const d=documentNow(),scan=scanMarkdown(content);
   if(!scan.valid){toast('Verschieben nicht m\u00f6glich: genau eine H1 erforderlich');return false}
   const model=parseMarkdown(content,scan);
@@ -1297,7 +1260,7 @@ function wireMapGestures(state){
   }
   viewport.onpointerdown=e=>{
     if(e.pointerType==='mouse'&&e.button!==0)return;
-    if(e.target.closest('[data-map-fold],.mm-actions,.mm-controls,.mm-inline-editor,.node-text'))return;
+    if(e.target.closest('[data-map-fold],.mm-actions,.mm-controls,.mm-inline-editor'))return;
     if(state.inlineEdit)closeMapInlineEdit(state);
     const btn=e.target.closest('[data-map-node]');
     pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -1306,7 +1269,7 @@ function wireMapGestures(state){
       if(btn){
         const row=state.rows.find(r=>r.path===btn.dataset.mapNode);
         if(!row)return;
-        gesture={kind:'node',row,startX:e.clientX,startY:e.clientY,dragging:false,ghost:null,drop:null};
+        gesture={kind:'node',row,startX:e.clientX,startY:e.clientY,dragging:false,ghost:null,drop:null,startOnText:!!e.target.closest('.node-text')};
         selectMapNode(state,row.path);
       }else{
         gesture={kind:'pan',startX:e.clientX,startY:e.clientY,panX:state.panX,panY:state.panY,moved:false};
@@ -1359,7 +1322,10 @@ function wireMapGestures(state){
         const finalTarget=mapDropTarget(state,old,e.clientX,e.clientY)||drop;
         if(finalTarget)moveMapNode(old.row.path,finalTarget.row.path,finalTarget.place);
         else toast('Auf einen Knoten ziehen, um zu sortieren oder anzuhängen');
-      }else if(!cancelled&&old.row.el.isConnected)old.row.el.focus({preventScroll:true});
+      }else if(!cancelled&&old.row.el.isConnected){
+          if(old.startOnText)beginMapInlineEdit(state,old.row.path);
+          else old.row.el.focus({preventScroll:true});
+        }
     }
     if(wasSingle&&old?.kind==='pan'&&!old.moved&&!cancelled)selectMapNode(state,null);
     if(pointers.size===1){
@@ -1385,9 +1351,7 @@ function wireMapGestures(state){
     else if(e.key.startsWith('Arrow')){const delta=50;if(e.key==='ArrowLeft')state.panX+=delta;if(e.key==='ArrowRight')state.panX-=delta;if(e.key==='ArrowUp')state.panY+=delta;if(e.key==='ArrowDown')state.panY-=delta;applyMapView(state);e.preventDefault()}
   };
   for(const row of state.rows){
-    row.el.ondblclick=e=>{if(state.inlineEdit||e.target.closest('[data-map-fold,.mm-inline-editor,.node-text]'))return;e.stopPropagation();editNode(row.path)};
-    const text=row.el.querySelector('.node-text');
-    if(text)text.onclick=e=>{e.preventDefault();e.stopPropagation();beginMapInlineEdit(state,row.path)};
+    row.el.ondblclick=e=>{if(state.inlineEdit||e.target.closest('[data-map-fold], .mm-inline-editor, .node-text'))return;e.stopPropagation();editNode(row.path)};
     row.el.onkeydown=e=>{
       if(e.target!==row.el)return;
       if(!state.inlineEdit&&state.selectedPath===row.path&&e.key==='Tab'&&!e.shiftKey&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
@@ -1418,7 +1382,7 @@ function renderMindmap(){
   const root=currentRoot(),doc=documentNow();
   const layout=mapLayout(root,mapCollapsed(doc.id));
   activeMap?.resizeObserver?.disconnect();
-  $('#surface').innerHTML=`<div class="mm-viewport" id="mapViewport" tabindex="0" aria-label="Mindmap: Knoten antippen zum Auswählen, ziehen zum Sortieren oder Anhängen; freie Fläche verschieben; Mausrad, Plus/Minus oder zwei Finger zoomen">
+  $('#surface').innerHTML=`<div class="mm-viewport" id="mapViewport" tabindex="0" aria-label="Mindmap: Knoten antippen zum Auswählen, ziehen zum Sortieren oder Anhängen; freie Fläche verschieben; Mausrad oder zwei Finger zoomen; Plus/Minus klappt alle Unterknoten auf oder zu">
       <div class="mm-world" id="mapWorld"><svg class="mm-links" id="mapLinks" aria-hidden="true"></svg>${layout.rows.map(r=>mapNodeHtml(r,r===layout.rootRow)).join('')}</div>
     </div>
     <div class="mm-drop-hint hidden" id="mapDropHint" role="status"></div>
@@ -1427,8 +1391,8 @@ function renderMindmap(){
       <button type="button" id="mapAddSibling" title="Knoten auf gleicher Ebene erstellen" aria-label="Knoten auf gleicher Ebene erstellen" disabled>${mapSvg('sibling')}</button>
       <span class="mm-divider" aria-hidden="true"></span>
       <button type="button" id="mapFit" title="Alle Knoten einpassen" aria-label="Alle Knoten einpassen">${mapSvg('fit')}</button>
-      <button type="button" class="mm-zoom" id="mapZoomOut" title="Verkleinern (−)" aria-label="Mindmap verkleinern">−</button>
-      <button type="button" class="mm-zoom" id="mapZoomIn" title="Vergrößern (+)" aria-label="Mindmap vergrößern">+</button>
+      <button type="button" class="mm-zoom" id="mapCollapseAll" title="Alle Unterknoten zuklappen (−)" aria-label="Alle Unterknoten zuklappen">−</button>
+      <button type="button" class="mm-zoom" id="mapExpandAll" title="Alle Unterknoten aufklappen (+)" aria-label="Alle Unterknoten aufklappen">+</button>
     </div>`;
   const state={...layout,docId:doc.id,viewport:$('#mapViewport'),world:$('#mapWorld'),svg:$('#mapLinks'),panX:0,panY:0,scale:1,selectedPath:null,inlineEdit:null};
   activeMap=state;
@@ -1442,9 +1406,8 @@ function renderMindmap(){
   $('#mapAddChild').onclick=()=>createMapNode('child');
   $('#mapAddSibling').onclick=()=>createMapNode('sibling');
   $('#mapFit').onclick=()=>fitMap(state);
-  const zoomCenter=factor=>{const b=state.viewport.getBoundingClientRect();zoomMapAt(state,state.scale*factor,b.left+b.width/2,b.top+b.height/2)};
-  $('#mapZoomOut').onclick=()=>zoomCenter(1/1.2);
-  $('#mapZoomIn').onclick=()=>zoomCenter(1.2);
+  $('#mapCollapseAll').onclick=()=>setAllMapChildrenCollapsed(state,true);
+  $('#mapExpandAll').onclick=()=>setAllMapChildrenCollapsed(state,false);
   if(typeof ResizeObserver!=='undefined'){
     const observer=new ResizeObserver(()=>{
       if(activeMap!==state)return;
@@ -1455,128 +1418,6 @@ function renderMindmap(){
   }
 }
 
-// The Kanban scope always contains immediate children only. Story is task-only.
-function kanbanVisible(n){return (n.status||'story')!=='story'||n.checked!==null}
-function renderKanban(){
-  const root=currentRoot(),all=flattened(root),scopes=all.filter(n=>n.children.length>0);
-  if(!scopes.length)scopes.push(root);
-  const selected=scopes.find(n=>n.path===scopePath)||scopes[0];
-  scopePath=selected.path;
-  const opts=scopes.map(n=>{
-    const count=n.children.filter(kanbanVisible).length;
-    return `<option value="${n.path}" ${n.path===scopePath?'selected':''}>${escapeHtml(plain(n.title))} (${count})</option>`;
-  }).join('');
-  const lanes=STATUS.map(st=>{
-    const ns=selected.children.filter(n=>(n.status||'story')===st&&kanbanVisible(n));
-    return `<div class="lane" data-lane-status="${st}" style="--lane-accent:${statusColor(st)}">
-      <div class="laneheading"><span>${escapeHtml(statusLabel(st))}</span><span class="count">${ns.length}</span></div>
-      ${ns.map(n=>`<div class="ticket" data-open="${n.path}" data-ticket-status="${st}" tabindex="0" aria-label="${escapeHtml(plain(n.title))}; lange drücken und in eine andere Spalte ziehen">
-        <b>${labeledNodeTitle(n)}</b>
-        ${n.children.length?`<small class="ticket-subcount">▦ ${n.children.length} Unterknoten</small>`:''}
-        ${n.children.length?`<button class="btn" data-scope="${n.path}">Unterknoten →</button>`:''}
-        <div class="ticket-progress" role="progressbar" aria-label="Fortschritt von ${escapeHtml(plain(n.title))}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(n.progress)}" title="${Math.round(n.progress)} % Fortschritt"><span style="width:${Math.round(n.progress)}%"></span></div>
-      </div>`).join('')}
-    </div>`;
-  }).join('');
-  $('#surface').innerHTML=`<div class="surfacehead kanban-head"><select class="scope" id="scopeSelect" aria-label="Kanban-Scope auswählen">${opts}</select></div><div class="kanban" id="kanbanBoard">${lanes}</div>`;
-  $('#scopeSelect').onchange=e=>{scopePath=e.target.value;renderKanban()};
-  document.querySelectorAll('[data-open]').forEach(el=>{
-    el.onclick=e=>{if(el._suppressClickUntil&&Date.now()<el._suppressClickUntil){e.stopPropagation();e.preventDefault();return}
-      if(e.target.closest('[data-scope]'))return;
-      editNode(el.dataset.open)
-    };
-    el.onkeydown=e=>{if(e.target!==el)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();editNode(el.dataset.open)}};
-  });
-  document.querySelectorAll('[data-scope]').forEach(el=>el.onclick=e=>{e.stopPropagation();scopePath=el.dataset.scope;renderKanban()});
-  wireKanbanDrag();
-}
-// Pointer Events support a deliberate long press on both mouse and touch.
-// Only a drop into a different column changes metadata; Markdown tree order is preserved.
-function wireKanbanDrag(){
-  const board=$('#kanbanBoard');if(!board)return;
-  let gesture=null;
-  const edge=46;
-  function laneAt(x,y){return document.elementFromPoint(x,y)?.closest?.('[data-lane-status]')||null}
-  function highlight(lane){
-    board.querySelectorAll('.lane').forEach(el=>el.classList.toggle('kb-drop-target',el===lane));
-  }
-  function positionGhost(g){
-    if(!g.ghost)return;
-    g.ghost.style.left=(g.x-g.offsetX)+'px';g.ghost.style.top=(g.y-g.offsetY)+'px';
-  }
-  function refreshTarget(g){
-    const lane=laneAt(g.x,g.y);
-    g.target=lane?.dataset.laneStatus||null;
-    highlight(lane);
-  }
-  function tick(){
-    const g=gesture;if(!g||!g.dragging)return;
-    const r=board.getBoundingClientRect();
-    if(g.y>r.top&&g.y<r.bottom){
-      const speed=g.x<r.left+edge?-15:g.x>r.right-edge?15:0;
-      if(speed)board.scrollLeft+=speed;
-    }
-    refreshTarget(g);g.raf=requestAnimationFrame(tick);
-  }
-  function start(g){
-    if(gesture!==g||g.dragging)return;
-    g.dragging=true;
-    const rect=g.ticket.getBoundingClientRect();
-    g.ghost=g.ticket.cloneNode(true);
-    g.ghost.removeAttribute('data-open');g.ghost.classList.add('kb-drag-ghost');
-    g.ghost.querySelectorAll('select,button').forEach(el=>{el.tabIndex=-1;el.disabled=true});
-    Object.assign(g.ghost.style,{width:rect.width+'px',height:rect.height+'px'});
-    document.body.appendChild(g.ghost);
-    g.ticket.classList.add('kb-drag-source');
-    document.body.classList.add('kb-is-dragging');
-    positionGhost(g);refreshTarget(g);g.raf=requestAnimationFrame(tick);
-  }
-  function clear(g){
-    clearTimeout(g.timer);
-    if(g.raf)cancelAnimationFrame(g.raf);
-    g.ghost?.remove();g.ticket.classList.remove('kb-drag-source');
-    document.body.classList.remove('kb-is-dragging');highlight(null);
-    if(gesture===g)gesture=null;
-  }
-  for(const ticket of board.querySelectorAll('.ticket')){
-    ticket.addEventListener('pointerdown',e=>{
-      if(gesture||e.button!==0||e.target.closest('select,button'))return;
-      const rect=ticket.getBoundingClientRect();
-      const g={ticket,id:ticket.dataset.open,source:ticket.dataset.ticketStatus,pointerId:e.pointerId,
-        startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,
-        offsetX:e.clientX-rect.left,offsetY:e.clientY-rect.top,
-        dragging:false,target:null,timer:null,ghost:null,raf:0};
-      gesture=g;
-      g.timer=setTimeout(()=>start(g),e.pointerType==='mouse'?340:460);
-      try{ticket.setPointerCapture(e.pointerId)}catch(_){}
-    });
-    ticket.addEventListener('pointermove',e=>{
-      const g=gesture;if(!g||g.ticket!==ticket||g.pointerId!==e.pointerId)return;
-      g.x=e.clientX;g.y=e.clientY;
-      if(!g.dragging){if(Math.hypot(g.x-g.startX,g.y-g.startY)>10){g.ticket._suppressClickUntil=Date.now()+450;clear(g)}return}
-      positionGhost(g);refreshTarget(g);e.preventDefault();
-    });
-    ticket.addEventListener('pointerup',e=>{
-      const g=gesture;if(!g||g.ticket!==ticket||g.pointerId!==e.pointerId)return;
-      if(!g.dragging){clear(g);return}
-      g.ticket._suppressClickUntil=Date.now()+450;
-      refreshTarget(g);
-      const to=g.target,id=g.id,from=g.source;
-      clear(g);e.preventDefault();e.stopPropagation();
-      if(!to||to===from)return;
-      const node=flattened(currentModel).find(n=>n.path===id);
-      // A non-task moved to Story becomes hidden by the Story-only filter.
-      patchNode(id,{status:to==='story'?null:to}).then(()=>toast(to==='story'&&node?.checked===null
-        ?'Story: Knoten ohne Checkbox in Kanban ausgeblendet'
-        :'Status: '+statusLabel(to)));
-    });
-    ticket.addEventListener('pointercancel',e=>{if(gesture?.ticket===ticket&&gesture.pointerId===e.pointerId)clear(gesture)});
-    ticket.addEventListener('lostpointercapture',e=>{if(gesture?.ticket===ticket&&gesture.pointerId===e.pointerId)clear(gesture)});
-    ticket.addEventListener('contextmenu',e=>{if(gesture?.ticket===ticket||Boolean(ticket._suppressClickUntil&&Date.now()<ticket._suppressClickUntil))e.preventDefault()});
-  }
-}
-
-const SYN_TOKENS=/(\[\[([^\]]+)\]\]|\[[^\]]+\]\([^)]+\)|`[^`]*`|\*\*[^*\n]+\*\*|__[^_\n]+__|\*[^*\n]+\*|_[^_\n]+_)/g;
 function paintInline(raw){
   let out='',pos=0;
   for(const match of raw.matchAll(SYN_TOKENS)){
@@ -1588,13 +1429,18 @@ function paintInline(raw){
 }
 function paintNodeText(value){
   let rest=value,html='';
-  for(let i=0;i<2;i++){
+  for(let i=0;i<3;i++){
     const space=rest.match(/^\s+/);
     if(space){html+=escapeHtml(space[0]);rest=rest.slice(space[0].length)}
     const cb=rest.match(/^\[([ xX])\](?=\s|$)/);
     const status=rest.match(/^\[status:([a-z-]+)\](?=\s|$)/i);
+    const date=nodeDatePrefix(rest);
     if(cb){html+=`<span class="${cb[1].toLowerCase()==='x'?'syn-checkbox-done':'syn-checkbox'}">${escapeHtml(cb[0])}</span>`;rest=rest.slice(cb[0].length);continue}
     if(status){const key=status[1].toLowerCase(),cls=['done','doing','todo','review'].includes(key)?' syn-status-'+key:'',style=STATUS.includes(key)?` style="color:${statusColor(key)}" title="${escapeHtml(statusLabel(key))}"`:'';html+=`<span class="syn-status${cls}"${style}>${escapeHtml(status[0])}</span>`;rest=rest.slice(status[0].length);continue}
+    if(date){html+=`<span class="syn-date">${escapeHtml(date.text)}</span>`;rest=rest.slice(date.text.length);continue}
+    // Invalid date syntax remains literal text and gets a warning in the editor.
+    const invalidDate=rest.match(/^\[date[^\]\r\n]*\](?=\s|$)/i);
+    if(invalidDate){html+=`<span class="syn-date-invalid" title="Ungültiges Datums-Tag: [date:YYYY-MM-DD +1y +1m +1d], keine negativen oder doppelten Einheiten">${escapeHtml(invalidDate[0])}</span>`;rest=rest.slice(invalidDate[0].length);break}
     break;
   }
   return html+paintInline(rest);
@@ -1759,12 +1605,14 @@ function nodeControlTokens(item){
   if(!item||!['heading','list'].includes(item.kind))return [];
   const prefix=lineMarker(item.raw);if(!prefix)return [];
   const tokens=[];let index=prefix[0].length,rest=item.raw.slice(index);
-  for(let k=0;k<2;k++){
+  for(let k=0;k<3;k++){
     const blanks=rest.match(/^[ \t]+/);if(blanks){index+=blanks[0].length;rest=rest.slice(blanks[0].length)}
     const check=rest.match(/^\[([ xX])\](?=[ \t]|$)/);
     const status=rest.match(/^\[status:([a-z-]+)\](?=[ \t]|$)/i);
+    const date=nodeDatePrefix(rest);
     if(check){tokens.push({type:'check',start:index,end:index+check[0].length,checked:check[1].toLowerCase()==='x'});index+=check[0].length;rest=rest.slice(check[0].length)}
     else if(status&&STATUS.includes(status[1].toLowerCase())){tokens.push({type:'status',start:index,end:index+status[0].length,status:status[1].toLowerCase()});index+=status[0].length;rest=rest.slice(status[0].length)}
+    else if(date){tokens.push({type:'date',start:index,end:index+date.text.length,date:date.date});index+=date.text.length;rest=rest.slice(date.text.length)}
     else break;
   }
   return tokens;
@@ -1773,7 +1621,7 @@ function editorReplace(from,to,replacement,focus=false){
   const source=$('#source');if(!source)return;
   const scrollTop=source.scrollTop,scrollLeft=source.scrollLeft;
   source.setRangeText(replacement,from,to,'preserve');
-  if(focus)source.focus({preventScroll:true});
+  if(focus)restoreMarkdownEditorFocus();
   source.scrollTop=scrollTop;source.scrollLeft=scrollLeft;
   source.dispatchEvent(new Event('input',{bubbles:true}));
 }
@@ -1786,12 +1634,13 @@ function setEditorNodeControls(line,change,focus=false){
   const tokens=nodeControlTokens(item);
   let checked=tokens.find(t=>t.type==='check')?.checked??null;
   let status=tokens.find(t=>t.type==='status')?.status??null;
+  const date=tokens.find(t=>t.type==='date')?.date??null;
   if(Object.prototype.hasOwnProperty.call(change,'checked'))checked=change.checked;
   if(Object.prototype.hasOwnProperty.call(change,'status'))status=change.status==='story'?null:change.status;
   const oldContentStart=tokens.length?tokens[tokens.length-1].end:marker[0].length;
   const remaining=item.raw.slice(oldContentStart);
   const body=remaining.replace(/^[ \t]+/,'');
-  const newPrefix=marker[0]+(checked===null?'':(checked?'[x] ':'[ ] '))+(status===null?'':'[status:'+status+'] ');
+  const newPrefix=marker[0]+(checked===null?'':(checked?'[x] ':'[ ] '))+(status===null?'':'[status:'+status+'] ')+(date?serializeNodeDate(date)+' ':'');
   const next=newPrefix+body;
   const start=editorScan.offsets[line],end=start+item.raw.length;
   const oldCaret=source.selectionStart;
@@ -1800,7 +1649,7 @@ function setEditorNodeControls(line,change,focus=false){
     ?start+newPrefix.length+oldCaret-(start+bodyOffset)
     :start+newPrefix.length;
   if(next!==item.raw)editorApplyRange(start,end,next,Math.max(start,Math.min(start+next.length,caret)));
-  if(focus)source.focus({preventScroll:true});
+  if(focus)restoreMarkdownEditorFocus();
   hideCompletions();
   return true;
 }
@@ -1834,7 +1683,8 @@ function drawEditorInteractions(){
       if(left>source.clientWidth||left+width<0)continue;
       const base=`data-line="${line}" data-column="${t.start}" style="top:${y.toFixed(2)}px;left:${left.toFixed(2)}px;width:${Math.max(width,t.type==='check'?27:32).toFixed(2)}px;height:${m.lineHeight}px"`;
       if(t.type==='check')html+=`<button type="button" class="token-hit token-hit-checkbox" ${base} aria-label="Checkbox in Zeile ${line+1}: ${t.checked?'erledigt, als offen markieren':'offen, als erledigt markieren'}" title="Checkbox umschalten"></button>`;
-      else html+=`<select class="token-hit token-hit-status" ${base} aria-label="Status in Zeile ${line+1} ändern" title="Status ändern">${STATUS.map(s=>`<option value="${s}" ${s===t.status?'selected':''}>${escapeHtml(statusLabel(s))}</option>`).join('')}</select>`;
+      else if(t.type==='status')html+=`<select class="token-hit token-hit-status" ${base} aria-label="Status in Zeile ${line+1} ändern" title="Status ändern">${STATUS.map(s=>`<option value="${s}" ${s===t.status?'selected':''}>${escapeHtml(statusLabel(s))}</option>`).join('')}</select>`;
+      else if(t.type==='date')html+=`<button type="button" class="token-hit token-hit-date" ${base} aria-label="Datum in Zeile ${line+1} bearbeiten" title="Datum im Knoten-Dialog bearbeiten"></button>`;
     }
   }
   layer.innerHTML=html;
@@ -1847,6 +1697,7 @@ function drawEditorInteractions(){
     const item=editorScan?.items[Number(el.dataset.line)];const t=nodeControlTokens(item).find(t=>t.type==='status'&&t.start===Number(el.dataset.column));
     if(t)changeEditorStatus(Number(el.dataset.line),t,el.value);
   });
+  layer.querySelectorAll('.token-hit-date').forEach(el=>el.onclick=()=>openNodeEditorFromEditorLine(Number(el.dataset.line)));
 }
 async function openNodeEditorFromEditorLine(line){
   const source=$('#source'),item=editorScan?.items[line];
@@ -1960,7 +1811,11 @@ function renderCompletionPopup(){
   const destination=state.linkMode?completionLinkTarget(state):null;
   const openButton=destination?`<button type="button" class="completion-open" id="completionOpen" aria-label="${escapeHtml(destination.doc+(destination.heading?' – '+destination.heading:''))} öffnen"><span>↗ ${escapeHtml(destination.doc+(destination.heading?' # '+destination.heading:''))} öffnen</span></button>`:'';
   pop.innerHTML=`${openButton}<div class="completion-heading">${escapeHtml(state.label)}</div>${state.items.map((o,i)=>`<button type="button" class="completion-item ${i===completionIndex?'active':''}" data-suggestion="${i}" role="option" aria-selected="${i===completionIndex}"><strong>${escapeHtml(o.label)}</strong><small>${escapeHtml(o.detail)}</small></button>`).join('')}<div class="completion-tip">↵ / Tab übernehmen · ↑↓ auswählen · Tippen zum Einfügen</div>`;
-  pop.querySelectorAll('[data-suggestion]').forEach(el=>{el.onmousedown=e=>e.preventDefault();el.onclick=()=>acceptCompletion(Number(el.dataset.suggestion))});
+  pop.querySelectorAll('[data-suggestion]').forEach(el=>{
+    el.onpointerdown=e=>{if(window.matchMedia('(max-width:850px)').matches&&document.activeElement===$('#source')&&e.cancelable)e.preventDefault()};
+    el.onmousedown=e=>e.preventDefault();
+    el.onclick=()=>acceptCompletion(Number(el.dataset.suggestion));
+  });
   const open=pop.querySelector('#completionOpen');if(open){open.onmousedown=e=>e.preventDefault();open.onclick=()=>openCompletionDocument()}
   positionCompletionPopup();
 }
@@ -2013,11 +1868,12 @@ function editorNodeControlValue(item,change){
   const tokens=nodeControlTokens(item);
   let checked=tokens.find(t=>t.type==='check')?.checked??null;
   let status=tokens.find(t=>t.type==='status')?.status??null;
+  const date=tokens.find(t=>t.type==='date')?.date??null;
   if(Object.prototype.hasOwnProperty.call(change,'checked'))checked=change.checked;
   if(Object.prototype.hasOwnProperty.call(change,'status'))status=change.status==='story'?null:change.status;
   const prefixEnd=tokens.length?tokens[tokens.length-1].end:marker[0].length;
   const body=item.raw.slice(prefixEnd).replace(/^[ \t]+/,'');
-  return marker[0]+(checked===null?'':(checked?'[x] ':'[ ] '))+(status===null?'':'[status:'+status+'] ')+body;
+  return marker[0]+(checked===null?'':(checked?'[x] ':'[ ] '))+(status===null?'':'[status:'+status+'] ')+(date?serializeNodeDate(date)+' ':'')+body;
 }
 function editorHasCheckbox(item){
   if(item.kind==='heading'||item.kind==='list')return nodeControlTokens(item).some(t=>t.type==='check');
@@ -2075,14 +1931,14 @@ function editorTransformSelectedLines(action,value,selection){
   if(!applicable){
     if(action==='status')toast('Status nur für Überschriften und Listen verfügbar');
     else toast('Keine passenden Zeilen in der Markierung');
-    hideCompletions();source.focus({preventScroll:true});return true;
+    hideCompletions();restoreMarkdownEditorFocus();return true;
   }
   const replacement=changed.join('\n');
   if(replacement!==source.value.slice(range.from,range.to)){
     // One input event = one autosave/history step; keep the transformed lines selected.
     editorApplyRange(range.from,range.to,replacement,range.from,range.from+replacement.length);
   }
-  hideCompletions();source.focus({preventScroll:true});
+  hideCompletions();restoreMarkdownEditorFocus();
   return true;
 }
 function editorLineChange(marker){
@@ -2092,7 +1948,7 @@ function editorLineChange(marker){
   const existing=rest.match(/^(?:#{1,6}[ \t]+|(?:[-+*]|\d+[.)])[ \t]+)/);
   const from=start+whitespace,to=from+(existing?existing[0].length:0);
   editorApplyRange(from,to,marker,from+marker.length);
-  source.focus({preventScroll:true});
+  restoreMarkdownEditorFocus();
   hideCompletions();
 }
 // The list tool toggles the structural list marker, not the whole line's text.
@@ -2111,7 +1967,7 @@ function editorToggleList(){
   const previous=source.selectionStart;
   const newCursor=previous>=to?previous+replacement.length-(to-from):Math.max(from,previous);
   editorApplyRange(from,to,replacement,newCursor);
-  source.focus({preventScroll:true});hideCompletions();
+  restoreMarkdownEditorFocus();hideCompletions();
 }
 // Checkbox tool only inserts/removes [ ]; it never inserts or removes a list marker.
 function editorCheckboxToolbar(){
@@ -2131,7 +1987,7 @@ function editorCheckboxToolbar(){
   const caret=source.selectionStart;
   const nextCaret=caret>=to?caret+replacement.length-(to-from):from+replacement.length;
   editorApplyRange(from,to,replacement,nextCaret);
-  source.focus({preventScroll:true});hideCompletions();
+  restoreMarkdownEditorFocus();hideCompletions();
 }
 function setEditorLineStatus(status,selection){
   if(editorTransformSelectedLines('status',status,selection))return;
@@ -2264,6 +2120,14 @@ function smartListIndent(outdent=false){
   hideCompletions();
 }
 function wireEditorTools(){
+  const toolbar=$('.editor-tools');
+  toolbar?.addEventListener('pointerdown',e=>{
+    if(window.matchMedia('(max-width:850px)').matches &&
+       e.target.closest('button[data-tool]') && document.activeElement===$('#source') && e.cancelable){
+      // Prevent the button from stealing textarea focus; click still fires.
+      e.preventDefault();
+    }
+  });
   const heading=$('#headingLevel');
   if(heading)heading.onchange=()=>{
     const level=Number(heading.value);
@@ -2284,6 +2148,54 @@ function wireEditorTools(){
     }
   });
 }
+// v19: Track the *visible* viewport, not only 100dvh (which can include the keyboard on iOS).
+let editorVisualFrame=0,editorUnobstructedHeight=0,editorLastViewportWidth=0;
+function syncMobileMarkdownViewportInactive(){
+  const app=$('.app');
+  app.classList.remove('mobile-markdown-active','mobile-keyboard-open');
+  document.body.classList.remove('mobile-markdown-active');
+  app.style.removeProperty('--mf-visual-height');
+  app.style.removeProperty('--mf-visual-top');
+  editorUnobstructedHeight=0;editorLastViewportWidth=0;
+}
+function syncMobileMarkdownViewport(){
+  const app=$('.app'),source=$('#source');
+  const active=view==='markdown'&&!!source&&window.matchMedia('(max-width:850px)').matches;
+  app.classList.toggle('mobile-markdown-active',active);
+  document.body.classList.toggle('mobile-markdown-active',active);
+  if(!active){
+    app.classList.remove('mobile-keyboard-open');
+    app.style.removeProperty('--mf-visual-height');
+    app.style.removeProperty('--mf-visual-top');
+    editorUnobstructedHeight=0;editorLastViewportWidth=0;
+    positionCompletionPopup();
+    return;
+  }
+  const visual=window.visualViewport;
+  const height=Math.max(1,visual?.height||window.innerHeight);
+  const top=visual?.offsetTop||0;
+  const width=Math.round(visual?.width||window.innerWidth);
+  if(width!==editorLastViewportWidth){editorLastViewportWidth=width;editorUnobstructedHeight=height}
+  if(document.activeElement!==source)editorUnobstructedHeight=Math.max(editorUnobstructedHeight,height);
+  const keyboardGap=Math.max(editorUnobstructedHeight-height,window.innerHeight-height);
+  app.classList.toggle('mobile-keyboard-open',keyboardGap>110);
+  app.style.setProperty('--mf-visual-height',height.toFixed(2)+'px');
+  app.style.setProperty('--mf-visual-top',top.toFixed(2)+'px');
+  positionCompletionPopup();
+  syncCodeScroll();
+}
+function scheduleMobileMarkdownViewport(){
+  if(editorVisualFrame)return;
+  editorVisualFrame=requestAnimationFrame(()=>{editorVisualFrame=0;syncMobileMarkdownViewport()});
+}
+// Never reactivate the phone's keyboard just because a formatting action finished.
+// Desktop retains its existing focus-restore behavior.
+function restoreMarkdownEditorFocus(){
+  const source=$('#source');
+  if(source&&!window.matchMedia('(max-width:850px)').matches&&document.activeElement!==source){
+    source.focus({preventScroll:true});
+  }
+}
 function renderEditor(){
   const d=documentNow();editorDocId=d.id;
   completionState=null;editorComposing=false;
@@ -2297,6 +2209,7 @@ function renderEditor(){
     <div class="editfoot"><button type="button" id="rootState" class="root-state" title="H1-Validierung"></button><small class="codehelp" id="editorHelp">Autocomplete: / · [[ · [status: · Enter setzt Listen fort · Tab/Shift+Tab rückt ein/aus</small></div>
   </div>`;
   const source=$('#source');source.value=d.content;
+  syncMobileMarkdownViewport();
   refreshCodeVisuals();wireMinimap();wireEditorTools();
   $('#rootState').onclick=focusRootProblem;
   source.onscroll=syncCodeScroll;
@@ -2348,8 +2261,12 @@ function renderEditor(){
   }
   requestAnimationFrame(()=>{if(document.querySelector('#source')===source)syncCodeScroll()});
 }
-window.visualViewport?.addEventListener('resize',positionCompletionPopup);
-window.visualViewport?.addEventListener('scroll',positionCompletionPopup);
+window.visualViewport?.addEventListener('resize',scheduleMobileMarkdownViewport);
+window.visualViewport?.addEventListener('scroll',scheduleMobileMarkdownViewport);
+window.addEventListener('resize',scheduleMobileMarkdownViewport);
+window.addEventListener('orientationchange',()=>{editorLastViewportWidth=0;scheduleMobileMarkdownViewport()});
+document.addEventListener('focusin',e=>{if(e.target?.id==='source')scheduleMobileMarkdownViewport()});
+document.addEventListener('focusout',e=>{if(e.target?.id==='source')scheduleMobileMarkdownViewport()});
 async function saveSource(id=editorDocId,text){
   const d=docs.find(x=>x.id===id);if(!d)return;
   const value=text===undefined?($('#source')?.value??d.content):text;
@@ -2371,179 +2288,13 @@ async function flushSource(){
 }
 
 
-function openModal(html){$('#modal').classList.remove('node-modal');$('#modal').innerHTML=html;$('#modalBack').classList.remove('hidden')}function closeModal(){$('#modalBack').classList.add('hidden')};$('#modalBack').onclick=e=>{if(e.target===$('#modalBack'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-function formActions(label='Speichern'){return `<div class="modalactions"><button class="btn" type="button" id="cancelModal">Abbrechen</button><button class="btn primary" type="submit">${label}</button></div>`}function wireCancel(){$('#cancelModal').onclick=closeModal}
-function openProjectSettings(){
-  const p=project();if(!p)return;
-  const settings=statusSettingsFor(p);
-  const rows=STATUS.map(key=>`<div class="status-setting-row">
-    <span class="status-code" title="Markdown: [status:${key}]">${key}</span>
-    <input type="text" id="statusLabel-${key}" aria-label="Bezeichnung für ${key}" maxlength="36" required value="${escapeHtml(settings[key].label)}">
-    <input type="color" id="statusColor-${key}" aria-label="Farbe für ${key}" value="${settings[key].color}">
-  </div>`).join('');
-  openModal(`<h2>Projekteinstellungen</h2><p>${escapeHtml(p.name)}</p>
-    <form id="projectSettingsForm">
-      <div class="field"><label>Knoten-Status</label>
-        <div class="status-settings-grid"><div class="status-setting-head"><span>Kennung</span><span>Bezeichnung</span><span>Farbe</span></div>${rows}</div>
-        <small class="field-note status-settings-note">Kennungen wie <code>[status:doing]</code> bleiben im Markdown unverändert. Bezeichnungen und Farben gelten nur für dieses Projekt.</small>
-      </div>${formActions('Einstellungen speichern')}</form>`);
-  wireCancel();
-  $('#projectSettingsForm').onsubmit=async e=>{
-    e.preventDefault();
-    const next={};
-    for(const key of STATUS){
-      const label=$('#statusLabel-'+key).value.replace(/\s+/g,' ').trim().slice(0,36);
-      if(!label){$('#statusLabel-'+key).focus();toast('Status-Bezeichnungen dürfen nicht leer sein');return}
-      next[key]={label,color:$('#statusColor-'+key).value};
-    }
-    const previous=p.statusSettings;
-    p.statusSettings=next;
-    try{await put('projects',{...p})}
-    catch(error){p.statusSettings=previous;console.error(error);toast('Projekteinstellungen konnten nicht gespeichert werden');return}
-    closeModal();render();toast('Projekteinstellungen gespeichert');
-  };
-}
-function createProject(){openModal(`<h2>Neues Projekt</h2><p>Projekte und Dokumente werden lokal in deinem Browser gespeichert.</p><form id="projectForm"><div class="field"><label>Projektname</label><input id="projectName" maxlength="90" required placeholder="Mein neues Projekt" autofocus></div>${formActions('Projekt erstellen')}</form>`);wireCancel();$('#projectForm').onsubmit=async e=>{e.preventDefault();let p={id:uid(),name:$('#projectName').value.trim(),created:Date.now(),statusSettings:statusSettingsFor(null)};if(!p.name)return;await put('projects',p);await refresh();selectProject(p.id);closeModal();toast('Projekt erstellt')}}
-function createDocument(){if(!projectId)return createProject();openModal(`<h2>Neues Dokument</h2><p>Jedes Dokument besitzt einen eindeutigen Namen innerhalb des Projekts.</p><form id="docForm"><div class="field"><label>Dokumentname</label><input id="newDocName" required maxlength="100" placeholder="Planung"></div>${formActions('Dokument erstellen')}</form>`);wireCancel();$('#docForm').onsubmit=async e=>{e.preventDefault();let name=$('#newDocName').value.trim().replace(/\.md$/i,'');if(!name||docs.some(d=>d.projectId===projectId&&d.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname existiert bereits');let d={id:uid(),projectId,name,content:'# '+name+'\n'};await put('docs',d);deletionHistoryFor(d.projectId).redo.length=0;await refresh();selectDocument(d.id);closeModal();toast('Dokument erstellt')}}
-function renameDocument(){
-  const d=documentNow();if(!d)return;
-  openModal(`<h2>Dokument umbenennen</h2><form id="renameForm">
-    <div class="field"><label for="renameValue">Name</label><input id="renameValue" required maxlength="100" value="${escapeHtml(d.name)}"></div>
-    <div class="modalactions document-modal-actions">
-      <button type="button" class="btn delete-document" id="deleteDocument">L\u00f6schen</button>
-      <span class="document-action-spacer" aria-hidden="true"></span>
-      <button class="btn" type="button" id="cancelModal">Abbrechen</button>
-      <button class="btn primary" type="submit">Speichern</button>
-    </div></form>`);
-  wireCancel();
-  $('#deleteDocument').onclick=deleteCurrentDocument;
-  $('#renameForm').onsubmit=async e=>{
-    e.preventDefault();let name=$('#renameValue').value.trim().replace(/\.md$/i,'');
-    if(!name||docs.some(x=>x.projectId===projectId&&x.id!==d.id&&x.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname bereits vergeben');
-    const previous=d.name;d.name=name;
-    try{await put('docs',{...d})}
-    catch(error){d.name=previous;console.error(error);toast('Umbenennen fehlgeschlagen');return}
-    closeModal();render();
-  };
-}
-async function deleteCurrentDocument(){
-  if(historyBusy||!documentNow())return;
-  historyBusy=true;updateHistoryButtons();
-  const button=$('#deleteDocument');if(button)button.disabled=true;
-  try{
-    // Save any pending editor input before preserving the deleted document for undo.
-    if(view==='markdown')await flushSource();
-    clearTimeout(saveTimer);
-    const current=documentNow();
-    const others=docs.filter(item=>item.projectId===current.projectId&&item.id!==current.id);
-    const replacement=others.length?null:newProjectDocument(uid(),current.projectId);
-    const next=others[0]||replacement;
-    const record={document:structuredClone(current),projectId:current.projectId,
-      placeholder:replacement?structuredClone(replacement):null,successorId:next.id};
-    await commitDocumentChanges(replacement?[replacement]:[],[current.id]);
-    applyDocumentChanges(replacement?[replacement]:[],[current.id]);
-    docHistoryFor(current.id).redo.length=0;
-    const history=deletionHistoryFor(current.projectId);
-    history.undo.push({...record,stamp:++historySerial});
-    if(history.undo.length>100)history.undo.shift();
-    history.redo.length=0;
-    docId=next.id;scopePath='0';
-    closeModal();render();toast('Dokument gel\u00f6scht \u00b7 R\u00fcckg\u00e4ngig zum Wiederherstellen');
-  }catch(error){console.error(error);toast('Dokument konnte nicht gel\u00f6scht werden')}
-  finally{historyBusy=false;if(button?.isConnected)button.disabled=false;updateHistoryButtons()}
-}
-function lineEdit(n,props){
-  const d=documentNow(),ls=d.content.replace(/\r\n?/g,'\n').split('\n'),line=ls[n.start];
-  if(line===undefined)return false;
-  const oldPrefix=n.kind==='h'?line.match(/^\s*#{1,6}\s*/)?.[0]:line.match(/^\s*(?:[-+*]|\d+[.)])\s+/)?.[0];
-  if(!oldPrefix)return false;
-  const type=props.nodeType??nodeTypeValue(n);
-  const leading=(line.match(/^\s*/)||[''])[0];
-  let prefix;
-  if(/^h[1-6]$/.test(type)){
-    prefix=(n.kind==='h'?leading.slice(0,3):'')+'#'.repeat(Number(type.slice(1)))+' ';
-  }else if(/^ul[-+*]$/.test(type)){
-    prefix=(n.kind==='li'?leading:'')+type.slice(2)+' ';
-  }else if(type==='ol.'||type==='ol)'){
-    const num=n.kind==='li'&&/^\d+[.)]$/.test(n.marker||'')?Number.parseInt(n.marker,10):1;
-    prefix=(n.kind==='li'?leading:'')+num+type.slice(2)+' ';
-  }else return false;
-  const title=props.title??n.title,requestedStatus=props.status===undefined?n.status:props.status,
-        status=requestedStatus==='story'?null:requestedStatus,
-        checked=props.checked===undefined?n.checked:props.checked;
-  const parts=[];
-  if(checked!==null)parts.push(checked?'[x]':'[ ]');
-  if(status!==null&&status!==undefined&&status!=='')parts.push('[status:'+status+']');
-  parts.push(title);
-  ls[n.start]=prefix+parts.join(' ');
-  const result=ls.join('\n');
-  if(scanMarkdown(result).roots.length!==1){
-    toast('Pro Dokument ist genau eine H1 erforderlich. Knotentyp wurde nicht geändert.');
-    return false;
-  }
-  d.content=result;
-  return d;
-}
-async function patchNode(path,props){let n=flattened(currentModel).find(n=>n.path===path);if(!n)return;let d=lineEdit(n,props);if(d){await put('docs',d);render()}}
-function editNode(path){
-  const n=flattened(currentModel).find(item=>item.path===path);
-  if(!n||n.kind==='virtual')return;
-  const refs=[...n.title.matchAll(/\[\[([^\]#|]+)(?:#([^\]|]+))?(?:\|[^\]]+)?\]\]/g)];
-  const previousType=nodeTypeValue(n),isKanbanTicket=view==='kanban';
-  const typeOptions=NODE_TYPES.map(t=>`<option value="${t.value}" ${t.value===previousType?'selected':''}>${escapeHtml(t.label)}</option>`).join('');
-  openModal(`<h2><label for="nodeTitle">${isKanbanTicket?'Ticket':'Knoten'} bearbeiten</label></h2><form id="nodeForm" class="node-form">
-    <div class="field"><input id="nodeTitle" aria-label="Knoten bearbeiten: Titel" required value="${escapeHtml(n.title)}"></div>
-    <div class="node-properties ${isKanbanTicket?'single':''}"><div class="field"><label for="nodeType">Knotentyp</label><select id="nodeType">${typeOptions}</select></div>
-    ${isKanbanTicket?'':`<div class="field"><label for="nodeStatus">Status</label><select id="nodeStatus">${STATUS.map(st=>`<option value="${st}" ${st===(n.status||'story')?'selected':''}>${escapeHtml(statusLabel(st))}</option>`).join('')}</select></div>`}</div>
-    <div class="field"><label>Aufgabenstatus (Checkbox)</label><div class="node-check-group"><label><input type="checkbox" id="nodeUseCheck" ${n.checked!==null?'checked':''}> Checkbox für diesen Knoten verwenden</label><label><input type="checkbox" id="nodeDone" ${n.checked===true?'checked':''} ${n.checked===null?'disabled':''}> Erledigt</label></div></div>
-    <div class="field"><label for="nodeDescription">Beschreibung (Markdown)</label><textarea id="nodeDescription">${escapeHtml(n.description.join('\n').trim())}</textarea></div>
-    ${refs.length?`<div class="field"><label>Dokumentenverknüpfungen</label>${refs.map((m,i)=>`<button type="button" class="btn" data-link="${i}" style="text-align:left">↗ ${escapeHtml(m[0])}</button>`).join('')}</div>`:''}
-    ${formActions()}</form>`);
-  $('#modal').classList.add('node-modal');
-  wireCancel();
-  $('#nodeUseCheck').onchange=()=>{$('#nodeDone').disabled=!$('#nodeUseCheck').checked};
-  document.querySelectorAll('[data-link]').forEach(el=>el.onclick=()=>navigateLink(refs[Number(el.dataset.link)][1],refs[Number(el.dataset.link)][2]));
-  $('#nodeForm').onsubmit=async e=>{
-    e.preventDefault();
-    const nextType=$('#nodeType').value;
-    const d=lineEdit(n,{title:$('#nodeTitle').value.trim(),nodeType:nextType,
-      status:isKanbanTicket?n.status:$('#nodeStatus').value||null,
-      checked:$('#nodeUseCheck').checked?$('#nodeDone').checked:null});
-    if(!d)return;
-    const lines=d.content.split('\n'),scan=scanMarkdown(d.content),start=n.start+1;
-    let end=start;
-    while(end<lines.length&&!['heading','list'].includes(scan.items[end]?.kind))end++;
-    const desc=$('#nodeDescription').value.trim();
-    const markerLine=lines[n.start];
-    const isList=!nextType.startsWith('h');
-    const indent=isList?(markerLine.match(/^\s*/)?.[0]||'')+'  ':'';
-    const replacement=desc?desc.split('\n').map(l=>l?indent+l:''):[];
-    if(n.children.length&&replacement.length)replacement.push('');
-    lines.splice(start,end-start,...replacement);
-    d.content=lines.join('\n');
-    await put('docs',{...d});
-    // Keep the selection anchored to the edited line if its node type changes.
-    if(view==='mindmap'){
-      const updated=parseMarkdown(d.content,scanMarkdown(d.content));
-      const edited=flattened(updated).find(item=>item.start===n.start&&item.kind!=='virtual');
-      if(edited)mapSelectedPaths.set(d.id,edited.path);
-      else mapSelectedPaths.delete(d.id);
-    }
-    closeModal();render();toast('Knoten gespeichert');
-  };
-}
-function navigateLink(name,heading){let d=docs.find(x=>x.projectId===projectId&&x.name.toLowerCase()===name.toLowerCase());if(!d)return toast('Zieldokument nicht gefunden: '+name);docId=d.id;setView('mindmap');scopePath='0';closeModal();render();if(heading){let target=flattened(currentModel).find(n=>n.kind==='h'&&plain(n.title).toLowerCase()===heading.toLowerCase());if(target){let el=[...document.querySelectorAll('[data-node]')].find(x=>x.dataset.node===target.path);centerMapNode(target.path)}else toast('Überschrift nicht gefunden: '+heading)}}
-function addNode(){let root=currentRoot();let options=flattened(root);openModal(`<h2><label for="nodeTitle">Knoten erstellen</label></h2><form id="addForm" class="node-form"><div class="field"><input id="nodeTitle" required placeholder="Neuer Gedanke"></div><div class="field"><label for="parentSelect">Übergeordneter Knoten</label><select id="parentSelect">${options.map(n=>`<option value="${n.path}">${escapeHtml(plain(n.title))}</option>`).join('')}</select></div><div class="field"><label>Status</label><select id="addStatus">${STATUS.map(s=>`<option value="${s}">${escapeHtml(statusLabel(s))}</option>`).join('')}</select></div>${formActions('Knoten hinzufügen')}</form>`);$('#modal').classList.add('node-modal');wireCancel();$('#addForm').onsubmit=async e=>{e.preventDefault();let parent=options.find(n=>n.path===$('#parentSelect').value),d=documentNow(),lines=d.content.split('\n');let indent=parent.kind==='li'?' '.repeat(parent.indent+2):'';let status=$('#addStatus').value;let line=indent+'- '+(status&&status!=='story'?'[status:'+status+'] ':'')+$('#nodeTitle').value.trim();let insertion=parent.kind==='h'?findHeadingEnd(lines,parent):findListEnd(lines,parent);lines.splice(insertion,0,line);d.content=lines.join('\n');await put('docs',d);closeModal();render();toast('Knoten hinzugefügt')}}
-function findHeadingEnd(lines,n){let i=n.start+1;for(;i<lines.length;i++){let m=lines[i].match(/^ {0,3}(#{1,6})\s/);if(m&&m[1].length<=n.level)break}return i}function findListEnd(lines,n){let i=n.start+1;for(;i<lines.length;i++){let m=lines[i].match(/^(\s*)(?:[-+*]|\d+[.)])\s/);if(/^ {0,3}#{1,6}\s/.test(lines[i])||(m&&m[1].length<=n.indent))break}return i}
-// ZIP stored-entry writer (no dependencies, works offline)
-const enc=new TextEncoder(),dec=new TextDecoder();function crc32(data){let crc=-1;for(let b of data){crc^=b;for(let j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}return(crc^-1)>>>0}
-function makeZip(entries){let parts=[],central=[],offset=0;for(let [name,text] of entries){let nb=enc.encode(name),body=enc.encode(text),crc=crc32(body),head=new Uint8Array(30+nb.length),v=new DataView(head.buffer);v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint32(14,crc,true);v.setUint32(18,body.length,true);v.setUint32(22,body.length,true);v.setUint16(26,nb.length,true);head.set(nb,30);parts.push(head,body);let ch=new Uint8Array(46+nb.length),c=new DataView(ch.buffer);c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint32(16,crc,true);c.setUint32(20,body.length,true);c.setUint32(24,body.length,true);c.setUint16(28,nb.length,true);c.setUint32(42,offset,true);ch.set(nb,46);central.push(ch);offset+=head.length+body.length}let cdsize=central.reduce((s,x)=>s+x.length,0),end=new Uint8Array(22),e=new DataView(end.buffer);e.setUint32(0,0x06054b50,true);e.setUint16(8,entries.length,true);e.setUint16(10,entries.length,true);e.setUint32(12,cdsize,true);e.setUint32(16,offset,true);return new Blob([...parts,...central,end],{type:'application/zip'})}
-async function readZip(buffer){let a=new Uint8Array(buffer),v=new DataView(buffer),pos=a.length-22;while(pos>=0&&v.getUint32(pos,true)!==0x06054b50)pos--;if(pos<0)throw Error('Ungültige ZIP-Datei');let count=v.getUint16(pos+10,true),at=v.getUint32(pos+16,true),out=[];for(let k=0;k<count;k++){if(v.getUint32(at,true)!==0x02014b50)throw Error('Ungültiger ZIP-Eintrag');let method=v.getUint16(at+10,true),size=v.getUint32(at+20,true),nl=v.getUint16(at+28,true),extra=v.getUint16(at+30,true),comment=v.getUint16(at+32,true),loc=v.getUint32(at+42,true),name=dec.decode(a.slice(at+46,at+46+nl)),start=loc+30+v.getUint16(loc+26,true)+v.getUint16(loc+28,true),bytes=a.slice(start,start+size);if(method===8){if(typeof DecompressionStream==='undefined')throw Error('Dieser Browser unterstützt komprimierte ZIP-Dateien nicht');let stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));bytes=new Uint8Array(await new Response(stream).arrayBuffer())}else if(method!==0)throw Error('Nicht unterstützte ZIP-Komprimierung');if(name&&!name.endsWith('/'))out.push([name,dec.decode(bytes)]);at+=46+nl+extra+comment}return out}
-function safeName(s){return s.replace(/[\\/:*?"<>|]/g,'_')}
-function download(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
-function exportProject(){let p=project();if(!p)return;let items=docs.filter(d=>d.projectId===p.id),entries=[['mindstorm-project.json',JSON.stringify({format:'mindstorm',version:3,name:p.name,statusSettings:statusSettingsFor(p),documents:items.map(d=>({name:d.name,file:safeName(d.name)+'.md',mapPositions:d.mapPositions||{},mapCollapsedPaths:d.mapCollapsedPaths||[]}))},null,2)],...items.map(d=>[safeName(d.name)+'.md',d.content])];download(makeZip(entries),safeName(p.name)+'.zip');toast('Projekt exportiert')}
-async function importProject(file){try{let entries=await readZip(await file.arrayBuffer()),meta=entries.find(x=>x[0]==='mindstorm-project.json'),metadata=meta?JSON.parse(meta[1]):null,pname=metadata?.name||file.name.replace(/\.zip$/i,'');let mapping=metadata?metadata.documents:entries.filter(x=>x[0].endsWith('.md')).map(x=>({name:x[0].split('/').pop().replace(/\.md$/i,''),file:x[0]}));if(!mapping.length)throw Error('Keine Markdown-Dateien gefunden');let p={id:uid(),name:pname+' (Import)',created:Date.now(),statusSettings:statusSettingsFor({statusSettings:metadata?.statusSettings})};await put('projects',p);for(let item of mapping){let found=entries.find(x=>x[0]===item.file);if(found)await put('docs',{id:uid(),projectId:p.id,name:item.name,content:found[1],mapPositions:item.mapPositions||{},mapCollapsedPaths:item.mapCollapsedPaths||[]})}await refresh();selectProject(p.id);toast('Projekt importiert')}catch(e){toast('Import fehlgeschlagen: '+e.message)}}
-$('#addProject').onclick=()=>{setMobileMenu(false);createProject()};$('#addDocument').onclick=()=>{setMobileMenu(false);createDocument()};$('#renameDoc').onclick=renameDocument;$('#undoAction').onclick=()=>changeHistory('undo');$('#redoAction').onclick=()=>changeHistory('redo');$('#exportZip').onclick=()=>{setMobileMenu(false);exportProject()};$('#importZip').onclick=()=>{setMobileMenu(false);$('#fileImport').click()};$('#fileImport').onchange=async e=>{if(e.target.files[0])await importProject(e.target.files[0]);e.target.value=''};document.querySelectorAll('[data-view]').forEach(e=>e.onclick=async()=>{if(view==='markdown')await saveSource();setView(e.dataset.view);render()});$('#menuToggle').onclick=()=>setMobileMenu(!$('.app').classList.contains('menu-open'));$('#sidebarScrim').onclick=()=>setMobileMenu(false);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.app').classList.contains('menu-open'))setMobileMenu(false)});window.addEventListener('resize',()=>setMobileMenu($('.app').classList.contains('menu-open')));
+</script>
+<script src="js/kanban.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/extras.js"></script>
+<script>
+'use strict';
+$('#addProject').onclick=async()=>{await flushMapInlineEdit();setMobileMenu(false);createProject()};$('#addDocument').onclick=async()=>{await flushMapInlineEdit();setMobileMenu(false);createDocument()};$('#renameDoc').onclick=async()=>{await flushMapInlineEdit();renameDocument()};$('#undoAction').onclick=()=>changeHistory('undo');$('#redoAction').onclick=()=>changeHistory('redo');$('#exportZip').onclick=()=>{setMobileMenu(false);exportProject()};$('#importZip').onclick=()=>{setMobileMenu(false);$('#fileImport').click()};$('#fileImport').onchange=async e=>{if(e.target.files[0])await importProject(e.target.files[0]);e.target.value=''};document.querySelectorAll('[data-view]').forEach(e=>e.onclick=async()=>{await flushMapInlineEdit();if(view==='markdown')await saveSource();setView(e.dataset.view);render()});$('#menuToggle').onclick=()=>setMobileMenu(!$('.app').classList.contains('menu-open'));$('#sidebarScrim').onclick=()=>setMobileMenu(false);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.app').classList.contains('menu-open'))setMobileMenu(false)});window.addEventListener('resize',()=>setMobileMenu($('.app').classList.contains('menu-open')));
 document.addEventListener('keydown',e=>{
   if(e.defaultPrevented||e.altKey||$('#modalBack')&&!$('#modalBack').classList.contains('hidden'))return;
   const inInput=!!e.target.closest('textarea,input,select,[contenteditable="true"]');
@@ -2554,13 +2305,20 @@ document.addEventListener('keydown',e=>{
   }
   if(view==='mindmap'&&activeMap&&!inInput&&!e.ctrlKey&&!e.metaKey){
     if(['+','=','add'].includes(key)||e.code==='NumpadAdd'||key==='-'||e.code==='NumpadSubtract'){
-      e.preventDefault();const state=activeMap,b=state.viewport.getBoundingClientRect();
-      const zoomIn=!['-'].includes(key)&&e.code!=='NumpadSubtract';
-      zoomMapAt(state,state.scale*(zoomIn?1.2:1/1.2),b.left+b.width/2,b.top+b.height/2);
+      e.preventDefault();
+      setAllMapChildrenCollapsed(activeMap,!(['+','=','add'].includes(key)||e.code==='NumpadAdd'));
     }
   }
 });
 setMobileMenu(false);init().catch(e=>{console.error(e);toast('IndexedDB konnte nicht geöffnet werden')});
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js', { scope: './' })
+      .catch(err => console.warn('Service Worker Registrierung fehlgeschlagen:', err));
+  });
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="mindfagg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141b2a"/>
+      <stop offset="1" stop-color="#0b0e14"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a69aff"/>
+      <stop offset="1" stop-color="#5c72dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <g transform="translate(96 96) scale(10)">
+    <path d="M15.4 1.3 19.2 10l8.1-4.2-3.5 8.6 7.2 2.4-8 3.6 3.1 8.9-9-5-5.5 6.5-1.5-8.9-9.1 1.6 6.2-7-5.3-7.4 9.6 2.4 3.9-9.8Z"
+          fill="url(#mark)"/>
+    <path d="m15 10.1-2.6 7.1h4l-1 5.8 5-9h-4Z" fill="#111222"/>
+  </g>
+</svg>

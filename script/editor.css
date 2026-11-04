@@ -1,0 +1,30 @@
+/* mindfagg v28 — script source editor. Mirrors Markdown's gutter and minimap,
+   without Markdown-specific toolbars, controls, or automatic formatting. */
+.script-editor .codeframe{display:grid;grid-template-columns:43px minmax(0,1fr) 77px;flex:1;min-height:0;min-width:0;
+  border:1px solid #35435a;border-radius:12px;overflow:hidden;background:#0c121d;box-shadow:inset 0 1px 0 #ffffff05}
+.script-editor .syntaxlayer,.script-editor #scriptSource{font:13px/23px ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:0;tab-size:2;padding:17px 19px;white-space:pre;overflow-wrap:normal;word-break:normal}
+.script-editor #scriptSource{position:absolute;inset:0;display:block;width:100%;height:100%;min-height:0;resize:none;
+  border:0!important;border-radius:0;outline:none;background:transparent;color:transparent;
+  -webkit-text-fill-color:transparent;caret-color:#eeeaff;overflow:auto;scrollbar-width:none;overscroll-behavior:contain;z-index:2}
+.script-editor #scriptSource::-webkit-scrollbar{width:0;height:0;display:none}
+.script-editor #scriptSource::selection{background:#6960ab75}
+.script-editor #scriptSource:focus-visible{outline:none}
+.script-editor .codeframe:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 42%,transparent)}
+.script-editor .syntaxlayer{color:#a9b8cc}
+.script-editor .token.comment,.script-editor .token.prolog,.script-editor .token.doctype,.script-editor .token.cdata{color:#7589a4}
+.script-editor .token.punctuation{color:#8494ad}
+.script-editor .token.tag,.script-editor .token.selector,.script-editor .token.keyword,.script-editor .token.atrule{color:#b8a7ff}
+.script-editor .token.attr-name,.script-editor .token.property{color:#80ceca}
+.script-editor .token.attr-value,.script-editor .token.string,.script-editor .token.char,.script-editor .token.inserted{color:#9bd9ad}
+.script-editor .token.number,.script-editor .token.boolean,.script-editor .token.constant,.script-editor .token.symbol{color:#f2c57e}
+.script-editor .token.function,.script-editor .token.class-name,.script-editor .token.builtin{color:#8fc5f0}
+.script-editor .token.operator,.script-editor .token.entity,.script-editor .token.url{color:#dfb0ef}
+.script-editor .token.regex,.script-editor .token.important{color:#edb7cf}
+.script-editor .token.deleted{color:#ff9fae}
+.script-editor .token.namespace{opacity:.85}
+@media(max-width:850px){
+  .script-editor .codeframe{grid-template-columns:33px minmax(0,1fr) 52px;border-left:0;border-right:0;border-bottom:0;border-radius:0;box-shadow:none}
+  .script-editor .syntaxlayer,.script-editor #scriptSource{font-size:16px;line-height:24px;padding:13px 11px}
+}
+@media(max-width:440px){.script-editor .codeframe{grid-template-columns:29px minmax(0,1fr) 47px}}

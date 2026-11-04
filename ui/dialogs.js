@@ -1,6 +1,6 @@
 'use strict';
 // Projekt- und Dokumentdialoge, Knotenformulare, Einstellungen sowie ZIP-Import/Export.
-function openModal(html){$('#modal').classList.remove('node-modal');$('#modal').innerHTML=html;$('#modalBack').classList.remove('hidden')}function closeModal(){$('#modalBack').classList.add('hidden')};$('#modalBack').onclick=e=>{if(e.target===$('#modalBack'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+function openModal(html){$('#modal').classList.remove('node-modal');$('#modal').innerHTML=html;$('#modalBack').classList.remove('hidden')}function closeModal(){if(typeof githubBusy!=='undefined'&&githubBusy&&($('#githubModal')||$('#githubConflictModal')))return;$('#modalBack').classList.add('hidden')};$('#modalBack').onclick=e=>{if(e.target===$('#modalBack'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 function formActions(label='Speichern'){return `<div class="modalactions"><button class="btn" type="button" id="cancelModal">Abbrechen</button><button class="btn primary" type="submit">${label}</button></div>`}function wireCancel(){$('#cancelModal').onclick=closeModal}
 function openProjectSettings(){
   const p=project();if(!p)return;
@@ -18,6 +18,10 @@ function openProjectSettings(){
       </div>
       <div class="field"><label for="projectAccent">Akzentfarbe</label>
         <div class="project-accent-field"><input type="color" id="projectAccent" aria-label="Akzentfarbe auswählen" value="${projectAccentColor(p)}"><small class="field-note">Gilt für die Oberfläche dieses Projekts. Statusfarben bleiben separat einstellbar.</small></div>
+      </div>
+      <div class="field github-project-assignment"><label>GitHub-Repository</label>
+        <div class="github-project-assignment-line"><span id="githubProjectAssignment">${escapeHtml(githubConnection(p)?githubConnection(p).owner+'/'+githubConnection(p).repo+' · '+githubConnection(p).branch:'Kein Repository zugeordnet')}</span><button type="button" class="btn" id="projectGithubRepo">${githubConnection(p)?'Ändern':'Zuordnen'}</button></div>
+        <small class="field-note">GitHub-Zugangsdaten werden unter mindfagg App-Einstellungen gespeichert.</small>
       </div>
       <div class="field"><label>Knoten-Status</label>
         <div class="status-settings-grid"><div class="status-setting-head"><span>Kennung</span><span>Bezeichnung</span><span>Farbe</span></div>${rows}</div>
@@ -46,6 +50,7 @@ function openProjectSettings(){
   });
   nameInput.addEventListener('blur',()=>finishNameEdit(true));
   $('#deleteProject').onclick=()=>confirmProjectDelete(p.id);
+  $('#projectGithubRepo').onclick=()=>openGithubDialog();
   $('#projectSettingsForm').onsubmit=async event=>{
     event.preventDefault();
     const name=nameInput.value.replace(/\s+/g,' ').trim();
@@ -87,6 +92,8 @@ function commitProjectRestore(action){
   });
 }
 function forgetDeletedProject(id){
+  // v34: the token is app-wide; deleting a project only clears its local status.
+  githubProjectStatuses.delete(id);if(githubReview?.projectId===id)githubReview=null;
   projects=projects.filter(p=>p.id!==id);
   const deleted=docs.filter(d=>d.projectId===id);
   docs=docs.filter(d=>d.projectId!==id);
@@ -134,7 +141,7 @@ function confirmProjectDelete(id){
     historyBusy=true;updateHistoryButtons();
     try{
       await flushMapInlineEdit();
-      if(view==='markdown')await flushSource();
+      await flushSource();
       clearTimeout(saveTimer);
       const current=projects.find(item=>item.id===id);
       if(!current)throw new Error('Projekt nicht mehr gefunden');
@@ -181,13 +188,36 @@ function createProject(){
     finally{submit.disabled=false}
   };
 }
-function createDocument(){if(!projectId)return createProject();openModal(`<h2>Neues Dokument</h2><p>Jedes Dokument besitzt einen eindeutigen Namen innerhalb des Projekts.</p><form id="docForm"><div class="field"><label>Dokumentname</label><input id="newDocName" required maxlength="100" placeholder="Planung"></div>${formActions('Dokument erstellen')}</form>`);wireCancel();$('#docForm').onsubmit=async e=>{e.preventDefault();let name=$('#newDocName').value.trim().replace(/\.md$/i,'');if(!name||docs.some(d=>d.projectId===projectId&&d.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname existiert bereits');let d={id:uid(),projectId,name,content:'# '+name+'\n'};await put('docs',d);deletionHistoryFor(d.projectId).redo.length=0;await refresh();selectDocument(d.id);closeModal();toast('Dokument erstellt')}}
+function createDocument(){
+  if(!projectId)return createProject();
+  openModal(`<h2>Datei erstellen</h2><p>Markdown-Dateien erhalten die Endung .md; andere Textdateien öffnen die einfache Script-Ansicht.</p>
+    <form id="docForm"><div class="field"><label for="newDocName">Dateiname</label>
+      <input id="newDocName" required maxlength="200" placeholder="Notizen.md, app.js oder config.json" autofocus></div>
+      <div class="field"><label for="newDocFolder">Ordner</label><select id="newDocFolder">${workspaceFolderOptions()}</select><button type="button" class="btn" id="newFolderFromFile" style="justify-self:start">Neuen Ordner anlegen</button></div>
+      ${formActions('Datei erstellen')}</form>`);
+  wireCancel();
+  $('#newFolderFromFile').onclick=()=>createWorkspaceFolder();
+  $('#docForm').onsubmit=async e=>{
+    e.preventDefault();const input=$('#newDocName').value.trim(),folder=$('#newDocFolder').value;
+    let name=input;if(!name.includes('.'))name+='.md';
+    if(!name||name.includes('/')||name.includes('\\')||name==='.'||name==='..')return toast('Ungültiger Dateiname');
+    const path=workspaceValidPath([folder,name].filter(Boolean).join('/'));
+    if(!path)return toast('Ungültiger Dateipfad');
+    if(!workspaceUniquePath(path))return toast('Dateiname in diesem Ordner bereits vergeben');
+    if(!isMarkdownPath(path)&&!knownTextPath(path))return toast('Neue Dateien müssen ein Textformat haben; Binärdateien per ZIP importieren');
+    const markdown=isMarkdownPath(path);
+    const d={id:uid(),projectId,path,name:docNameForPath(path),fileType:markdown?'markdown':'script',content:markdown?'# '+docNameForPath(path)+'\n':''};
+    try{await recordWorkspaceFileCreation(d);selectDocument(d.id);closeModal();toast('Datei erstellt · Rückgängig möglich')}
+    catch(error){console.error(error);toast('Datei konnte nicht erstellt werden')}
+  };
+}
 function renameDocument(){
   const d=documentNow();if(!d)return;
-  openModal(`<h2>Dokument umbenennen</h2><form id="renameForm">
-    <div class="field"><label for="renameValue">Name</label><input id="renameValue" required maxlength="100" value="${escapeHtml(d.name)}"></div>
+  openModal(`<h2>Datei umbenennen oder verschieben</h2><form id="renameForm">
+    <div class="field"><label for="renameValue">Dateiname</label><input id="renameValue" required maxlength="200" value="${escapeHtml(fileLabel(d))}"></div>
+    <div class="field"><label for="renameFolder">Ordner</label><select id="renameFolder">${workspaceFolderOptions(pathParent(workspacePath(d)))}</select></div>
     <div class="modalactions document-modal-actions">
-      <button type="button" class="btn delete-document" id="deleteDocument">L\u00f6schen</button>
+      <button type="button" class="btn delete-document" id="deleteDocument">Löschen</button>
       <span class="document-action-spacer" aria-hidden="true"></span>
       <button class="btn" type="button" id="cancelModal">Abbrechen</button>
       <button class="btn primary" type="submit">Speichern</button>
@@ -195,12 +225,18 @@ function renameDocument(){
   wireCancel();
   $('#deleteDocument').onclick=deleteCurrentDocument;
   $('#renameForm').onsubmit=async e=>{
-    e.preventDefault();let name=$('#renameValue').value.trim().replace(/\.md$/i,'');
-    if(!name||docs.some(x=>x.projectId===projectId&&x.id!==d.id&&x.name.toLowerCase()===name.toLowerCase()))return toast('Dokumentname bereits vergeben');
-    const previous=d.name;d.name=name;
+    e.preventDefault();let name=$('#renameValue').value.trim(),folder=$('#renameFolder').value;
+    if(!name.includes('.')&&fileKind(d)==='markdown')name+='.md';
+    if(!name||name.includes('/')||name.includes('\\')||name==='.'||name==='..')return toast('Ungültiger Dateiname');
+    const path=workspaceValidPath([folder,name].filter(Boolean).join('/'));
+    if(!path||!workspaceUniquePath(path,d.id))return toast('Dateipfad existiert bereits oder ist ungültig');
+    const previous={path:d.path,name:d.name,fileType:d.fileType};
+    const wasText=docIsText(d);
+    d.path=path;d.name=docNameForPath(path);
+    if(wasText)d.fileType=isMarkdownPath(path)?'markdown':'script';
     try{await put('docs',{...d})}
-    catch(error){d.name=previous;console.error(error);toast('Umbenennen fehlgeschlagen');return}
-    closeModal();render();
+    catch(error){Object.assign(d,previous);console.error(error);toast('Datei konnte nicht umbenannt werden');return}
+    changeWorkspaceFolder(folder);closeModal();render();toast('Datei gespeichert');
   };
 }
 async function deleteCurrentDocument(){
@@ -209,7 +245,7 @@ async function deleteCurrentDocument(){
   const button=$('#deleteDocument');if(button)button.disabled=true;
   try{
     // Save any pending editor input before preserving the deleted document for undo.
-    if(view==='markdown')await flushSource();
+    await flushSource();
     clearTimeout(saveTimer);
     const current=documentNow();
     const others=docs.filter(item=>item.projectId===current.projectId&&item.id!==current.id);
@@ -322,8 +358,8 @@ function editNode(path){
     <div class="node-properties ${isKanbanTicket?'single':''}"><div class="field"><label for="nodeType">Knotentyp</label><select id="nodeType">${typeOptions}</select></div>
     ${isKanbanTicket?'':`<div class="field"><label for="nodeStatus">Status</label><select id="nodeStatus">${STATUS.map(st=>`<option value="${st}" ${st===(n.status||'story')?'selected':''}>${escapeHtml(statusLabel(st))}</option>`).join('')}</select></div>`}</div>
     <div class="field"><label>Aufgabenstatus (Checkbox)</label><div class="node-check-group"><label><input type="checkbox" id="nodeUseCheck" ${n.checked!==null?'checked':''}> Checkbox für diesen Knoten verwenden</label><label><input type="checkbox" id="nodeDone" ${n.checked===true?'checked':''} ${n.checked===null?'disabled':''}> Erledigt</label></div></div>
+    <div class="field"><label for="nodeDescription">Beschreibung (Markdown)</label><textarea id="nodeDescription" autocomplete="off">${escapeHtml(n.description.join('\n').trim())}</textarea></div>
     ${nodeDateFieldsHtml(n.date)}
-    <div class="field"><label for="nodeDescription">Beschreibung (Markdown)</label><textarea id="nodeDescription">${escapeHtml(n.description.join('\n').trim())}</textarea></div>
     ${refs.length?`<div class="field"><label>Dokumentenverknüpfungen</label>${refs.map((m,i)=>`<button type="button" class="btn" data-link="${i}" style="text-align:left">↗ ${escapeHtml(m[0])}</button>`).join('')}</div>`:''}
     ${formActions()}</form>`);
   $('#modal').classList.add('node-modal');
@@ -388,11 +424,4 @@ function addNode(){
   };
 }
 function findHeadingEnd(lines,n){let i=n.start+1;for(;i<lines.length;i++){let m=lines[i].match(/^ {0,3}(#{1,6})\s/);if(m&&m[1].length<=n.level)break}return i}function findListEnd(lines,n){let i=n.start+1;for(;i<lines.length;i++){let m=lines[i].match(/^(\s*)(?:[-+*]|\d+[.)])\s/);if(/^ {0,3}#{1,6}\s/.test(lines[i])||(m&&m[1].length<=n.indent))break}return i}
-// ZIP stored-entry writer (no dependencies, works offline)
-const enc=new TextEncoder(),dec=new TextDecoder();function crc32(data){let crc=-1;for(let b of data){crc^=b;for(let j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}return(crc^-1)>>>0}
-function makeZip(entries){let parts=[],central=[],offset=0;for(let [name,text] of entries){let nb=enc.encode(name),body=enc.encode(text),crc=crc32(body),head=new Uint8Array(30+nb.length),v=new DataView(head.buffer);v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint32(14,crc,true);v.setUint32(18,body.length,true);v.setUint32(22,body.length,true);v.setUint16(26,nb.length,true);head.set(nb,30);parts.push(head,body);let ch=new Uint8Array(46+nb.length),c=new DataView(ch.buffer);c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint32(16,crc,true);c.setUint32(20,body.length,true);c.setUint32(24,body.length,true);c.setUint16(28,nb.length,true);c.setUint32(42,offset,true);ch.set(nb,46);central.push(ch);offset+=head.length+body.length}let cdsize=central.reduce((s,x)=>s+x.length,0),end=new Uint8Array(22),e=new DataView(end.buffer);e.setUint32(0,0x06054b50,true);e.setUint16(8,entries.length,true);e.setUint16(10,entries.length,true);e.setUint32(12,cdsize,true);e.setUint32(16,offset,true);return new Blob([...parts,...central,end],{type:'application/zip'})}
-async function readZip(buffer){let a=new Uint8Array(buffer),v=new DataView(buffer),pos=a.length-22;while(pos>=0&&v.getUint32(pos,true)!==0x06054b50)pos--;if(pos<0)throw Error('Ungültige ZIP-Datei');let count=v.getUint16(pos+10,true),at=v.getUint32(pos+16,true),out=[];for(let k=0;k<count;k++){if(v.getUint32(at,true)!==0x02014b50)throw Error('Ungültiger ZIP-Eintrag');let method=v.getUint16(at+10,true),size=v.getUint32(at+20,true),nl=v.getUint16(at+28,true),extra=v.getUint16(at+30,true),comment=v.getUint16(at+32,true),loc=v.getUint32(at+42,true),name=dec.decode(a.slice(at+46,at+46+nl)),start=loc+30+v.getUint16(loc+26,true)+v.getUint16(loc+28,true),bytes=a.slice(start,start+size);if(method===8){if(typeof DecompressionStream==='undefined')throw Error('Dieser Browser unterstützt komprimierte ZIP-Dateien nicht');let stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));bytes=new Uint8Array(await new Response(stream).arrayBuffer())}else if(method!==0)throw Error('Nicht unterstützte ZIP-Komprimierung');if(name&&!name.endsWith('/'))out.push([name,dec.decode(bytes)]);at+=46+nl+extra+comment}return out}
-function safeName(s){return s.replace(/[\\/:*?"<>|]/g,'_')}
-function download(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
-function exportProject(){let p=project();if(!p)return;let items=docs.filter(d=>d.projectId===p.id),entries=[['mindstorm-project.json',JSON.stringify({format:'mindstorm',version:4,name:p.name,accentColor:projectAccentColor(p),statusSettings:statusSettingsFor(p),documents:items.map(d=>({name:d.name,file:safeName(d.name)+'.md',mapPositions:d.mapPositions||{},mapCollapsedPaths:d.mapCollapsedPaths||[]}))},null,2)],...items.map(d=>[safeName(d.name)+'.md',d.content])];download(makeZip(entries),safeName(p.name)+'.zip');toast('Projekt exportiert')}
-async function importProject(file){try{let entries=await readZip(await file.arrayBuffer()),meta=entries.find(x=>x[0]==='mindstorm-project.json'),metadata=meta?JSON.parse(meta[1]):null,pname=metadata?.name||file.name.replace(/\.zip$/i,'');let mapping=metadata?metadata.documents:entries.filter(x=>x[0].endsWith('.md')).map(x=>({name:x[0].split('/').pop().replace(/\.md$/i,''),file:x[0]}));if(!mapping.length)throw Error('Keine Markdown-Dateien gefunden');let p={id:uid(),name:pname+' (Import)',created:Date.now(),accentColor:projectAccentColor({accentColor:metadata?.accentColor}),statusSettings:statusSettingsFor({statusSettings:metadata?.statusSettings})};await put('projects',p);for(let item of mapping){let found=entries.find(x=>x[0]===item.file);if(found)await put('docs',{id:uid(),projectId:p.id,name:item.name,content:found[1],mapPositions:item.mapPositions||{},mapCollapsedPaths:item.mapCollapsedPaths||[]})}await refresh();selectProject(p.id);toast('Projekt importiert')}catch(e){toast('Import fehlgeschlagen: '+e.message)}}
+// ZIP import/export and folder management are handled by workspace.js (v25).

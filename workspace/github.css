@@ -1,0 +1,41 @@
+/* mindfagg v34: compact stateful one-click sync and conflict resolution. */
+.github-sync-button{width:calc(100% - 14px);margin:0 7px 13px;padding:9px 10px;display:flex;align-items:center;gap:9px;min-height:40px;border:1px solid #3b4b63;background:#192537;border-radius:9px;color:#adbed2;text-align:left;transition:border-color .15s,background .15s}
+.github-sync-button svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.github-sync-button #githubSyncText{min-width:0;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;font-weight:700;letter-spacing:0;text-transform:none}
+.github-sync-button .github-sync-arrow{font-size:17px;line-height:1;opacity:.65}
+.github-sync-button:hover:not(:disabled),.github-sync-button:focus-visible{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,#192537);color:var(--accent-foreground)}
+.github-sync-button[data-state="synced"]{border-color:#326c58;color:#92dfbd;background:#193128}
+.github-sync-button[data-state="conflict"]{border-color:#b77c51;color:#ffd4a4;background:#382c26}
+.github-sync-button[data-state="offline"],.github-sync-button[data-state="error"]{border-color:#995969;color:#ffc0c6;background:#372831}
+.github-sync-button[data-state="busy"],.github-sync-button[data-state="checking"]{border-color:var(--accent);color:var(--accent-foreground)}
+.github-sync-button[data-state="local"],.github-sync-button[data-state="remote"],.github-sync-button[data-state="both"]{border-color:#6d6aab;color:#d8c9ff}
+.github-modal h2{margin:0 0 8px}.github-modal p{font-size:12px;color:#a8b8cd}.github-modal .field{margin:10px 0}
+.modal:has(#githubModal){max-height:calc(100dvh - 20px);padding:18px 21px}
+.github-modal .github-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px}
+.github-note{color:#9eafc6;font-size:11px!important;line-height:1.55;margin:7px 0!important}
+.github-modal .github-bottom-actions{border-top:1px solid #344157;margin-top:17px;padding-top:12px;justify-content:space-between}
+.github-status{padding:10px 11px;border:1px solid #355e58;border-radius:8px;background:#192e31;color:#b0e0d4!important;font-size:11px!important;margin:13px 0!important;overflow-wrap:anywhere}
+.github-status.is-error{border-color:#88535b;background:#38252d;color:#ffc1cc!important}
+.github-project-assignment-line{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#141e2c;border:1px solid #344359;border-radius:9px;padding:8px 10px}
+.github-project-assignment-line span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#ccd9e8;font-size:12px}
+.github-project-assignment-line button{flex:none}
+.modal:has(#githubConflictModal){width:min(900px,100%);max-height:calc(100dvh - 18px);padding:18px 21px}
+.github-conflict-modal{min-width:0}.github-conflict-header h2{margin:3px 0 7px;font-size:21px}.github-conflict-header p{color:#a7b8cb;font-size:12px;line-height:1.55;margin:0 0 13px}
+.github-conflict-kicker{font-size:10px;color:var(--accent-foreground);font-weight:750;letter-spacing:.4px;text-transform:uppercase}
+.github-conflict-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;font-size:11px;color:#abc0d4}
+.github-conflict-tools>div{display:flex;gap:6px;flex-wrap:wrap}
+.github-conflict-tools button{font-size:11px;padding:7px 9px}
+.github-conflict-list{max-height:min(420px,47dvh);overflow:auto;padding:3px 4px 3px 0;display:grid;gap:10px;overscroll-behavior:contain}
+.github-conflict-card{border:1px solid #3b4a61;border-radius:11px;background:#111c2b;padding:12px;min-width:0}
+.github-conflict-heading{display:grid;gap:3px;margin-bottom:10px}
+.github-conflict-heading strong{font-size:13px;overflow-wrap:anywhere}
+.github-conflict-heading small{font-size:10px;color:#eac29e}
+.github-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.github-comparison-side{display:flex;flex-direction:column;gap:3px;min-width:0;padding:10px;background:#1c293a;border:1px solid #36465c;border-radius:8px}
+.github-comparison-side strong{font-size:11px;color:#e1eaf5}.github-comparison-side span{font-size:12px;font-weight:750}.github-comparison-side small{color:#a1b3c9;font-size:10px;overflow-wrap:anywhere}
+.github-choice-label{display:block;color:#cbd8e8;font-size:11px;font-weight:700;margin-bottom:5px}
+.github-conflict-card select{display:block;width:100%;background:#263349;color:#eff4ff;border:1px solid #536784;border-radius:8px;padding:8px;font-size:12px;min-height:35px}
+.github-conflict-modal>.field{margin:11px 0 7px}.github-conflict-modal>.field label{font-weight:700}
+.github-conflict-actions{position:sticky;bottom:-18px;margin-top:11px!important;background:#1a2230;padding:13px 0 2px;border-top:1px solid #35435b}
+.github-conflict-actions .primary{min-width:200px}
+@media(max-width:560px){.modal:has(#githubModal),.modal:has(#githubConflictModal){padding:12px}.github-conflict-list{max-height:43dvh}.github-conflict-header h2{font-size:18px}.github-conflict-tools{align-items:flex-start;flex-direction:column}.github-comparison-side{padding:7px}.github-conflict-actions .btn{flex:1 1 135px}.github-comparison-side small{font-size:9px}}

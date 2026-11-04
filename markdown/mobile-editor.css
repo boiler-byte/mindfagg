@@ -1,0 +1,34 @@
+/* mindfagg v19: keyboard-safe Markdown editing on narrow screens.
+   The visual viewport is smaller than the layout viewport while the iOS keyboard is open. */@media (max-width:850px) {
+  body.mobile-markdown-active {overflow:hidden;overscroll-behavior:none}
+  .app.mobile-markdown-active {
+    position:fixed;left:0;right:0;top:var(--mf-visual-top,0px);bottom:auto;
+    width:100%;height:var(--mf-visual-height,100dvh);overflow:hidden;
+  }
+  .app.mobile-markdown-active .main, .app.mobile-markdown-active .workspace, .app.mobile-markdown-active .surface, .app.mobile-markdown-active .editor {min-height:0}
+  .app.mobile-markdown-active .editor {
+    height:100%;padding:0;gap:0;display:flex;flex-direction:column;
+  }
+  .app.mobile-markdown-active .editor .codeframe {
+    order:1;flex:1 1 0;min-height:0;
+  }
+  .app.mobile-markdown-active .editor .editor-tools {
+    order:2;position:relative;z-index:8;flex:0 0 auto;
+    width:100%;min-height:48px;max-height:none;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+    gap:6px;overflow-x:auto;overflow-y:hidden;
+    background:#161e2c;border-top:1px solid #394761;
+    box-shadow:0 -5px 20px #0307106e;
+    scrollbar-width:thin;overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .app.mobile-markdown-active.mobile-keyboard-open .editor .editor-tools {padding-bottom:6px}
+  .app.mobile-markdown-active .editor .editor-tools .tool {flex:none}
+  .app.mobile-markdown-active .editor .editfoot {order:3}
+  .app.mobile-markdown-active.mobile-keyboard-open .topbar {height:49px;min-height:49px}
+  .app.mobile-markdown-active.mobile-keyboard-open .tabsbar {padding:3px 7px}
+  .app.mobile-markdown-active.mobile-keyboard-open .tab {padding:6px 4px}
+}/* mindfagg v20: responsive, date-only monthly calendar. */@media(max-width:850px){
+  .tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tab{padding:8px 2px;font-size:10px}
+}/* mindfagg v21: compact editor with immediate inline autosave. */.mm-node.mm-inline-editing{min-height:78px}.mm-node.mm-inline-editing .nodetitle{gap:4px}.mm-node.mm-inline-editing .node-text{cursor:text}.mm-inline-editor{gap:0}

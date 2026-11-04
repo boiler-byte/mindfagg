@@ -1,7 +1,7 @@
 {
   "name": "mindfagg — Mindmap Markdown",
   "short_name": "mindfagg",
-  "description": "Mindmap, Kanban, Kalender und Markdown in einer offline-fähigen, lokal gespeicherten App.",
+  "description": "Markdown, Mindmap, Kanban, Kalender und Dateien in einem lokal gespeicherten Offline-Workspace.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

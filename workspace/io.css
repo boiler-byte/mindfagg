@@ -1,0 +1,28 @@
+/* v31: compact file action menus, import previews and drop targets. */
+.workspace-more-button{font-size:19px!important;letter-spacing:1px}
+.workspace-actions-menu{position:fixed;z-index:90;width:min(260px,calc(100vw - 16px));max-height:calc(100dvh - 24px);overflow-y:auto;background:#1a2434;border:1px solid #536480;border-radius:11px;box-shadow:0 16px 45px #000b;padding:5px;overscroll-behavior:contain}
+.workspace-actions-menu button{display:flex;align-items:center;gap:10px;width:100%;min-height:43px;text-align:left;background:transparent;border-radius:7px;padding:8px 9px;color:#edf2ff}
+.workspace-actions-menu button:not(:disabled):hover,.workspace-actions-menu button:focus-visible{background:color-mix(in srgb,var(--accent) 24%,#1a2434);outline:none}
+.workspace-actions-menu button:disabled{opacity:.38}
+.workspace-actions-menu button>span:last-child{display:grid;gap:2px;min-width:0;flex:1}
+.workspace-actions-menu strong{font-size:12px;font-weight:675}.workspace-actions-menu small{font-size:10px;color:#9eacc1}
+.workspace-menu-icon{width:24px;min-width:24px;display:grid;place-items:center;color:var(--accent-foreground);font-size:18px}
+.workspace-import-list{display:grid;gap:1px;background:#111a27;border:1px solid #34435a;border-radius:8px;max-height:172px;overflow-y:auto;margin:10px 0;padding:5px}
+.workspace-import-list>div{display:flex;justify-content:space-between;gap:12px;min-width:0;padding:5px 7px;color:#d4dded;font-size:11px}
+.workspace-import-list>div>span{min-width:0;overflow-wrap:anywhere}.workspace-import-list small{white-space:nowrap;color:#8395ae}
+.workspace-import-list .workspace-import-more{color:#9caac1}
+.workspace-import-modes{border:1px solid #36475c;border-radius:9px;display:flex;flex-wrap:wrap;gap:10px 18px;padding:10px 12px;margin:14px 0 7px}
+.workspace-import-modes legend{color:#aebbd0;font-size:11px;font-weight:700;padding:0 5px}
+.workspace-import-modes label,.workspace-strip-option{display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer}
+.workspace-import-modes input,.workspace-strip-option input{accent-color:var(--accent);width:16px;height:16px;flex:none}
+.workspace-import-modes label:has(input:disabled){opacity:.43;cursor:not-allowed}
+.workspace-strip-option{margin:13px 0}
+.workspace-clipboard-preview{display:grid;place-items:center;padding:9px;border:1px solid #34435a;border-radius:9px;background:#101824;max-height:170px}
+.workspace-clipboard-preview img{max-width:100%;max-height:150px;object-fit:contain}
+.workspace-clipboard-text{margin:8px 0;padding:11px;max-height:130px;overflow:auto;border:1px solid #34435a;border-radius:7px;background:#111824;color:#b8cbda;font:11px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+#workspacePasteArea{width:100%;background:#111824;color:#e6ebf7;padding:12px;border:1px solid #3e5069;border-radius:9px;font:13px/1.5 ui-monospace,monospace}
+.sidebar.workspace-drop-active .side-section{outline:1px dashed color-mix(in srgb,var(--accent) 70%,#54657c);outline-offset:-4px;background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.sidebar .folder-name.workspace-drop-target,.sidebar .folder-line:has(.workspace-drop-target){background:color-mix(in srgb,var(--accent) 25%,#182132);border-radius:7px}
+@media(max-width:850px){.workspace-actions-menu button{min-height:46px}.workspace-import-modes{gap:12px}.workspace-import-list{max-height:132px}}
+.workspace-conflict-info{margin:3px 0 9px;color:#8dbea9;font-size:11px;line-height:1.45}
+.workspace-conflict-info.has-conflicts{color:#f1c483}

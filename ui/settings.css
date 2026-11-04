@@ -1,0 +1,99 @@
+/* mindfagg v28: sidebar scrolling, file subtabs and editor preferences. */
+.sidebar{overflow:hidden;min-height:0}
+.sidebar .brand{flex:0 0 auto;width:100%;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.sidebar .brand:hover,.sidebar .brand:focus-visible{background:color-mix(in srgb,var(--accent) 11%,#101520)}
+.sidebar .side-section{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#3b4960 transparent}
+.sidebar .side-footer{flex:0 0 auto;margin-top:0}
+.file-subtabs{display:flex;gap:5px;align-items:center;flex-wrap:wrap;padding:4px;background:#171d29;border:1px solid #242d40;border-radius:11px}
+.file-subtab{padding:8px 15px;border-radius:8px;background:transparent;color:var(--muted);font-weight:650;font-size:12px}
+.file-subtab:hover,.file-subtab:focus-visible{background:color-mix(in srgb,var(--accent) 12%,#171d29);color:var(--accent-foreground)}
+.file-subtab.active{background:color-mix(in srgb,var(--accent) 27%,#171d29);color:var(--accent-foreground)}
+.tabsbar:has(.file-subtabs:not(.hidden)){justify-content:flex-start}
+/* Retain 13 px on desktop and 16 px on small screens when no override is saved. */
+:root{--mf-editor-font-size:13px;--mf-editor-line-height:23px}
+.app{--mf-gutter-width:43px;--mf-minimap-width:77px}
+.app.editor-no-lines{--mf-gutter-width:0px}
+.app.editor-no-minimap{--mf-minimap-width:0px}
+.editor .codeframe,.script-editor .codeframe{grid-template-columns:var(--mf-gutter-width) minmax(0,1fr) var(--mf-minimap-width)!important}
+.editor .syntaxlayer,.editor #source,.script-editor .syntaxlayer,.script-editor #scriptSource{font-size:var(--mf-editor-font-size)!important;line-height:var(--mf-editor-line-height)!important}
+.editor .codegutter pre,.script-editor .codegutter pre{font-size:clamp(8px,calc(var(--mf-editor-font-size) - 1px),15px)!important;line-height:var(--mf-editor-line-height)!important}
+.editor .gline,.script-editor .gline{height:var(--mf-editor-line-height)!important}
+.app.editor-no-lines .codegutter,.app.editor-no-minimap .minimap{visibility:hidden;pointer-events:none}
+/* Browser textarea wrapping and the decorative highlight layer must use identical text widths. */
+.app.editor-wrap .editor #source,.app.editor-wrap .script-editor #scriptSource,
+.app.editor-wrap .editor .syntaxlayer,.app.editor-wrap .script-editor .syntaxlayer{
+  white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:normal!important
+}
+.app.editor-wrap .editor .syntaxlayer,.app.editor-wrap .script-editor .syntaxlayer{min-width:0;width:100%;max-width:100%}
+.app.editor-wrap .editor .code-interactions{display:none}
+.app.settings-open .tabsbar,.app.settings-open .top-actions{display:none}
+.app-settings-screen{height:100%;overflow:auto;padding:24px;overscroll-behavior:contain}
+.app-settings-inner{max-width:800px;margin:0 auto}
+.app-settings-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:0 0 24px}
+.app-settings-kicker{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent-foreground);font-weight:750}
+.app-settings-header h1{font-size:25px;margin:5px 0 7px;line-height:1.25}
+.app-settings-header p{margin:0;color:var(--muted);font-size:13px}
+.app-settings-header>.btn{flex:0 0 auto}
+.app-settings-group{border:1px solid #34425b;border-radius:12px;overflow:hidden;background:#141d2c}
+.app-setting-row{display:flex;justify-content:space-between;align-items:center;gap:24px;min-height:79px;padding:18px 20px;cursor:pointer}
+.app-setting-row+.app-setting-row{border-top:1px solid #34425b}
+.app-setting-row>span,.app-setting-row>div:first-child{display:flex;flex-direction:column;gap:4px;min-width:0}
+.app-setting-row strong,.app-setting-row label{font-size:14px;color:#e3eafa;font-weight:700}
+.app-setting-row small{font-size:12px;color:var(--muted);line-height:1.55}
+.app-setting-row input[type=checkbox]{accent-color:var(--accent);width:21px;height:21px;flex:none;cursor:pointer}
+.app-setting-font-control{display:flex;flex-direction:column;align-items:flex-end;gap:9px;flex:0 0 min(210px,42%)}
+.app-setting-font-control output{font-size:13px;color:var(--accent-foreground);font-weight:750;font-variant-numeric:tabular-nums}
+.app-setting-font-control input{width:100%;accent-color:var(--accent);cursor:pointer}
+.app-settings-footer{display:flex;align-items:center;justify-content:space-between;gap:13px;margin:17px 0}
+.app-settings-footer span{font-size:11px;color:var(--muted)}
+.script-functions-view{height:100%;overflow:auto;padding:24px;overscroll-behavior:contain}
+.script-functions-inner{max-width:920px;margin:0 auto}
+.script-functions-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:16px}
+.script-functions-heading h2{font-size:19px;margin:0 0 5px}
+.script-functions-heading p{margin:0;color:var(--muted);font-size:12px}
+.script-functions-search{display:block;width:100%;max-width:490px;margin-bottom:20px;background:#111b29;color:var(--text);border:1px solid #3e4d66;border-radius:9px;padding:10px 12px}
+.script-functions-section{margin:19px 0}
+.script-functions-section h3{font-size:13px;color:var(--accent-foreground);margin:0 0 9px}
+.script-functions-items{display:flex;flex-direction:column;gap:5px}
+.script-function-row{display:flex;gap:13px;align-items:center;justify-content:space-between;text-align:left;width:100%;padding:10px 12px;border-radius:8px;background:#202a3a;border:1px solid #344359;color:#e4eafa}
+.script-function-row:hover,.script-function-row:focus-visible{background:color-mix(in srgb,var(--accent) 17%,#202a3a);border-color:var(--accent)}
+.script-function-name{font:600 12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;min-width:0}
+.script-function-meta{flex:none;font-size:11px;color:#9fb0c6;white-space:nowrap}
+.script-function-subtitle{font-size:10px;color:var(--muted);overflow-wrap:anywhere}
+.script-functions-warning,.script-functions-empty{padding:13px;border:1px solid #40506b;background:#1c293b;color:#bfcfe3;border-radius:9px;font-size:12px}
+@media(max-width:850px){
+  :root{--mf-editor-font-size:16px;--mf-editor-line-height:24px}
+  .app{--mf-gutter-width:33px;--mf-minimap-width:52px}
+  .file-subtabs{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));padding:3px;gap:2px}
+  .file-subtab{padding:8px 6px;font-size:11px;white-space:nowrap}
+  .sidebar .side-section{overflow-y:auto;min-height:0}
+  .app-settings-screen,.script-functions-view{padding:16px 10px}
+  .app-settings-header h1{font-size:21px}
+  .app-setting-row{padding:15px 12px;gap:12px}
+  .app-setting-font-control{flex-basis:39%}
+}
+@media(max-width:440px){
+  .app{--mf-gutter-width:29px;--mf-minimap-width:47px}
+  .app-settings-header{flex-wrap:wrap}
+  .app-settings-header>.btn{min-width:0}
+  .app-settings-footer{flex-wrap:wrap}
+  .script-function-row{align-items:flex-start}
+}
+.script-function-row[hidden]{display:none!important}
+.script-function-row>span:first-child{display:flex;flex-direction:column;gap:4px;min-width:0}
+
+.editor .gline,.script-editor .gline{height:calc(var(--mf-editor-line-height) * var(--mf-visual-rows,1))!important}
+/* v34: one persistent credential, shared by all workspaces. */
+.app-settings-github{border:1px solid #384761;background:#141d2c;border-radius:12px;padding:19px 20px;margin-top:19px}
+.app-settings-github-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:14px}
+.app-settings-github-heading h2{margin:0 0 5px;font-size:17px;line-height:1.4}
+.app-settings-github-heading p{margin:0;color:var(--muted);font-size:12px}
+.app-settings-credential-state{flex:none;border:1px solid #586075;border-radius:25px;background:#273244;color:#b6c3d6;padding:5px 9px;font-size:11px}
+.app-settings-credential-state.is-connected{background:#18342d;border-color:#347b62;color:#96e8c6}
+.app-github-credential-form{display:grid;gap:9px}
+.app-github-credential-form label{font-size:12px;font-weight:700;color:#cdd8e8}
+.app-github-credential-form input{width:100%;border-radius:8px;background:#0d1420;color:var(--text);border:1px solid #455471;padding:11px 12px;min-width:0}
+.app-settings-github-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.app-settings-security-note{display:block;color:#91a1b9;font-size:11px;line-height:1.55;margin-top:14px}
+.app-settings-github-status{font-size:11px;color:#bad8ce;margin:12px 0 0;line-height:1.5}
+@media(max-width:560px){.app-settings-github{padding:14px 12px}.app-settings-github-heading{align-items:flex-start;flex-direction:column}.app-settings-github-buttons .btn{flex:1 1 120px}}

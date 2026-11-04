@@ -1,0 +1,469 @@
+'use strict';
+// mindfagg v31: file actions, import previews, clipboard, share, drop and batch undo.
+// All incoming paths are validated; an entire multi-file import is committed atomically.
+const WORKSPACE_IMPORT_LIMIT=ZIP_MAX_TOTAL;
+let workspaceActionMenu=null,workspaceDropFolder=null;
+const workspaceMime={...WORKSPACE_IMAGE_MIME,md:'text/markdown',markdown:'text/markdown',txt:'text/plain',js:'text/javascript',mjs:'text/javascript',cjs:'text/javascript',css:'text/css',json:'application/json',xml:'application/xml',html:'text/html',htm:'text/html',xhtml:'application/xhtml+xml',mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',mp4:'video/mp4',webm:'video/webm',pdf:'application/pdf'};
+function workspaceMimeFor(path){return workspaceMime[pathExtension(path)]||(knownTextPath(path)?'text/plain':'application/octet-stream')}
+function workspaceZipFilename(p){return (p.name||'Workspace').replace(/[\\/:*?"<>|]/g,'_')+'.zip'}
+function workspaceResetActionButton(){for(const id of ['#addDocument','#workspaceMore']){const el=$(id);if(el)el.setAttribute('aria-expanded','false')}}
+function closeWorkspaceActionMenu(){workspaceActionMenu?.remove();workspaceActionMenu=null;workspaceResetActionButton()}
+function toggleWorkspaceActionMenu(kind,anchor){
+  if(workspaceActionMenu?.dataset.kind===kind){closeWorkspaceActionMenu();return}
+  closeWorkspaceActionMenu();
+  const options=kind==='add'?[
+    ['new-file','file-plus','Neue Datei','Markdown oder Script'],
+    ['new-folder','folder-plus','Neuer Ordner',''],
+    ['upload','upload','Dateien hochladen','Mehrfachauswahl'],
+    ['paste','clipboard','Aus Zwischenablage','Text, Bilder oder Dateien'],
+    ['zip-import','archive','ZIP importieren','Projekt oder Ordner']
+  ]:[
+    ['zip-download','download','ZIP herunterladen','Aktueller Workspace'],
+    ['zip-share','share','ZIP teilen','System-Teilen-Dialog'],
+    ['file-download','file','Aktuelle Datei herunterladen','Originalformat']
+  ];
+  const menu=document.createElement('div');menu.id='workspaceActionsMenu';menu.dataset.kind=kind;menu.className='workspace-actions-menu';menu.role='menu';menu.setAttribute('aria-label',kind==='add'?'Dateien hinzufügen':'Workspace-Aktionen');
+  menu.innerHTML=options.map(([action,icon,label,detail])=>`<button role="menuitem" type="button" data-workspace-action="${action}" ${(!projectId||action==='file-download'&&!documentNow())?'disabled':''}><span class="workspace-menu-icon" aria-hidden="true">${{ 'file-plus':'▤','folder-plus':'▱','upload':'⇧','clipboard':'▣','archive':'▥','download':'⇩','share':'↗','file':'⇩'}[icon]}</span><span><strong>${label}</strong>${detail?`<small>${detail}</small>`:''}</span></button>`).join('');
+  document.body.appendChild(menu);workspaceActionMenu=menu;
+  const box=anchor.getBoundingClientRect(),r=menu.getBoundingClientRect();
+  menu.style.left=Math.max(8,Math.min(innerWidth-r.width-8,box.right-r.width))+'px';
+  menu.style.top=Math.max(8,Math.min(innerHeight-r.height-8,box.bottom+5))+'px';
+  anchor.setAttribute('aria-expanded','true');
+  menu.onclick=event=>{
+    const button=event.target.closest('[data-workspace-action]');if(!button||button.disabled)return;
+    const action=button.dataset.workspaceAction;closeWorkspaceActionMenu();
+    void workspaceExecuteAction(action);
+  };
+  menu.querySelector('button:not(:disabled)')?.focus({preventScroll:true});
+}
+async function workspaceExecuteAction(action){
+  try{
+    if(!['upload','zip-import','paste'].includes(action)){await flushMapInlineEdit();await flushSource()}
+    if(action==='new-file'){setMobileMenu(false);createDocument()}
+    else if(action==='new-folder'){setMobileMenu(false);createWorkspaceFolder()}
+    else if(action==='upload')$('#workspaceFileInput').click();
+    else if(action==='zip-import')$('#workspaceZipInput').click();
+    else if(action==='paste')await pasteWorkspaceClipboard();
+    else if(action==='zip-download'){setMobileMenu(false);await downloadWorkspaceZip()}
+    else if(action==='zip-share'){setMobileMenu(false);await shareWorkspaceZip()}
+    else if(action==='file-download'){setMobileMenu(false);await downloadWorkspaceCurrentFile()}
+  }catch(error){console.error(error);toast('Dateiaktion fehlgeschlagen: '+error.message)}
+}
+function workspaceCurrentFiles(){const p=project();return p?docs.filter(d=>d.projectId===p.id):[]}
+async function workspaceBuildZip(){
+  await flushMapInlineEdit();await flushSource();
+  const p=project();if(!p)throw Error('Kein Workspace ausgewählt');
+  const entries=[],occupied=new Set(),files=workspaceCurrentFiles();
+  for(const folder of workspaceFolderPaths(p)){const path=folder+'/';if(!occupied.has(path)){entries.push({path,bytes:new Uint8Array()});occupied.add(path)}}
+  for(const d of files){const path=workspacePath(d);if(occupied.has(path))throw Error('Doppelter Pfad: '+path);occupied.add(path);entries.push({path,bytes:exportFileBytes(d)})}
+  const metadata={format:'mindfagg-workspace',version:32,name:p.name,accentColor:projectAccentColor(p),statusSettings:statusSettingsFor(p),folders:p.folders||[],documents:files.filter(d=>fileKind(d)==='markdown').map(d=>({file:workspacePath(d),name:d.name,mapCollapsedPaths:d.mapCollapsedPaths||[],mapPositions:d.mapPositions||{}}))};
+  entries.push({path:workspaceExportMetadataPath(occupied),bytes:JSON.stringify(metadata,null,2)});
+  return {blob:zipWorkspace(entries),name:workspaceZipFilename(p)};
+}
+async function downloadWorkspaceZip(){
+  try{const {blob,name}=await workspaceBuildZip();saveWorkspaceBlob(blob,name);toast('Workspace-ZIP heruntergeladen')}
+  catch(error){console.error(error);toast('ZIP-Export fehlgeschlagen: '+error.message)}
+}
+async function shareWorkspaceZip(){
+  try{
+    const {blob,name}=await workspaceBuildZip();
+    const file=typeof File==='function'?new File([blob],name,{type:'application/zip'}):null;
+    if(file&&typeof navigator.share==='function'&&(!navigator.canShare||navigator.canShare({files:[file]}))){
+      try{await navigator.share({files:[file],title:name})}
+      catch(error){if(error.name==='AbortError')return;console.warn('Teilen fehlgeschlagen:',error);saveWorkspaceBlob(blob,name);toast('Teilen nicht möglich · ZIP heruntergeladen')}
+    }else{saveWorkspaceBlob(blob,name);toast('Teilen nicht unterstützt · ZIP heruntergeladen')}
+  }catch(error){console.error(error);toast('ZIP konnte nicht geteilt werden: '+error.message)}
+}
+async function downloadWorkspaceCurrentFile(){
+  try{await flushMapInlineEdit();await flushSource();const d=documentNow();if(!d)throw Error('Keine Datei ausgewählt');
+    saveWorkspaceBlob(new Blob([exportFileBytes(d)],{type:workspaceMimeFor(workspacePath(d))}),fileLabel(d));toast('Datei heruntergeladen')
+  }catch(error){console.error(error);toast('Datei-Download fehlgeschlagen: '+error.message)}
+}
+
+// Batch history is stored on the existing project-wide structural history stack.
+function workspaceBatchAction(projectData,filesAfter,foldersAfter,selectedAfter=docId){
+  const changes=filesAfter.map(after=>({id:after.id,before:docs.find(d=>d.id===after.id)?structuredClone(docs.find(d=>d.id===after.id)):null,after:structuredClone(after)}));
+  return {kind:'workspace-batch',projectId:projectData.id,changes,foldersBefore:[...(projectData.folders||[])],foldersAfter:[...new Set(foldersAfter)],selectedBefore:docId,selectedAfter};
+}
+async function workspaceApplyBatch(action,direction){
+  const p=projects.find(item=>item.id===action.projectId);if(!p)throw Error('Projekt nicht gefunden');
+  const applyAfter=direction==='redo',folders=applyAfter?action.foldersAfter:action.foldersBefore;
+  const timestamp=nextProjectChange(p);
+  await new Promise((resolve,reject)=>{
+    const t=db.transaction(['projects','docs'],'readwrite'),s=t.objectStore('docs');
+    t.objectStore('projects').put({...p,folders,updatedAt:timestamp});
+    for(const change of action.changes){const record=applyAfter?change.after:change.before; if(record)s.put({...record,updatedAt:timestamp});else s.delete(change.id)}
+    t.oncomplete=resolve;t.onerror=()=>reject(t.error||new Error('Speicherfehler'));t.onabort=()=>reject(t.error||new Error('Transaktion abgebrochen'));
+  });
+  p.folders=[...folders];p.updatedAt=timestamp;
+  const changed=new Set(action.changes.map(c=>c.id));
+  docs=docs.filter(d=>!changed.has(d.id));
+  for(const change of action.changes){
+    const record=applyAfter?change.after:change.before;
+    persistedDocSnapshots.delete(change.id);failedDocWrites.delete(change.id);pendingDocWrites.delete(change.id);
+    if(record){const restored={...structuredClone(record),updatedAt:timestamp};docs.push(restored);persistedDocSnapshots.set(restored.id,docSnapshot(restored));mapCollapsedPaths.set(restored.id,new Set(restored.mapCollapsedPaths||[]))}
+    else{mapCollapsedPaths.delete(change.id);mapSelectedPaths.delete(change.id);mapSessionViews.delete(change.id)}
+  }
+  const preferred=applyAfter?action.selectedAfter:action.selectedBefore;
+  if(projectId===p.id){
+    docId=docs.some(d=>d.id===preferred)?preferred:(docs.some(d=>d.id===docId)?docId:docs.find(d=>d.projectId===p.id)?.id||null);
+    const current=docs.find(d=>d.id===docId);
+    activeFolderPath=current?pathParent(workspacePath(current)):'';
+    workspaceExpandAncestors(activeFolderPath);
+    render();
+  }
+  refreshProjectSelect();
+}
+async function workspaceCommitChanges(afterFiles,deletedIds=[],afterFolders=project()?.folders||[],selectedId=docId){
+  const p=project();if(!p)throw Error('Kein Workspace ausgewählt');
+  const action=workspaceBatchAction(p,afterFiles,afterFolders,selectedId);
+  const upsertIds=new Set(afterFiles.map(item=>item.id));
+  for(const id of deletedIds){
+    if(upsertIds.has(id))throw Error('Datei kann nicht gleichzeitig ersetzt und gelöscht werden');
+    const existing=docs.find(item=>item.id===id&&item.projectId===p.id);
+    if(existing)action.changes.push({id,before:structuredClone(existing),after:null});
+  }
+  if(!action.changes.length&&JSON.stringify(action.foldersBefore)===JSON.stringify(action.foldersAfter))return false;
+  await workspaceApplyBatch(action,'redo');
+  for(const {id} of action.changes)docHistory.delete(id);
+  const history=deletionHistoryFor(p.id);
+  history.undo.push({...action,stamp:++historySerial});if(history.undo.length>100)history.undo.shift();history.redo.length=0;
+  invalidateProjectRedo();updateHistoryButtons();githubScheduleLocalStatus(p.id);return true;
+}
+async function workspaceCommitBatch(afterFiles,afterFolders,selectedId){
+  return workspaceCommitChanges(afterFiles,[],afterFolders,selectedId);
+}
+async function applyWorkspaceBatchHistory(action,direction){await workspaceApplyBatch(action,direction);return true}
+async function recordWorkspaceFolderCreation(folders){return workspaceCommitBatch([],folders,docId)}
+async function recordWorkspaceFileCreation(doc){return workspaceCommitBatch([doc],project()?.folders||[],doc.id)}
+
+function workspaceFolderAncestors(path){
+  const parts=path.split('/');return parts.slice(0,-1).map((_,i)=>parts.slice(0,i+1).join('/'));
+}
+function workspaceUniqueImportName(path,occupied){
+  const parent=pathParent(path),name=pathName(path),dot=name.lastIndexOf('.'),stem=dot>0?name.slice(0,dot):name,ext=dot>0?name.slice(dot):'';
+  for(let n=2;n<100000;n++){
+    const candidate=[parent,stem+' ('+n+')'+ext].filter(Boolean).join('/');
+    if(!occupied.has(candidate.toLocaleLowerCase('de')))return candidate;
+  }
+  throw Error('Kein freier Dateiname gefunden');
+}
+function workspacePlanFileImport(entries,targetProject,folder='',onConflict='rename',extraFolders=[],metadataDocs=new Map()){
+  const original=docs.filter(d=>d.projectId===targetProject.id);
+  const oldFiles=new Map(original.map(d=>[workspacePath(d).toLocaleLowerCase('de'),d]));
+  const originalFolders=workspaceFolderPaths(targetProject);
+  const existingFolders=new Set(originalFolders.map(x=>x.toLocaleLowerCase('de')));
+  const folders=new Set(targetProject.folders||[]);
+  const incomingFolders=new Set();
+  const canonical=s=>s.toLocaleLowerCase('de');
+  const filePaths=new Set([...oldFiles.keys()]);
+  function addFolder(path){
+    const valid=workspaceValidPath(path);if(!valid)throw Error('Ungültiger Ordner: '+String(path));
+    const candidates=[...workspaceFolderAncestors(valid+'/x'),valid];
+    for(const part of candidates){if(oldFiles.has(canonical(part))||filePaths.has(canonical(part)))throw Error('Ordner kollidiert mit Datei: '+part);incomingFolders.add(part)}
+  }
+  // Normalize parent paths of imported folders and files, preserving explicitly empty folders.
+  for(const item of extraFolders){const valid=workspaceValidPath([folder,item].filter(Boolean).join('/'));if(valid)addFolder(valid)}
+  const planned=[],reserved=new Set([...filePaths,...existingFolders,...[...incomingFolders].map(canonical)]),sourceSeen=new Set();
+  for(const entry of entries){
+    const relative=workspaceValidPath(entry.path);if(!relative)throw Error('Ungültiger Dateipfad: '+String(entry.path));
+    if(sourceSeen.has(canonical(relative))){
+      // Never update the same record twice in one transaction.
+      if(onConflict==='skip'||onConflict==='replace')continue;
+    }
+    sourceSeen.add(canonical(relative));
+    let path=workspaceValidPath([folder,relative].filter(Boolean).join('/'));
+    if(!path)throw Error('Ungültiger Zielpfad: '+relative);
+    let occupied=reserved.has(canonical(path));
+    if(occupied&&onConflict==='skip')continue;
+    if(occupied&&onConflict==='rename')path=workspaceUniqueImportName(path,reserved);
+    else if(occupied&&(!oldFiles.has(canonical(path))||onConflict!=='replace'))throw Error('Ein Ordner oder Dateiname ist bereits vergeben: '+path);
+    // A file cannot also be a parent of another file.
+    for(const parent of workspaceFolderAncestors(path)){
+      if(filePaths.has(canonical(parent))||planned.some(d=>canonical(d.path)===canonical(parent)))throw Error('Eine Datei blockiert den Ordner: '+parent);
+    }
+    for(const parent of workspaceFolderAncestors(path))incomingFolders.add(parent);
+    const source=oldFiles.get(canonical(path)), info=metadataDocs.get(relative)||{};
+    const doc=importedFileRecord(path,entry.bytes,info);
+    doc.projectId=targetProject.id;
+    if(info.name&&fileKind(doc)==='markdown')doc.name=info.name;
+    if(source&&onConflict==='replace')doc.id=source.id;
+    planned.push(doc);reserved.add(canonical(path));filePaths.add(canonical(path));
+  }
+  for(const path of incomingFolders){if(filePaths.has(canonical(path)))throw Error('Ordner und Datei haben denselben Namen: '+path);folders.add(path)}
+  return {files:planned,folders:[...folders]};
+}
+
+function workspaceConflictCount(paths,folder){
+  const p=project();if(!p)return {files:0,folders:0};
+  const occupiedFiles=new Set(workspaceCurrentFiles().map(d=>workspacePath(d).toLocaleLowerCase('de')));
+  const occupiedFolders=new Set(workspaceFolderPaths(p).map(path=>path.toLocaleLowerCase('de')));
+  const received=new Set();let files=0,folders=0;
+  for(const source of paths){
+    const target=workspaceValidPath([folder,source].filter(Boolean).join('/'));
+    if(!target)continue;
+    const key=target.toLocaleLowerCase('de');
+    if(occupiedFiles.has(key)||received.has(key))files++;
+    else if(occupiedFolders.has(key))folders++;
+    received.add(key);
+  }
+  return {files,folders};
+}
+function workspaceUpdateConflictInfo(paths,folder){
+  const node=$('#workspaceConflictInfo');if(!node)return;
+  const found=workspaceConflictCount(paths,folder);
+  node.textContent=found.files||found.folders
+    ?`${found.files} vorhandene/mehrfache Dateinamen${found.folders?', '+found.folders+' Ordnerkollisionen':''} im Ziel. Wähle Ersetzen, Umbenennen oder Überspringen. Ordner können nicht durch Dateien ersetzt werden.`
+    :'Keine Dateinamenskonflikte im Zielordner erkannt.';
+  node.classList.toggle('has-conflicts',Boolean(found.files||found.folders));
+}
+function workspaceImportSummary(items,folders=[]){
+  const size=items.reduce((total,item)=>total+(item.size??item.bytes?.length??0),0);
+  return `${items.length} ${items.length===1?'Datei':'Dateien'} · ${folders.length} ${folders.length===1?'Ordner':'Ordner'} · ${workspaceSize(size)}`;
+}
+function workspaceFileSamples(items){return `<div class="workspace-import-list">${items.slice(0,9).map(item=>`<div><span>${escapeHtml(item.path)}</span><small>${workspaceSize(item.size??item.bytes?.length??0)}</small></div>`).join('')}${items.length>9?`<div class="workspace-import-more">… und ${items.length-9} weitere</div>`:''}</div>`}
+function workspaceImportFolderForm(selected=activeFolderPath){return `<div class="field"><label for="workspaceImportFolder">Zielordner</label><select id="workspaceImportFolder">${workspaceFolderOptions(selected)}</select></div>`}
+function workspaceConflictForm(){return `<div class="field"><label for="workspaceConflict">Bei vorhandenen Dateinamen</label><select id="workspaceConflict"><option value="rename">Automatisch umbenennen</option><option value="replace">Ersetzen</option><option value="skip">Überspringen</option></select></div><p class="workspace-conflict-info" id="workspaceConflictInfo" role="status" aria-live="polite"></p>`}
+async function workspaceReadUploads(descriptors){
+  let total=0;const entries=[];
+  for(const item of descriptors){
+    const path=workspaceValidPath(item.path||item.file?.webkitRelativePath||item.file?.name);
+    if(!path)throw Error('Ungültiger Upload-Dateiname: '+(item.path||item.file?.name));
+    const size=item.file?.size??item.bytes?.length??0;
+    if((total+=size)>WORKSPACE_IMPORT_LIMIT)throw Error('Import überschreitet die Größenbegrenzung');
+    entries.push({path,bytes:item.bytes||new Uint8Array(await item.file.arrayBuffer())});
+  }
+  return entries;
+}
+function openFileImportDialog(descriptors,options={}){
+  if(!projectId)return toast('Bitte zuerst einen Workspace auswählen');
+  if(!descriptors.length)return toast('Keine Dateien zum Importieren');
+  const selected=options.folder??activeFolderPath;
+  const mode=options.clipboard?'clipboard':'upload';
+  const editable=mode==='clipboard'&&descriptors.length===1;
+  const initialName=descriptors[0].path;
+  const imageFile=editable&&/^image\//.test(descriptors[0].file?.type||descriptors[0].mime||'');
+  let previewURL=null;
+  if(imageFile){const item=descriptors[0];previewURL=URL.createObjectURL(item.file||new Blob([item.bytes],{type:item.mime}));}
+  openModal(`<h2>${editable?'Zwischenablage als Datei einfügen':'Dateien importieren'}</h2><p>${escapeHtml(workspaceImportSummary(descriptors))}</p>
+    ${imageFile?`<div class="workspace-clipboard-preview"><img src="${previewURL}" alt="Bild aus der Zwischenablage"></div>`:editable&&descriptors[0].text?`<pre class="workspace-clipboard-text">${escapeHtml(descriptors[0].text.slice(0,1500))}</pre>`:workspaceFileSamples(descriptors)}
+    <form id="workspaceFilesForm">
+    ${editable?`<div class="field"><label for="workspaceImportName">Dateiname</label><input id="workspaceImportName" required maxlength="200" value="${escapeHtml(initialName)}"></div>`:''}
+    ${workspaceImportFolderForm(selected)}${workspaceConflictForm()}
+    <div class="modalactions"><button type="button" class="btn" id="cancelModal">Abbrechen</button><button type="submit" class="btn primary">${editable?'Datei einfügen':'Dateien importieren'}</button></div></form>`);
+  wireCancel();
+  const refreshConflicts=()=>workspaceUpdateConflictInfo(editable?[$('#workspaceImportName').value]:descriptors.map(d=>d.path),$('#workspaceImportFolder').value);
+  $('#workspaceImportFolder').addEventListener('change',refreshConflicts);
+  if(editable)$('#workspaceImportName').addEventListener('input',refreshConflicts);
+  refreshConflicts();
+  if(previewURL){const button=$('#cancelModal');button.addEventListener('click',()=>URL.revokeObjectURL(previewURL),{once:true})}
+  $('#workspaceFilesForm').onsubmit=async event=>{
+    event.preventDefault();const submit=$('#workspaceFilesForm [type="submit"]');submit.disabled=true;
+    try{
+      await flushMapInlineEdit();await flushSource();
+      const folder=$('#workspaceImportFolder').value,conflict=$('#workspaceConflict').value;
+      const prepared=editable?[{...descriptors[0],path:$('#workspaceImportName').value.trim()}]:descriptors;
+      const entries=await workspaceReadUploads(prepared);
+      const next=workspacePlanFileImport(entries,project(),folder,conflict);
+      if(!next.files.length){toast('Keine Dateien importiert (übersprungen)');submit.disabled=false;return}
+      const committed=await workspaceCommitBatch(next.files,next.folders,next.files[0]?.id||docId);
+      if(!committed)return;
+      if(previewURL)URL.revokeObjectURL(previewURL);
+      closeModal();toast(`${next.files.length} ${next.files.length===1?'Datei':'Dateien'} importiert · Rückgängig möglich`);
+    }catch(error){console.error(error);toast('Dateiimport fehlgeschlagen: '+error.message);submit.disabled=false}
+  };
+}
+
+async function workspaceReadZip(file){
+  if(file.size>WORKSPACE_IMPORT_LIMIT)throw Error('ZIP ist zu groß');
+  const all=await unzipWorkspace(await file.arrayBuffer());
+  const metadataEntry=all.find(e=>!e.directory&&/^mindfagg-workspace(?:-\d+)?\.json$/.test(e.path)&&(()=>{try{return JSON.parse(ZIP_DECODE.decode(e.bytes)).format==='mindfagg-workspace'}catch(_){return false}})());
+  let metadata=null,legacyEntry=null;
+  if(metadataEntry){metadata=JSON.parse(ZIP_DECODE.decode(metadataEntry.bytes))}
+  else{legacyEntry=all.find(e=>e.path==='mindstorm-project.json'&&!e.directory);
+    if(legacyEntry){try{const candidate=JSON.parse(ZIP_DECODE.decode(legacyEntry.bytes));if(candidate.format==='mindstorm'&&Array.isArray(candidate.documents))metadata=candidate;else legacyEntry=null}catch(_){legacyEntry=null}}
+  }
+  const entries=all.filter(e=>e!==metadataEntry&&e!==legacyEntry),fileEntries=entries.filter(e=>!e.directory);
+  const folders=[...new Set([...entries.filter(e=>e.directory).map(e=>e.path),...(Array.isArray(metadata?.folders)?metadata.folders:[]).map(workspaceValidPath).filter(Boolean)])];
+  const topNames=new Set(entries.map(e=>e.path.split('/')[0]));
+  // Strip only when every non-metadata entry is within a single top-level folder.
+  const root=topNames.size===1&&entries.every(e=>e.directory||e.path.includes('/'))?[...topNames][0]:null;
+  const legacyDocs=new Map((Array.isArray(metadata?.documents)?metadata.documents:[]).filter(d=>d?.file).map(d=>[d.file,d]));
+  return {metadata,files:fileEntries,folders,root,legacyDocs};
+}
+function workspaceZipStrip(prepared,strip){
+  if(!strip||!prepared.root)return {files:prepared.files,folders:prepared.folders,documents:prepared.legacyDocs};
+  const prefix=prepared.root+'/';
+  const trimmed=path=>path===prepared.root?'':path.startsWith(prefix)?path.slice(prefix.length):path;
+  const files=prepared.files.map(e=>({...e,path:trimmed(e.path)}));
+  const folders=prepared.folders.map(trimmed).filter(Boolean);
+  const documents=new Map([...prepared.legacyDocs].map(([path,info])=>[trimmed(path),info]));
+  return {files,folders,documents};
+}
+async function openZipImportDialog(file,options={}){
+  if(!file)return;
+  try{
+    const prepared=await workspaceReadZip(file),canFolder=Boolean(projectId);
+    const folderDefault=options.folder??activeFolderPath;
+    openModal(`<h2>ZIP importieren</h2><p><strong>${escapeHtml(file.name)}</strong> · ${escapeHtml(workspaceImportSummary(prepared.files,prepared.folders))}</p>
+      ${workspaceFileSamples(prepared.files)}
+      <form id="workspaceZipForm"><fieldset class="workspace-import-modes"><legend>Importieren als</legend>
+        <label><input type="radio" name="workspaceZipMode" value="project" ${options.intoFolder?'':'checked'}> Neues Projekt</label>
+        <label><input type="radio" name="workspaceZipMode" value="folder" ${options.intoFolder?'checked':''} ${canFolder?'':'disabled'}> In aktuellen Workspace</label></fieldset>
+        <div id="workspaceZipTarget" class="${options.intoFolder?'':'hidden'}">${workspaceImportFolderForm(folderDefault)}${workspaceConflictForm()}</div>
+        ${prepared.root?`<label class="workspace-strip-option"><input type="checkbox" id="workspaceStripRoot"> Obersten ZIP-Ordner „${escapeHtml(prepared.root)}“ entfernen</label>`:''}
+        <div class="modalactions"><button type="button" class="btn" id="cancelModal">Abbrechen</button><button type="submit" class="btn primary">ZIP importieren</button></div>
+      </form>`);
+    wireCancel();
+    const refreshZipConflicts=()=>{
+      const inFolder=$('#workspaceZipForm [value="folder"]').checked;
+      $('#workspaceZipTarget').classList.toggle('hidden',!inFolder);
+      if(inFolder)workspaceUpdateConflictInfo(workspaceZipStrip(prepared,!!$('#workspaceStripRoot')?.checked).files.map(e=>e.path),$('#workspaceImportFolder').value);
+    };
+    $('#workspaceZipForm').querySelectorAll('[name="workspaceZipMode"]').forEach(radio=>radio.onchange=refreshZipConflicts);
+    $('#workspaceImportFolder')?.addEventListener('change',refreshZipConflicts);
+    $('#workspaceStripRoot')?.addEventListener('change',refreshZipConflicts);
+    refreshZipConflicts();
+    $('#workspaceZipForm').onsubmit=async event=>{
+      event.preventDefault();const submit=$('#workspaceZipForm [type="submit"]');submit.disabled=true;
+      try{
+        await flushMapInlineEdit();await flushSource();
+        const stripped=workspaceZipStrip(prepared,!!$('#workspaceStripRoot')?.checked);
+        if($('#workspaceZipForm [value="folder"]').checked){
+          const folder=$('#workspaceImportFolder').value,conflict=$('#workspaceConflict').value,p=project();
+          if(!p)throw Error('Kein Workspace ausgewählt');
+          const plan=workspacePlanFileImport(stripped.files,p,folder,conflict,stripped.folders,stripped.documents);
+          if(!plan.files.length&&JSON.stringify(plan.folders)===JSON.stringify(p.folders||[])){toast('Keine neuen Inhalte');submit.disabled=false;return}
+          await workspaceCommitBatch(plan.files,plan.folders,plan.files[0]?.id||docId);
+          closeModal();toast(`ZIP importiert: ${plan.files.length} Dateien · Rückgängig möglich`);
+        }else{
+          const base=prepared.metadata?.name||file.name.replace(/\.zip$/i,'')||'Workspace';
+          const p={id:uid(),name:workspaceImportedName(base),created:Date.now(),accentColor:projectAccentColor({accentColor:prepared.metadata?.accentColor}),statusSettings:statusSettingsFor({statusSettings:prepared.metadata?.statusSettings}),folders:[...stripped.folders]};
+          const planned=workspacePlanFileImport(stripped.files,p,'','rename',stripped.folders,stripped.documents);
+          p.folders=planned.folders;
+          await commitImportedWorkspace(p,planned.files);
+          await refresh();activeFolderPath='';selectProject(p.id);
+          closeModal();toast(`Projekt importiert: ${planned.files.length} Dateien`);
+        }
+      }catch(error){console.error(error);toast('ZIP-Import fehlgeschlagen: '+error.message);submit.disabled=false}
+    };
+  }catch(error){console.error(error);toast('ZIP konnte nicht gelesen werden: '+error.message)}
+}
+
+function workspaceSuggestTextName(value){
+  const t=String(value).trim();
+  if(/^<svg(?:\s|>)/i.test(t)||/^<\?xml[^>]*\?>[\s\S]*<svg(?:\s|>)/i.test(t))return 'clipboard.svg';
+  if(/^<!doctype\s+html/i.test(t)||/^<html(?:\s|>)/i.test(t))return 'clipboard.html';
+  if(/^<\?xml\b/i.test(t))return 'clipboard.xml';
+  if(/^[{\[]/.test(t)){try{JSON.parse(t);return 'clipboard.json'}catch(_){}}
+  return 'clipboard.txt';
+}
+function workspaceClipboardFromEvent(event){
+  const data=event.clipboardData,files=[];
+  if(data)for(const item of data.items){if(item.kind==='file'){const file=item.getAsFile();if(file)files.push({file,path:file.name&&file.name!=='image.png'?file.name:'clipboard.'+((file.type||'image/png').split('/')[1].replace('jpeg','jpg').replace('svg+xml','svg')||'png')})}}
+  if(files.length)return files;
+  const text=data?.getData('text/plain')||data?.getData('text/html')||'';
+  return text?[{path:workspaceSuggestTextName(text),bytes:new TextEncoder().encode(text),text,mime:'text/plain'}]:[];
+}
+function openWorkspacePasteFallback(){
+  openModal(`<h2>Aus Zwischenablage einfügen</h2><p>Der Browser erlaubt hier keinen direkten Zugriff auf die Zwischenablage. Füge den Inhalt mit <strong>Strg+V</strong> bzw. <strong>⌘V</strong> in dieses Feld ein.</p>
+    <textarea id="workspacePasteArea" rows="5" aria-label="Hier Text oder ein Bild einfügen" placeholder="Text oder Bild einfügen …"></textarea>
+    <div class="modalactions"><button type="button" class="btn" id="cancelModal">Abbrechen</button><button type="button" class="btn primary" id="workspacePasteText">Text übernehmen</button></div>`);
+  wireCancel();
+  const area=$('#workspacePasteArea');area.focus();
+  area.onpaste=event=>{const contents=workspaceClipboardFromEvent(event);if(contents.some(item=>item.file)){event.preventDefault();openFileImportDialog(contents,{clipboard:true})}};
+  $('#workspacePasteText').onclick=()=>{
+    if(!area.value)return toast('Zwischenablage ist leer');const text=area.value;
+    openFileImportDialog([{path:workspaceSuggestTextName(text),bytes:new TextEncoder().encode(text),text}],{clipboard:true});
+  };
+}
+async function pasteWorkspaceClipboard(){
+  if(!projectId)return;
+  try{
+    if(!navigator.clipboard?.read)throw Error('Clipboard API nicht verfügbar');
+    const items=await navigator.clipboard.read(),descriptors=[];
+    for(const item of items){
+      const fileType=item.types.find(t=>t.startsWith('image/'))||item.types.find(t=>t.startsWith('application/')&&!t.includes('json'));
+      if(fileType){const blob=await item.getType(fileType),ext=fileType==='image/svg+xml'?'svg':fileType==='image/jpeg'?'jpg':fileType.split('/')[1].replace(/[^a-z0-9]/gi,'')||'bin';
+        descriptors.push({file:new File([blob],'clipboard.'+ext,{type:fileType}),path:'clipboard.'+ext});continue}
+      const textType=item.types.includes('text/plain')?'text/plain':item.types.includes('text/html')?'text/html':null;
+      if(textType){const text=await (await item.getType(textType)).text();descriptors.push({path:workspaceSuggestTextName(text),bytes:new TextEncoder().encode(text),text})}
+    }
+    if(!descriptors.length)throw Error('Kein unterstützter Inhalt');
+    openFileImportDialog(descriptors,{clipboard:true});
+  }catch(error){console.warn('Zwischenablage nur per Einfügen lesbar:',error);openWorkspacePasteFallback()}
+}
+
+async function workspaceDropDescriptors(dataTransfer){
+  const items=[...(dataTransfer.items||[])],results=[];
+  // webkitGetAsEntry retains folders and nested paths in Chromium, with ordinary files as fallback.
+  if(items.length&&items.some(i=>i.webkitGetAsEntry?.())){
+    async function walk(entry,prefix=''){
+      const name=[prefix,entry.name].filter(Boolean).join('/');
+      if(entry.isFile){const file=await new Promise((resolve,reject)=>entry.file(resolve,reject));results.push({file,path:name});return}
+      if(entry.isDirectory){
+        const reader=entry.createReader();let batch;
+        do{batch=await new Promise((resolve,reject)=>reader.readEntries(resolve,reject));for(const child of batch)await walk(child,name)}while(batch.length);
+      }
+    }
+    for(const item of items){const entry=item.webkitGetAsEntry?.();if(entry)await walk(entry)}
+  }
+  if(!results.length)for(const file of dataTransfer.files||[])results.push({file,path:file.webkitRelativePath||file.name});
+  return results;
+}
+function workspaceDropDestination(event){
+  const folderButton=event.target.closest?.('[data-folder]');
+  const folderLine=event.target.closest?.('.folder-line');
+  const doc=event.target.closest?.('[data-doc]');
+  if(folderButton)return folderButton.dataset.folder;
+  if(folderLine){const folder=folderLine.querySelector('[data-folder]');if(folder)return folder.dataset.folder}
+  if(doc){const d=docs.find(item=>item.id===doc.dataset.doc);if(d)return pathParent(workspacePath(d))}
+  return activeFolderPath;
+}
+function workspaceEnableDrop(){
+  const sidebar=$('#mainSidebar');if(!sidebar)return;
+  let depth=0;
+  sidebar.addEventListener('dragenter',event=>{
+    if(!event.dataTransfer?.types.includes('Files'))return;
+    event.preventDefault();depth++;sidebar.classList.add('workspace-drop-active');
+  });
+  sidebar.addEventListener('dragover',event=>{
+    if(!event.dataTransfer?.types.includes('Files'))return;
+    event.preventDefault();event.dataTransfer.dropEffect='copy';
+    const target=workspaceDropDestination(event);
+    workspaceDropFolder=target;
+    sidebar.querySelectorAll('[data-folder]').forEach(el=>el.classList.toggle('workspace-drop-target',el.dataset.folder===target));
+  });
+  sidebar.addEventListener('dragleave',()=>{
+    if(--depth<=0){depth=0;sidebar.classList.remove('workspace-drop-active');sidebar.querySelectorAll('.workspace-drop-target').forEach(el=>el.classList.remove('workspace-drop-target'))}
+  });
+  sidebar.addEventListener('drop',async event=>{
+    if(!event.dataTransfer?.types.includes('Files'))return;
+    event.preventDefault();event.stopPropagation();
+    const folder=workspaceDropDestination(event),transfer=event.dataTransfer;
+    depth=0;sidebar.classList.remove('workspace-drop-active');sidebar.querySelectorAll('.workspace-drop-target').forEach(el=>el.classList.remove('workspace-drop-target'));
+    try{
+      const descriptors=await workspaceDropDescriptors(transfer);
+      if(descriptors.length===1&&/\.zip$/i.test(descriptors[0].path))await openZipImportDialog(descriptors[0].file,{folder,intoFolder:true});
+      else openFileImportDialog(descriptors,{folder});
+    }catch(error){console.error(error);toast('Drag-and-drop fehlgeschlagen: '+error.message)}
+  });
+}
+function wireWorkspaceIO(){
+  $('#workspaceFileInput').onchange=event=>{const files=[...event.target.files].map(file=>({file,path:file.webkitRelativePath||file.name}));event.target.value='';openFileImportDialog(files)};
+  $('#workspaceZipInput').onchange=event=>{const file=event.target.files[0];event.target.value='';if(file)void openZipImportDialog(file)};
+  document.addEventListener('pointerdown',event=>{if(workspaceActionMenu&&!event.target.closest('#workspaceActionsMenu,#addDocument,#workspaceMore'))closeWorkspaceActionMenu()});
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&workspaceActionMenu){event.preventDefault();closeWorkspaceActionMenu();return}
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='v'&&!event.defaultPrevented&&projectId&&!$('#modalBack').classList.contains('hidden'))return;
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='v'&&!event.defaultPrevented&&projectId){
+      const target=event.target;
+      const editing=target.closest?.('textarea,input,select,[contenteditable="true"],.mm-inline-editor');
+      const tree=target.closest?.('#docList,#mainSidebar');
+      if(!editing&&tree){event.preventDefault();void pasteWorkspaceClipboard()}
+    }
+  });
+  window.addEventListener('resize',closeWorkspaceActionMenu);
+  $('#mainSidebar').addEventListener('scroll',closeWorkspaceActionMenu,{passive:true});
+  workspaceEnableDrop();
+}

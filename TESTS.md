@@ -1,80 +1,105 @@
-# mindfagg v23 – Test- und Regressionscheckliste
+# mindfagg v35 – Test- und Regressionscheckliste
 
-**Bezug:** Modularisierte Version mit `index.html`, `kanban.js`, `kanban.css`, `calendar.js`, `calendar.css` und `extras.js`.
-
-## 1. Vor dem Test
-
-1. Alle Dateien im **selben Ordner** ablegen. `index.html` darf nicht ohne die fünf Dateien weitergegeben werden.
-2. Vor dem Umstieg aus der bisherigen Anwendung **alle Projekte als ZIP exportieren**. Bei geändertem Datei-Pfad oder Browser-Ursprung den Import testen, bevor alte Daten gelöscht werden.
-3. Die Browser-Konsole öffnen. Es dürfen keine Fehler beim Laden der drei JS- und zwei CSS-Dateien auftreten.
-4. Tests mit einem Projekt durchführen, das Überschriften, verschachtelte Listen, Checkboxes, mehrere Status und gültige `[date:...]`-Marker enthält.
-
-## 2. Smoke-Test: Anwendung und Ansichten
-
-- [ ] `index.html` öffnet ohne JavaScript-Laufzeitfehler; ein Projekt und Dokument lassen sich auswählen.
-- [ ] Zwischen **Markdown**, **Mindmap**, **Kanban** und **Kalender** wechseln; jede Ansicht wird korrekt angezeigt.
-- [ ] Projekte und Dokumente lassen sich anlegen, umbenennen und wechseln.
-- [ ] Änderungen führen zur passenden Speicheranzeige; nach Neuladen sind sie noch vorhanden.
-- [ ] Undo/Redo funktioniert nach Knotenbearbeitung und Dokumentänderungen.
-- [ ] Desktop (z. B. 1280 px Breite) und Smartphone (z. B. 390 px Breite) auf Darstellungsfehler prüfen.
-
-## 3. Mindmap und Fold (Regression des behobenen Fehlers)
-
-- [ ] Fold-Button eines Knotens mit Kindern: **einklappen**, die Unterknoten verschwinden.
-- [ ] Denselben Button erneut betätigen: **ausklappen**, Unterknoten erscheinen wieder.
-- [ ] **Alle einklappen** (−): nur der Root ist sichtbar.
-- [ ] **Alle ausklappen** (+): die vollständige Struktur erscheint.
-- [ ] Fold-Zustand bleibt bei einem Wechsel zu Kanban/Markdown und zurück erhalten.
-- [ ] Fold-Zustand bleibt nach Speichern und Neuladen erhalten.
-- [ ] Fold nach der Inline-Titelbearbeitung; Änderungen am Titel werden nicht verworfen.
-- [ ] Auswahl, Verschieben, Zoom, Pan und Knotenerstellung weiter funktionsfähig.
-
-## 4. Kanban und Tierlist (`kanban.js`, `kanban.css`)
-
-- [ ] Die fünf Statusspalten erscheinen mit den projektbezogenen Statusnamen und -farben.
-- [ ] Scope-Auswahl zwischen direktem Unterbaum und **Allen Knoten** funktioniert.
-- [ ] Wechsel **Board ↔ Tierlist** funktioniert; beim Neuladen wird die Präferenz wiederhergestellt.
-- [ ] Ein Ticket öffnen: Knoten-Dialog erscheint und Änderungen werden gespeichert.
-- [ ] Ticket lang drücken, in andere Statusspalte ziehen: Status/Markdown aktualisiert sich.
-- [ ] Unterknoten-Navigation und Fortschrittsanzeige bleiben korrekt.
-- [ ] Board und Tierlist auch auf schmalen Bildschirmen auf Scrollbarkeit prüfen.
-
-## 5. Kalender (`calendar.js`, `calendar.css`)
-
-- [ ] Monatsansicht zeigt den aktuellen Monat und korrekt angeordnete Wochentage.
-- [ ] Vorheriger/nächster Monat und **Heute** funktionieren.
-- [ ] Knoten mit gültigem `[date:YYYY-MM-DD]` erscheinen am Datum.
-- [ ] Knoten mit Dauer (z. B. `[date:2026-10-30 +1m +2d]`) erscheinen über den Zeitraum.
-- [ ] Datum auswählen: passende Einträge werden in der Agenda angezeigt.
-- [ ] Kalendereintrag öffnen: Knoten-Dialog erscheint.
-- [ ] Ohne datierte Knoten erscheint der entsprechende Leerzustand.
-- [ ] Auf dem Smartphone sind Datumsauswahl, Markierungen und Agenda nutzbar.
-
-## 6. Extras (`extras.js`)
-
-- [ ] Projekt-Einstellungen: Projektname, Akzentfarbe und Statusbezeichnungen lassen sich bearbeiten.
-- [ ] Projekt/Document erstellen, umbenennen und löschen; anschließend Undo/Redo prüfen.
-- [ ] Knoten-Dialog: Titel, Typ (Überschrift/Liste), Status, Checkbox, Beschreibung und Datum bearbeiten.
-- [ ] Projekt als ZIP exportieren; ZIP enthält Projektmetadaten und Markdown-Dokumente.
-- [ ] ZIP erneut importieren; Inhalt, Projekteinstellungen und Fold-Zustände prüfen.
-- [ ] Abbrechen/Schließen eines Dialogs verändert keine Daten.
-
-## 7. Markdown-Editor und gemeinsame Logik
-
-- [ ] Syntaxhervorhebung, Zeilennummern, Minimap und Autocomplete funktionieren.
-- [ ] Änderungen im Editor erscheinen nach Ansichtswechsel in Mindmap, Kanban und Kalender.
-- [ ] Checkbox-, Status- und Datumsmarker werden korrekt interpretiert.
-- [ ] Dokumente mit fehlender oder mehrfacher H1 zeigen weiter die Validierung statt einer fehlerhaften Mindmap.
-- [ ] Nach Änderungen im Parser mindestens einen Kanban- und einen Kalender-Test erneut durchführen.
-
-## 8. Durchgeführte Prüfungen bei dieser Aufteilung
+## Automatisierte Prüfungen in der Entwicklungsumgebung
 
 | Prüfung | Ergebnis |
 | --- | --- |
-| JavaScript-Syntaxprüfung für `kanban.js`, `calendar.js`, `extras.js` sowie beide Inline-Scripts | **Bestanden** (`node --check`) |
-| CSS-Parsing der getrennten Stylesheets | **Bestanden** (PostCSS-Parser) |
-| Browser-Smoke-Test mit vergleichbarem Testdokument: Einzel-Fold, Gesamt-Fold, Kanban, Tierlist, Kalendernavigation, Projekt-Einstellungen, Markdown-Editor | **Bestanden** |
-| Vergleiche von Verhalten und ausgewählten berechneten CSS-Werten mit der korrigierten HTML-Ausgangsversion | **Identisch** |
-| Visueller Browser-Vergleich (4 Ansichten, Desktop 1280 × 800 und Mobil 390 × 844) | **8 von 8 Ansichten pixelgleich** |
+| `node tests/check-structure.mjs`: alle Script-/CSS-Referenzen, SW-Cache und JavaScript-Syntax | Bestanden |
+| Chromium: Sidebar-Menüs `+` / `⋯`, Desktop und Mobil | Bestanden |
+| Ordner erstellen, Datei erstellen, Datei/Ordner umbenennen und Undo/Redo | Bestanden |
+| Mehrfach-Upload von JavaScript- und PNG-Dateien in einen Unterordner | Bestanden |
+| Import als eine Undo-/Redo-Aktion | Bestanden |
+| Bestehende Datei ersetzen und mit Undo ursprünglichen Text wiederherstellen | Bestanden |
+| Text aus Paste-Fallback als HTML-Datei anlegen, Bild-Paste als PNG-Datei speichern | Bestanden |
+| ZIP mit verschachtelter Struktur, leerem Ordner und Binärdatei in einen bestehenden Ordner importieren, oberen Ordner entfernen | Bestanden |
+| ZIP-Import als neues Projekt mit allen Ordnern | Bestanden |
+| ZIP-Export: Dateinamen und Pfade im Archiv kontrolliert | Bestanden |
+| ZIP über Teilen-Menü auf Browser ohne Web Share API: automatischer Download-Fallback | Bestanden |
+| Einzelne Datei herunterladen | Bestanden |
+| Datei-/ZIP-Drag-and-drop auf Sidebar-Ordner | Bestanden |
+| UI-Regression: Markdown/Script-Editor, Einstellungen, Functions, SVG-Vorschau, Sidebar-Scrolling und Undo | Bestanden |
+| HTML-Vorschau-Regression: HTML, CSS-Import, JS, ES-Module, Bild, Audio, `fetch`, XHR, Navigation und Sandbox | Bestanden |
 
-**Einschränkung:** In der automatisierten Browserumgebung waren externe Navigationen (`file://` und lokaler HTTP-Server) sowie IndexedDB nicht freigegeben. Für die Browser-Smoke- und Bildtests wurden die fünf Dateien deshalb **nur für den Test temporär in die HTML-Struktur eingebettet**; die eigentlichen Quelldateien bleiben getrennt. Die automatischen Tests verwendeten Testdaten und einen simulierten Speicheraufruf. **Das echte Laden der externen Dateien, IndexedDB-Persistenz über Browser-Neustarts, ZIP-Import/-Export mit echten Benutzerdaten sowie vollständiges Drag-and-drop** müssen daher in einem regulären Browser anhand der obigen Checkliste bestätigt werden.
+**Testgrenzen:** Die Chromium-Tests verwendeten temporär in HTML eingebettete App-Ressourcen und simulierten die IndexedDB-Transaktionen. Die Testumgebung blockiert direkte Navigation zu `file://` und lokalen HTTP-URLs. Reale Browser-Persistenz über Neustarts, Service-Worker-Update und der native Teilen-Dialog auf einem unterstützten Mobilgerät wurden nicht end-to-end geprüft.
+
+## Manuelle Prüfungen vor produktivem Einsatz
+
+1. Vor der Aktualisierung ein ZIP-Backup des bisherigen Projekts erstellen. App unter demselben Ursprung betreiben und auf `mindfagg-v34`-Cache wechseln.
+2. `+` in der Sidebar öffnen: Datei, Ordner, Datei-Upload, Zwischenablage und ZIP-Import prüfen. `⋯`: ZIP-Download, ZIP-Teilen und aktuellen Datei-Download prüfen.
+3. Mehrere Dateien hochladen; Zielordner und Namenskonflikte **Umbenennen / Ersetzen / Überspringen** ausprobieren. Nach jedem Import Undo und Redo prüfen, insbesondere bei Binärdateien.
+4. ZIP als neues Projekt und in einen bestehenden Ordner importieren; Option zum Entfernen des obersten ZIP-Ordners testen. Leere Ordner, UTF-8-Dateinamen, Bilder und unbekannte Binärdaten erhalten.
+5. Auf Desktop Dateien und eine ZIP auf einen Ordner der Sidebar ziehen. Auf Mobil Datei-Auswahl, Paste und native Teilen-Funktion testen.
+6. Clipboard-Berechtigung verweigern und Paste-Fallback testen. Tastenkürzel Strg+V/⌘V in Sidebar und unverändertes normales Einfügen innerhalb der Editoren kontrollieren.
+7. ZIP auf Mobil mit unterstütztem `navigator.share({files})` teilen; bei nicht unterstütztem Browser Download-Fallback prüfen. „Teilen abbrechen“ soll keinen Download erzwingen.
+8. Browserneustart: Dateien und Ordner müssen erhalten bleiben. Keine Erwartung an das Fortbestehen von Undo/Redo nach Neustart.
+9. Bestehende Funktionen durchgehen: Markdown (H1, Syntax, Minimap), Mindmap (Fold, Copy/Paste, Drag), Kanban, Kalender, Scripteditor, JS-Functions, SVG- und HTML-Vorschau mit relativen Ressourcen.
+10. Das PWA-Offline-Verhalten und die Vorschau-Sandbox bei Servierung über HTTPS / localhost verifizieren.
+
+## Statische Prüfung
+
+```sh
+node tests/check-structure.mjs
+```
+
+Die App selbst benötigt weiterhin keinen Build-Schritt und keine zusätzlichen Bibliotheken.
+
+
+## v32 – zusätzliche Tests
+
+- [ ] `.mp3`, `.wav`, `.ogg`, `.m4a` etc. als Datei importieren; anklicken und Player mit Wiedergabe, Pause, Suchleiste und Lautstärke prüfen.
+- [ ] Bereits in v31 importierte Binär-Audiodatei durch Anklicken öffnen, ohne Datenmigration, und ohne Byteverlust exportieren.
+- [ ] Browser ohne Codec-Unterstützung: sichtbare Fehlermeldung unterhalb des Players.
+- [ ] HTML-Vorschau: `Konsole` öffnen/schließen und 100-Meldungen-Grenze prüfen.
+- [ ] `console.log`, `console.warn`, `console.error`, Laufzeitfehler, unbehandelte Rejections und fehlende Ressourcen erfassen.
+- [ ] Meldung einzeln in Zwischenablage kopieren; „Leeren“ verwenden.
+- [ ] HTML-Vorschau vergrößern und wieder verlassen (Fullscreen API, CSS-Fallback, Escape).
+- [ ] Sandbox-Isolation weiterhin prüfen: HTML-Script darf nicht auf `parent.document` oder IndexedDB der App zugreifen.
+- [ ] Lokal referenzierte CSS/JS/Module/Audio/Video/`fetch`/XHR dürfen durch die Konsoleninstrumentierung nicht beeinträchtigt werden.
+
+## v34 – bidirektionale GitHub-Synchronisation
+
+Automatisierte Prüfungen (ohne echten GitHub-Zugang):
+
+```sh
+node tests/check-structure.mjs
+node tests/github-sync.mjs
+node tests/github-credentials.mjs
+python3 tests/github-browser.py  # optional: Python-Playwright + Chromium
+```
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Struktur/Syntax, Cache und Referenzen | Bestanden: 18 Stylesheets, 31 Scripts, 54 Cache-Assets, 32 JS-Syntaxchecks |
+| Git-Blob, Binärbytes, Branch/Repository, Drei-Wege-Klassifikation | Bestanden: 26 Tests |
+| AES-GCM (echte Node-WebCrypto), gespeicherter PAT, Restore, ungültiger Token, Entfernen | Bestanden: 14 Tests |
+| Browser: App-Einstellungen, zentraler gespeicherter PAT und erneutes Laden (simulierte IndexedDB) | Bestanden |
+| Browser: erster Sync (Lokal → GitHub und GitHub → Lokal), danach gemischter Sync | Bestanden |
+| Browser: zwei gleichzeitige Konflikte, Zeit-/Größenvergleich, unterschiedliche Entscheidungen pro Datei | Bestanden |
+| Browser: GitHub offline, lokale Änderungen bleiben erhalten; Mobilansicht | Bestanden |
+
+**Testgrenzen:** Chromium-Navigation zu `file://` und zu lokalem HTTP wird in der Entwicklungsumgebung blockiert. Deshalb werden die Originalskripte und CSS-Dateien für den Browser-Test ausschließlich testweise inline eingebettet; GitHub-API und IndexedDB-Speicheroperationen werden simuliert. **Echter GitHub-Upload, reale PAT-Rechte, IndexedDB-Migration/Persistenz über Browser-Neustarts und das Service-Worker-Update müssen auf einem normalen Browser geprüft werden.**
+
+Manuelle Abnahme:
+
+- [ ] Vorher v33-ZIP-Backup exportieren; v34 am **gleichen HTTPS-/localhost-Ursprung** öffnen. Bestehende Projekte, Dateien, Editor-Einstellungen und Mindmap-Daten weiterhin vorhanden.
+- [ ] Fine-grained PAT (Contents: Read and write) in **mindfagg App-Einstellungen** speichern. Browser neustarten, gespeicherten Account und Sync ohne erneute Token-Eingabe prüfen.
+- [ ] Zwei Projekte mit verschiedenen `owner/repo`-Zuordnungen verbinden; `main` als Default und individuell anderen Branch testen. Projektwechsel darf weder Token noch Zuordnung des anderen Projekts verändern.
+- [ ] Erster Klick auf Sync: lokale Dateien auf GitHub, online vorhandene Dateien lokal laden. Weitere Klicks bei unveränderten Dateien führen zu keinem Commit.
+- [ ] Eine Datei nur lokal ändern → ein Upload; eine andere nur auf GitHub ändern → lokaler Download. Gleichzeitige konfliktfreie Änderungen beider Seiten mit **einem** Klick synchronisieren.
+- [ ] Eine Datei sowohl lokal als auch remote ändern → Konflikt, beide Inhalte bleiben bis zur Entscheidung unverändert. Zwei Konfliktdateien erstellen und im **gemeinsamen Dialog** verschieden entscheiden (lokal/GitHub); Größe und Datum prüfen.
+- [ ] Lokale sowie GitHub-Löschungen testen. Löschung gegen Änderung auf der anderen Seite muss Konflikt melden. Nicht entschiedene Konflikte bei erneutem Sync weiterhin anzeigen.
+- [ ] Nach Löschen der globalen GitHub-Zugangsdaten muss die Repo-Zuordnung bestehen bleiben, aber ein Sync ist ohne erneute Anmeldung nicht möglich.
+- [ ] Offline-/Netzfehler, ungültige PAT-Rechte, geschützten Branch und zwischenzeitliche Remote-Commits simulieren; kein ungefragtes Überschreiben und kein Force-Push.
+- [ ] Lokale Datei während eines länger laufenden Uploads bearbeiten: diese Änderung darf nicht vom Download überschrieben werden.
+- [ ] Markdown, Mindmap, Kanban, Kalender, Audio, Bilder, Binärdateien, ZIP, Undo/Redo und mobile Sidebar auf Regressionen prüfen.
+
+## v35 – Editor-Attribute und Knoten-Dialog
+
+Automatisiert: `node tests/v35-editor-dialog.mjs` und `node tests/check-structure.mjs`.
+
+- [ ] Markdown-Datei öffnen: Editor-Textarea `#source` hat `autocomplete="off"`.
+- [ ] Script-Datei öffnen: Editor-Textarea `#scriptSource` hat `autocomplete="off"`.
+- [ ] Knoten über Mindmap, Kanban oder Kalender bearbeiten: **Beschreibung (Markdown)** steht oberhalb **Datum / Zeitraum** und enthält `autocomplete="off"`.
+- [ ] Beschreibung und Datum ändern, speichern, Dialog erneut öffnen: Beide Angaben bleiben korrekt.
+- [ ] Die benutzerdefinierte Markdown-Autovervollständigung funktioniert weiterhin; das Browser-Autofill ist davon unabhängig.
+- [ ] PWA nach Upgrade neu laden: Cache `mindfagg-v35` aktiv, vorhandene Projekte und GitHub-Verbindungen bleiben erhalten.

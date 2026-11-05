@@ -39,3 +39,20 @@
 .github-conflict-actions{position:sticky;bottom:-18px;margin-top:11px!important;background:#1a2230;padding:13px 0 2px;border-top:1px solid #35435b}
 .github-conflict-actions .primary{min-width:200px}
 @media(max-width:560px){.modal:has(#githubModal),.modal:has(#githubConflictModal){padding:12px}.github-conflict-list{max-height:43dvh}.github-conflict-header h2{font-size:18px}.github-conflict-tools{align-items:flex-start;flex-direction:column}.github-comparison-side{padding:7px}.github-conflict-actions .btn{flex:1 1 135px}.github-comparison-side small{font-size:9px}}
+
+/* v36: direct repository and create-repository links in the assignment dialog. */
+.github-repository-links{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:7px;min-width:0}
+.github-repository-links a{color:var(--accent-foreground);font-size:11px;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.github-repository-links a:hover{color:#fff}
+.github-repository-links a[hidden]{display:none}
+
+/* v41: live autocomplete from the token-visible GitHub repositories. */
+.github-repo-suggestion{position:relative;margin-top:5px;background:#172234;border:1px solid #596b88;border-radius:8px;padding:4px;box-shadow:0 8px 22px #0007;max-height:min(290px,35dvh);overflow-y:auto;overscroll-behavior:contain}
+.github-repo-suggestion[hidden]{display:none!important}
+.github-repo-lookup{padding:5px 9px;color:#a8bacf;font-size:10px;line-height:1.5}
+.github-repo-options{display:grid;gap:2px}
+.github-repo-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;border-radius:6px;padding:8px 10px;background:transparent;color:var(--accent-foreground);font:650 12px/1.5 ui-monospace,monospace}
+.github-repo-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.github-repo-choice small{flex:none;color:#94aac2;font:500 10px ui-sans-serif,system-ui,sans-serif}
+.github-repo-choice:hover,.github-repo-choice:focus-visible{background:color-mix(in srgb,var(--accent) 24%,#172234);outline:2px solid transparent}
+@media(max-width:560px){.github-repo-suggestion{max-height:min(240px,31dvh)}}

@@ -351,12 +351,13 @@ function editNode(path){
   const n=flattened(currentModel).find(item=>item.path===path);
   if(!n||n.kind==='virtual')return;
   const refs=[...n.title.matchAll(/\[\[([^\]#|]+)(?:#([^\]|]+))?(?:\|[^\]]+)?\]\]/g)];
-  const previousType=nodeTypeValue(n),isKanbanTicket=view==='kanban';
+  const previousType=nodeTypeValue(n);
   const typeOptions=NODE_TYPES.map(t=>`<option value="${t.value}" ${t.value===previousType?'selected':''}>${escapeHtml(t.label)}</option>`).join('');
-  openModal(`<h2><label for="nodeTitle">${isKanbanTicket?'Ticket':'Knoten'} bearbeiten</label></h2><form id="nodeForm" class="node-form">
+  // v37: Mindmap, Kanban and calendar share the same node editor and status control.
+  openModal(`<h2><label for="nodeTitle">Knoten bearbeiten</label></h2><form id="nodeForm" class="node-form">
     <div class="field"><input id="nodeTitle" aria-label="Knoten bearbeiten: Titel" required value="${escapeHtml(n.title)}"></div>
-    <div class="node-properties ${isKanbanTicket?'single':''}"><div class="field"><label for="nodeType">Knotentyp</label><select id="nodeType">${typeOptions}</select></div>
-    ${isKanbanTicket?'':`<div class="field"><label for="nodeStatus">Status</label><select id="nodeStatus">${STATUS.map(st=>`<option value="${st}" ${st===(n.status||'story')?'selected':''}>${escapeHtml(statusLabel(st))}</option>`).join('')}</select></div>`}</div>
+    <div class="node-properties"><div class="field"><label for="nodeType">Knotentyp</label><select id="nodeType">${typeOptions}</select></div>
+    <div class="field"><label for="nodeStatus">Status</label><select id="nodeStatus">${STATUS.map(st=>`<option value="${st}" ${st===(n.status||'story')?'selected':''}>${escapeHtml(statusLabel(st))}</option>`).join('')}</select></div></div>
     <div class="field"><label>Aufgabenstatus (Checkbox)</label><div class="node-check-group"><label><input type="checkbox" id="nodeUseCheck" ${n.checked!==null?'checked':''}> Checkbox für diesen Knoten verwenden</label><label><input type="checkbox" id="nodeDone" ${n.checked===true?'checked':''} ${n.checked===null?'disabled':''}> Erledigt</label></div></div>
     <div class="field"><label for="nodeDescription">Beschreibung (Markdown)</label><textarea id="nodeDescription" autocomplete="off">${escapeHtml(n.description.join('\n').trim())}</textarea></div>
     ${nodeDateFieldsHtml(n.date)}
@@ -373,7 +374,7 @@ function editNode(path){
     const date=readNodeDateFields();
     if($('#nodeDateStart').value&&!date){toast('Ungültiges Startdatum oder unzulässige Dauer');return}
     const d=lineEdit(n,{title:$('#nodeTitle').value.trim(),nodeType:nextType,
-      status:isKanbanTicket?n.status:$('#nodeStatus').value||null,
+      status:$('#nodeStatus').value||null,
       checked:$('#nodeUseCheck').checked?$('#nodeDone').checked:null,
       date});
     if(!d)return;

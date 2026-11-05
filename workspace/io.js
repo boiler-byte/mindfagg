@@ -23,7 +23,7 @@ function toggleWorkspaceActionMenu(kind,anchor){
     ['file-download','file','Aktuelle Datei herunterladen','Originalformat']
   ];
   const menu=document.createElement('div');menu.id='workspaceActionsMenu';menu.dataset.kind=kind;menu.className='workspace-actions-menu';menu.role='menu';menu.setAttribute('aria-label',kind==='add'?'Dateien hinzufügen':'Workspace-Aktionen');
-  menu.innerHTML=options.map(([action,icon,label,detail])=>`<button role="menuitem" type="button" data-workspace-action="${action}" ${(!projectId||action==='file-download'&&!documentNow())?'disabled':''}><span class="workspace-menu-icon" aria-hidden="true">${{ 'file-plus':'▤','folder-plus':'▱','upload':'⇧','clipboard':'▣','archive':'▥','download':'⇩','share':'↗','file':'⇩'}[icon]}</span><span><strong>${label}</strong>${detail?`<small>${detail}</small>`:''}</span></button>`).join('');
+  menu.innerHTML=options.map(([action,icon,label,detail])=>`${kind==='add'&&action==='upload'?'<div class="workspace-menu-separator" role="separator" aria-hidden="true"></div>':''}<button role="menuitem" type="button" data-workspace-action="${action}" ${(!projectId||action==='file-download'&&!documentNow())?'disabled':''}><span class="workspace-menu-icon" aria-hidden="true">${{ 'file-plus':'▤','folder-plus':'▱','upload':'⇧','clipboard':'▣','archive':'▥','download':'⇩','share':'↗','file':'⇩'}[icon]}</span><span><strong>${label}</strong>${detail?`<small>${detail}</small>`:''}</span></button>`).join('');
   document.body.appendChild(menu);workspaceActionMenu=menu;
   const box=anchor.getBoundingClientRect(),r=menu.getBoundingClientRect();
   menu.style.left=Math.max(8,Math.min(innerWidth-r.width-8,box.right-r.width))+'px';
@@ -356,7 +356,8 @@ function workspaceSuggestTextName(value){
   if(/^<!doctype\s+html/i.test(t)||/^<html(?:\s|>)/i.test(t))return 'clipboard.html';
   if(/^<\?xml\b/i.test(t))return 'clipboard.xml';
   if(/^[{\[]/.test(t)){try{JSON.parse(t);return 'clipboard.json'}catch(_){}}
-  return 'clipboard.txt';
+  const language=detectClipboardCodeLanguage(t);
+  return language?'clipboard.'+language:'clipboard.txt';
 }
 function workspaceClipboardFromEvent(event){
   const data=event.clipboardData,files=[];

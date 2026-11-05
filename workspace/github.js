@@ -1,5 +1,5 @@
 'use strict';
-// mindfagg v34: app-wide, locally encrypted GitHub credential; one repository
+// mindfagg v41: app-wide, locally encrypted GitHub credential; one repository
 // and a three-way synchronization baseline per project. Never force-push.
 const GITHUB_MAX_FILE=20*1024*1024;
 const GITHUB_MAX_PULL=80*1024*1024;
@@ -11,6 +11,32 @@ let githubCredentialToken=null,githubCredentialAccount='',githubCredentialError=
 let githubBusy=false,githubReview=null;
 const githubProjectStatuses=new Map(),githubLocalTimers=new Map();
 let githubStatusSerial=0;
+
+// Only the current token's accessible repositories are suggested. Results live
+// in dialog memory and are never saved to IndexedDB, ZIPs or localStorage.
+const GITHUB_REPO_SUGGEST_PAGE_SIZE=100;
+const GITHUB_REPO_SUGGEST_MAX_PAGES=10;
+async function githubListAccountRepositories(token,onBatch){
+  const unique=new Map();let complete=false;
+  for(let page=1;page<=GITHUB_REPO_SUGGEST_MAX_PAGES;page++){
+    const response=await githubApi(token,'/user/repos?per_page='+GITHUB_REPO_SUGGEST_PAGE_SIZE+
+      '&page='+page+'&sort=full_name&direction=asc');
+    if(!Array.isArray(response))throw Error('GitHub hat keine Repository-Liste geliefert.');
+    for(const item of response){
+      if(typeof item?.full_name!=='string')continue;
+      try{
+        const normalized=githubNormalizeRepository(item.full_name);
+        const key=(normalized.owner+'/'+normalized.repo).toLowerCase();
+        unique.set(key,{name:normalized.owner+'/'+normalized.repo,private:Boolean(item.private)});
+      }catch(_){}
+    }
+    complete=response.length<GITHUB_REPO_SUGGEST_PAGE_SIZE;
+    if(typeof onBatch==='function'&&onBatch([...unique.values()],complete)===false)
+      return {repositories:[...unique.values()],truncated:!complete};
+    if(complete)break;
+  }
+  return {repositories:[...unique.values()],truncated:!complete};
+}
 
 function githubConnection(p=project()){
   const value=p?.github;
@@ -352,7 +378,13 @@ function openGithubDialog(){
     <h2>GitHub-Repository zuordnen</h2>
     <p>Jedes mindfagg-Projekt verwendet sein eigenes Repository und seinen eigenen Branch. Die Zugangsdaten werden zentral in den App-Einstellungen verwaltet.</p>
     <form id="githubConnectForm">
-      <div class="field"><label for="githubRepository">Repository</label><input id="githubRepository" required spellcheck="false" placeholder="owner/repo" value="${cfg?escapeHtml(cfg.owner+'/'+cfg.repo):''}"></div>
+      <div class="field"><label for="githubRepository">Repository</label><input id="githubRepository" required spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="owner/repo" value="${cfg?escapeHtml(cfg.owner+'/'+cfg.repo):''}">
+        <div class="github-repo-suggestion" id="githubRepoSuggestion" hidden>
+          <div id="githubRepoLookup" class="github-repo-lookup" role="status" aria-live="polite"></div>
+          <div id="githubRepoOptions" class="github-repo-options" role="listbox" aria-label="Repositories des GitHub-Kontos"></div>
+        </div>
+        <div class="github-repository-links" id="githubRepositoryLinks"><a id="githubRepositoryOpen" href="#" target="_blank" rel="noopener noreferrer" hidden></a><a id="githubRepositoryCreate" href="https://github.com/new" target="_blank" rel="noopener noreferrer">Neues Repository auf GitHub erstellen</a></div>
+      </div>
       <div class="field"><label for="githubBranch">Branch</label><input id="githubBranch" required spellcheck="false" value="${escapeHtml(cfg?.branch||'main')}"></div>
       <p class="github-note" id="githubAccountState">${escapeHtml(githubCredentialLabel())}</p>
       <div class="github-actions"><button class="btn primary" id="githubConnectBtn" type="submit" ${githubCredentialToken?'':'disabled'}>${cfg?'Zuordnung prüfen':'Repository verbinden'}</button><button type="button" class="btn" id="githubAccountSettings">App-Zugangsdaten</button></div>
@@ -362,6 +394,97 @@ function openGithubDialog(){
     <div class="modalactions"><button type="button" class="btn" id="cancelModal">Schließen</button></div>
   </div>`);
   wireCancel();
+  const repositoryInput=$('#githubRepository'),repoLink=$('#githubRepositoryOpen');
+  function refreshRepositoryLink(){
+    try{
+      const {owner,repo}=githubNormalizeRepository(repositoryInput.value);
+      repoLink.href='https://github.com/'+encodeURIComponent(owner)+'/'+encodeURIComponent(repo);
+      repoLink.textContent='github.com/'+owner+'/'+repo;
+      repoLink.hidden=false;
+    }catch(_){repoLink.hidden=true;repoLink.removeAttribute('href');repoLink.textContent=''}
+  }
+  // Live suggestions from the GitHub API. Never suggest old project assignments.
+  const suggestion=$('#githubRepoSuggestion'),options=$('#githubRepoOptions'),notice=$('#githubRepoLookup');
+  const token=githubCredentialToken;
+  let repositories=[],loading=Boolean(token),lookupError='',truncated=false,skipFocus=false;
+  const isCurrent=()=>repositoryInput.isConnected&&$('#githubRepository')===repositoryInput&&githubCredentialToken===token;
+  function closeSuggestion(){
+    suggestion.hidden=true;repositoryInput.setAttribute('aria-expanded','false');
+  }
+  function selectRepository(name){
+    repositoryInput.value=name;
+    skipFocus=true;
+    repositoryInput.focus({preventScroll:true});
+    skipFocus=false;
+    repositoryInput.setSelectionRange(name.length,name.length);
+    refreshRepositoryLink();closeSuggestion();
+  }
+  function refreshRepositorySuggestion(){
+    if(!isCurrent()||!token){closeSuggestion();return}
+    const typed=repositoryInput.value.trim().toLocaleLowerCase();
+    const matches=repositories.filter(item=>item.name.toLocaleLowerCase().includes(typed));
+    const shown=matches.slice(0,9);
+    const formerFocus=options.contains(document.activeElement)?document.activeElement.querySelector('.github-repo-name')?.textContent:null;
+    options.replaceChildren();
+    for(const item of shown){
+      const button=document.createElement('button');
+      button.type='button';button.className='github-repo-choice';button.setAttribute('role','option');
+      button.setAttribute('aria-selected','false');
+      const name=document.createElement('span');name.className='github-repo-name';name.textContent=item.name;
+      const meta=document.createElement('small');meta.textContent=item.private?'Privat':'\u00d6ffentlich';
+      button.append(name,meta);
+      button.onpointerdown=event=>event.preventDefault();
+      button.onclick=()=>selectRepository(item.name);
+      button.onkeydown=event=>{
+        const choices=[...options.querySelectorAll('button')],at=choices.indexOf(button);
+        if(event.key==='Escape'){event.preventDefault();repositoryInput.focus({preventScroll:true});closeSuggestion()}
+        else if(event.key==='ArrowDown'){event.preventDefault();choices[(at+1)%choices.length]?.focus()}
+        else if(event.key==='ArrowUp'){event.preventDefault();if(at===0)repositoryInput.focus({preventScroll:true});else choices[at-1]?.focus()}
+      };
+      options.appendChild(button);
+    }
+    if(formerFocus){
+      const matching=[...options.querySelectorAll('button')].find(button=>button.querySelector('.github-repo-name')?.textContent===formerFocus);
+      matching?.focus({preventScroll:true});
+    }
+    let message='';
+    if(loading)message='Repositories werden von GitHub geladen ...';
+    else if(lookupError)message='Repository-Liste nicht verf\u00fcgbar: '+lookupError+' Eingabe bleibt m\u00f6glich.';
+    else if(!matches.length)message='Keine passenden Repositories mit diesem Token gefunden.';
+    else message=matches.length+' passende Repositories'+(truncated?' (Liste begrenzt)':'');
+    notice.textContent=message;
+    // A visible status is useful when permissions, offline access or loading
+    // prevent showing entries; users may always type any owner/repo manually.
+    suggestion.hidden=!(shown.length||loading||lookupError||(typed&&repositories.length));
+    repositoryInput.setAttribute('aria-controls','githubRepoOptions');
+    repositoryInput.setAttribute('aria-expanded',String(!suggestion.hidden));
+  }
+  repositoryInput.addEventListener('input',()=>{refreshRepositoryLink();refreshRepositorySuggestion()});
+  repositoryInput.addEventListener('focus',()=>{if(!skipFocus)refreshRepositorySuggestion()});
+  repositoryInput.addEventListener('keydown',event=>{
+    if(event.key==='ArrowDown'&&!suggestion.hidden){
+      const first=options.querySelector('button');if(first){event.preventDefault();first.focus()}
+    }else if(event.key==='Escape'&&!suggestion.hidden){event.preventDefault();closeSuggestion()}
+  });
+  repositoryInput.addEventListener('blur',()=>{
+    setTimeout(()=>{
+      if(isCurrent()&&!suggestion.contains(document.activeElement)&&document.activeElement!==repositoryInput)closeSuggestion();
+    },100);
+  });
+  refreshRepositoryLink();
+  // Fetch on opening, refresh on every new dialog. Incrementally display pages.
+  if(token){
+    void githubListAccountRepositories(token,(batch,done)=>{
+      if(!isCurrent())return false;
+      repositories=batch;loading=!done;refreshRepositorySuggestion();
+    }).then(result=>{
+      if(!isCurrent())return;
+      repositories=result.repositories;truncated=result.truncated;loading=false;refreshRepositorySuggestion();
+    }).catch(error=>{
+      if(!isCurrent())return;
+      loading=false;lookupError=error.message;refreshRepositorySuggestion();
+    });
+  }
   $('#githubConnectForm').onsubmit=event=>{event.preventDefault();void githubConnect()};
   $('#githubDisconnectBtn').onclick=()=>void githubDisconnect();
   $('#githubSyncFromDialog').onclick=()=>{closeModal();void githubSyncNow()};

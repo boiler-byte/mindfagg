@@ -60,17 +60,22 @@ function mapNodeHtml(row,root){
     <span class="nodeinner"><span class="nodetitle">${labeledNodeTitle(n)}</span>${progress}</span>${fold}</div>`;
 }
 function positionMapRows(state){
-  const gap=22,step=286;
+  // v37: Double the space between direct siblings compared with v36.
+  // Top-level branches are separate visual blocks and receive an additional
+  // 24px of separation (40 -> 64px) so a parent/context change remains clear.
+  const step=286;
+  const siblingGap=depth=>depth===0?24:depth===1?24:depth===2?24:12;
   function measure(r){
     r.height=Math.max(r.depth>=3?43:r.depth===2?56:64,r.el?.offsetHeight||70);
     r.width=r.el?.offsetWidth||r.width;
-    const total=r.children.reduce((s,c)=>s+measure(c),0)+Math.max(0,r.children.length-1)*gap;
+    const total=r.children.reduce((s,c)=>s+measure(c),0)+Math.max(0,r.children.length-1)*siblingGap(r.depth);
     r.branchHeight=Math.max(r.height,total);
     return r.branchHeight;
   }
   function place(r,top){
     r.x=74+r.depth*step;
     r.y=top+(r.branchHeight-r.height)/2;
+    const gap=siblingGap(r.depth);
     const total=r.children.reduce((s,c)=>s+c.branchHeight,0)+Math.max(0,r.children.length-1)*gap;
     let childTop=top+(r.branchHeight-total)/2;
     for(const child of r.children){place(child,childTop);childTop+=child.branchHeight+gap}

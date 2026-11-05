@@ -88,7 +88,7 @@ function changeEditorStatus(line,token,status){
 }
 function drawEditorInteractions(){
   const source=$('#source'),layer=$('#interactionLayer');if(!source||!layer||!editorScan)return;
-  if(appEditorSettings.wordWrap){layer.replaceChildren();return}
+  if(appEditorSettings.wordWrap||codeFoldHasCollapsed(source)){layer.replaceChildren();return}
   const m=editorMetrics();if(!m)return;
   tokenMetrics=m;
   const first=Math.max(0,Math.floor((source.scrollTop-m.padTop)/m.lineHeight)-1),

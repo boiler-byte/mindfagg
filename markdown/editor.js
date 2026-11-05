@@ -53,19 +53,20 @@ function renderEditor(){
   $('#surface').innerHTML=`<div class="editor">
     <div class="editor-tools" aria-label="Markdown-Schnelleingabe"><select class="tool tool-heading" id="headingLevel" aria-label="Überschriftenebene auswählen" title="Überschriftenebene auf alle markierten Zeilen anwenden"><option value="" selected disabled>H ▾</option>${[2,3,4,5,6].map(i=>`<option value="${i}">H${i}</option>`).join('')}</select><button type="button" class="tool" data-tool="outdent" title="Listenpunkt mit Unterpunkten ausrücken (Shift+Tab)" aria-label="Ausrücken">⇤</button><button type="button" class="tool" data-tool="indent" title="Listenpunkt mit Unterpunkten einrücken (Tab)" aria-label="Einrücken">⇥</button><button type="button" class="tool" data-tool="list" title="Listenmarker für alle markierten Zeilen ein-/ausblenden" aria-label="Listenmarker umschalten">-</button><button type="button" class="tool" data-tool="checkbox" title="Checkbox für alle markierten Zeilen ein-/ausblenden" aria-label="Checkbox umschalten">☐</button><button type="button" class="tool" data-tool="status" title="Status für alle markierten Knoten wählen">Status ▾</button><button type="button" class="tool" data-tool="link" title="Wikilink einfügen">Link</button></div>
     <div class="codeframe" id="codeFrame">
-      <div class="codegutter" aria-hidden="true"><pre id="lineNumbers"></pre></div>
+      <div class="codegutter"><pre id="lineNumbers" aria-hidden="true"></pre><div class="code-fold-gutter" id="markdownFoldGutter" aria-label="Markdown-Codefaltung"></div></div>
       <div class="codepane"><pre class="syntaxlayer" id="syntax" aria-hidden="true"></pre><textarea id="source" aria-label="Mindmap-Markdown bearbeiten" aria-describedby="editorHelp" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" wrap="off"></textarea><div class="code-interactions" id="interactionLayer"></div><div id="completionPopup" class="completion-popup hidden" role="listbox" aria-label="Markdown-Vervollständigung"></div></div>
       <div class="minimap" id="minimap" role="scrollbar" aria-label="Code-Minimap, scrollbar" aria-controls="source" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><canvas id="miniCanvas" aria-hidden="true"></canvas><div class="mini-viewport" id="miniViewport"></div></div>
     </div>
     <div class="editfoot"><button type="button" id="rootState" class="root-state" title="H1-Validierung"></button><small class="codehelp" id="editorHelp">Autocomplete: / · [[ · [status: · Enter setzt Listen fort · Tab/Shift+Tab rückt ein/aus</small></div>
   </div>`;
   const source=$('#source');source.value=d.content;source.wrap=appEditorSettings.wordWrap?'soft':'off';
+  codeFoldInitialize(source,d,'markdown',()=>{refreshCodeVisuals();hideCompletions()});
   syncMobileMarkdownViewport();
   refreshCodeVisuals();wireMinimap();wireEditorTools();
   $('#rootState').onclick=focusRootProblem;
   source.onscroll=syncCodeScroll;
   source.oninput=()=>{
-    const text=source.value;
+    const text=codeFoldUpdateAfterInput(source);
     const doc=docs.find(item=>item.id===editorDocId);
     if(doc){
       if(doc.content!==text){const h=docHistoryFor(doc.id);h.redo.length=0;deletionHistoryFor(doc.projectId).redo.length=0}
@@ -83,6 +84,7 @@ function renderEditor(){
   source.oncompositionstart=()=>{editorComposing=true;hideCompletions()};
   source.oncompositionend=()=>{editorComposing=false;updateCompletions()};
   source.onkeydown=e=>{
+    if(codeFoldHasCollapsed(source)&&(e.key==='Enter'||e.key==='Tab'))codeFoldExpandAll(source);
     if(completionState?.items?.length&&!editorComposing){
       if(e.key==='ArrowDown'||e.key==='ArrowUp'){
         e.preventDefault();completionIndex=(completionIndex+(e.key==='ArrowDown'?1:-1)+completionState.items.length)%completionState.items.length;
@@ -103,6 +105,8 @@ function renderEditor(){
       e.preventDefault();smartListIndent(e.shiftKey);return;
     }
   };
+  // Toolbar actions and Markdown inline controls operate on canonical offsets.
+  for(const action of ['pointerdown','click','change'])$('#surface .editor-tools').addEventListener(action,()=>codeFoldExpandAll(source),true);
   source.onkeyup=e=>{if(['ArrowLeft','ArrowRight','Home','End','PageUp','PageDown'].includes(e.key))updateCompletions()};
   source.onclick=()=>updateCompletions();
   source.onblur=e=>{if(!e.relatedTarget?.closest?.('.completion-popup,.editor-tools'))hideCompletions()};
@@ -135,7 +139,7 @@ async function flushSource(){
   const d=docs.find(x=>x.id===editorDocId),source=d&&fileKind(d)==='script'?$('#scriptSource'):$('#source');
   if(!source||!editorDocId||!d||d.id!==docId||!docIsText(d))return;
   if(fileKind(d)==='markdown'&&view!=='markdown')return;
-  const value=source.value;d.content=value;await saveSource(editorDocId,value);
+  const value=codeFoldFull(source);d.content=value;await saveSource(editorDocId,value);
 }
 
 

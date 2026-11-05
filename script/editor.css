@@ -28,3 +28,19 @@
   .script-editor .syntaxlayer,.script-editor #scriptSource{font-size:16px;line-height:24px;padding:13px 11px}
 }
 @media(max-width:440px){.script-editor .codeframe{grid-template-columns:29px minmax(0,1fr) 47px}}
+
+/* v36: line- and token-level offline diagnostics for HTML, CSS and JS. */
+.script-editor{flex-direction:column;gap:0}
+.script-editor .codeframe{flex:1 1 0}
+.script-editor #scriptSource{z-index:4}
+.script-error-layer{position:absolute;top:0;left:0;z-index:3;pointer-events:none;will-change:transform}
+.script-invalid-line{position:absolute;left:0;right:0;background:rgba(241,95,120,.13);border-left:3px solid #ee8898;pointer-events:none}
+.script-invalid-token{position:absolute;height:5px;border-bottom:2px dashed #ff889b;pointer-events:none}
+.script-editor .gline.error{color:#ffb7c5;background:#772c3d50;font-weight:750}
+.script-validation-bar{flex:none;display:flex;align-items:center;gap:9px;padding:7px 10px;min-height:35px;max-height:74px;overflow:auto;border:1px solid #35435a;border-top:0;border-radius:0 0 9px 9px;background:#131b29;color:#9babc2;font-size:11px;scrollbar-width:thin}
+.script-validation-label{flex:none;white-space:nowrap;font-weight:700}
+.script-validation-label.is-valid{color:#89dab6}
+.script-validation-label.is-invalid{color:#ffacbd}
+.script-diagnostic-link{flex:none;min-width:0;max-width:360px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;background:#38232e;color:#ffd2d9;border:1px solid #78515e;border-radius:6px;padding:5px 8px;font-size:11px}
+.script-diagnostic-link:hover,.script-diagnostic-link:focus-visible{border-color:#ffacbd;background:#59313f}
+@media(max-width:850px){.script-validation-bar{min-height:38px;padding:5px 8px;max-height:60px}.script-diagnostic-link{max-width:260px}}

@@ -9,6 +9,20 @@ let htmlPreviewFrame=null,htmlPreviewToken='',htmlPreviewGeneration=0;
 const HTML_PREVIEW_LOG_LIMIT=100;
 let htmlPreviewLogs=[],htmlPreviewLogSerial=0,htmlPreviewConsoleOpen=false;
 let htmlPreviewConsoleRenderPending=false;
+// v38: Preview storage is deliberately opt-in. The privileged srcdoc frame
+// shares the app origin; never enable this without an explicit user action.
+const HTML_PREVIEW_STORAGE_BLOCKED=/(?:sandbox(?:ed)?|allow-same-origin)/i;
+function htmlPreviewStorageBlockedError(text){
+  return HTML_PREVIEW_STORAGE_BLOCKED.test(String(text))&&/(?:localStorage|indexedDB|IDBFactory|sessionStorage)/i.test(String(text));
+}
+function htmlPreviewGrantStorage(){
+  if(appEditorSettings.previewStorageAccess)return;
+  appEditorSettings.previewStorageAccess=true;
+  saveAppEditorPreferences();
+  htmlPreviewLog('warn','Speicherzugriff freigegeben. Die HTML-Vorschau teilt jetzt den Ursprung mit mindfagg und kann auch App-Daten und GitHub-Zugangsdaten lesen. Nur vertrauenswürdige Dateien öffnen.');
+  htmlPreviewLoad();
+}
+
 const HTML_PREVIEW_ORIGIN='https://mindfagg-preview.invalid';
 const HTML_PREVIEW_MAX_INLINE=2*1024*1024;
 
@@ -304,6 +318,7 @@ function htmlPreviewLog(level,text,path=htmlPreviewCurrentPath){
   if(!['log','info','warn','error','debug'].includes(level))level='log';
   htmlPreviewLogs.push({id:++htmlPreviewLogSerial,level,text:String(text||'').slice(0,8000),path,time:Date.now()});
   if(htmlPreviewLogs.length>HTML_PREVIEW_LOG_LIMIT)htmlPreviewLogs.splice(0,htmlPreviewLogs.length-HTML_PREVIEW_LOG_LIMIT);
+  if(!appEditorSettings.previewStorageAccess&&htmlPreviewStorageBlockedError(text))htmlPreviewSetConsoleOpen(true);
   if(!htmlPreviewConsoleRenderPending){
     htmlPreviewConsoleRenderPending=true;
     requestAnimationFrame(()=>{htmlPreviewConsoleRenderPending=false;htmlPreviewRenderLogs()});
@@ -324,6 +339,10 @@ function htmlPreviewRenderLogs(){
       <span class="html-preview-log-path" title="${escapeHtml(item.path)}">${escapeHtml(item.path)}</span>
       <button type="button" class="html-preview-log-copy" data-html-log-copy="${item.id}" aria-label="Meldung kopieren" title="Meldung kopieren">Kopieren</button>
     </div><pre>${escapeHtml(item.text)}</pre>
+    ${!appEditorSettings.previewStorageAccess&&htmlPreviewStorageBlockedError(item.text)?`<div class="html-preview-storage-action">
+      <p>Diese Vorschau fordert Browser-Speicherzugriff an. <strong>Achtung:</strong> Die Freigabe gibt Vorschau-Skripten auch Zugriff auf die gespeicherten Projekte, GitHub-Zugangsdaten und die Hauptanwendung.</p>
+      <button type="button" class="btn html-preview-storage-grant" data-html-preview-storage-grant>Speicherzugriff jetzt freigeben</button>
+    </div>`:appEditorSettings.previewStorageAccess&&htmlPreviewStorageBlockedError(item.text)?`<p class="html-preview-storage-browser-note">Die Freigabe ist aktiv, aber der Browser verweigert weiterhin den Speicherzugriff. Die App über HTTPS oder localhost öffnen und Browser-/Privatsphäre-Einstellungen prüfen.</p>`:''}
   </div>`).join(''):'<p class="html-preview-console-empty">Noch keine Konsolenmeldungen.</p>';
   if(nearBottom)list.scrollTop=list.scrollHeight;
 }
@@ -420,14 +439,19 @@ function htmlPreviewLoad(){
   catch(error){area.innerHTML=`<div class="html-preview-unavailable"><h2>Vorschau nicht verfügbar</h2><p>${escapeHtml(error.message)}</p></div>`;htmlPreviewLog('error',error.message,path);return}
   const frame=document.createElement('iframe');
   frame.id='htmlPreviewFrame';frame.className='html-preview-frame';
-  frame.title='Isolierte HTML-Vorschau: '+path;
-  frame.setAttribute('sandbox','allow-scripts'); // Intentionally no allow-same-origin!
+  frame.title=(appEditorSettings.previewStorageAccess?'HTML-Vorschau mit Speicherzugriff: ':'Isolierte HTML-Vorschau: ')+path;
+  // WARNING: allow-scripts + allow-same-origin on srcdoc exposes the app's
+  // origin and DOM to preview scripts. Only use with the explicit global opt-in.
+  frame.setAttribute('sandbox',appEditorSettings.previewStorageAccess?'allow-scripts allow-same-origin':'allow-scripts');
   frame.referrerPolicy='no-referrer';
   htmlPreviewFrame=frame;
   frame.srcdoc=html;
   area.replaceChildren(frame);
   const loc=$('#htmlPreviewLocation');if(loc){loc.textContent=path;loc.title=path}
-  const state=$('#htmlPreviewState');if(state)state.textContent=warnings.size?`${warnings.size} Ressource(n) eingeschränkt`:'Isolierte Vorschau';
+  const state=$('#htmlPreviewState');if(state){
+    state.textContent=appEditorSettings.previewStorageAccess?'Speicherzugriff aktiv · nicht isoliert':(warnings.size?`${warnings.size} Ressource(n) eingeschränkt`:'Isolierte Vorschau');
+    state.classList.toggle('is-privileged',appEditorSettings.previewStorageAccess);
+  }
   const back=$('#htmlPreviewBack');if(back)back.disabled=htmlPreviewBackStack.length===0;
   if(warnings.size)for(const warning of warnings)htmlPreviewLog('warn',warning,path);
 }
@@ -467,6 +491,8 @@ function renderHtmlPreview(){
   $('#htmlPreviewConsoleList').onclick=event=>{
     const button=event.target.closest('[data-html-log-copy]');
     if(button)htmlPreviewCopyLog(Number(button.dataset.htmlLogCopy));
+    const grant=event.target.closest('[data-html-preview-storage-grant]');
+    if(grant)htmlPreviewGrantStorage();
   };
   htmlPreviewSetConsoleOpen(htmlPreviewConsoleOpen);
   htmlPreviewUpdateFullscreenButton();

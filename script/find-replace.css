@@ -1,0 +1,59 @@
+/* v40: VS Code-like literal, multiline find/replace, with a keyboard-safe toolbar. */
+.script-editor{position:relative;display:flex;flex-direction:column;height:100%;min-height:0}
+.script-editor-tools{display:flex;align-items:center;flex:none;gap:6px;min-height:42px;padding:5px 10px 7px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.script-editor-tools .tool{flex:none;border:1px solid #36445c;border-radius:7px;background:#1c2635;color:#c8d4e6;padding:7px 12px;min-height:33px;font:650 11px/1.4 ui-sans-serif,system-ui,sans-serif;white-space:nowrap}
+.script-editor-tools .tool[hidden]{display:none!important}
+.script-editor-tools .tool:hover,.script-editor-tools .tool:focus-visible,.script-editor-tools .tool[aria-expanded="true"]{background:color-mix(in srgb,var(--accent) 22%,#1c2635);border-color:var(--accent);color:var(--accent-foreground)}
+.script-find-widget{position:absolute;z-index:15;top:48px;right:15px;width:min(630px,calc(100% - 30px));max-width:100%;padding:7px;background:#202b3d;border:1px solid #667694;box-shadow:0 12px 34px #000b;border-radius:9px;font:12px/1.4 ui-sans-serif,system-ui,sans-serif;min-width:0}
+.script-find-widget[hidden],.script-replace-row[hidden]{display:none!important}
+.script-find-row,.script-replace-row{display:flex;gap:5px;align-items:flex-start;min-width:0}
+.script-replace-row{margin-top:5px}
+.script-find-input-wrap{position:relative;flex:1;min-width:0}
+.script-find-input-wrap textarea,.script-replace-row textarea{display:block;width:100%;height:32px;max-height:78px;min-height:32px;resize:none;overflow-y:auto;box-sizing:border-box;border:1px solid #465b77;border-radius:6px;background:#111a29;color:#e8eefb;padding:7px 9px;font:12px/17px ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.script-find-input-wrap textarea{padding-right:37px}
+.script-find-input-wrap textarea:focus,.script-replace-row textarea:focus{border-color:var(--accent);outline:1px solid var(--accent);outline-offset:0}
+.script-find-case{position:absolute;right:4px;top:3px;height:25px;min-width:29px;border-radius:4px;background:transparent;color:#95a8c0;font-weight:800;padding:1px 4px;font-size:11px}
+.script-find-case:hover,.script-find-case:focus-visible{background:#3a4861;color:white}
+.script-find-case.is-active{background:color-mix(in srgb,var(--accent) 30%,#2c354b);color:var(--accent-foreground);box-shadow:inset 0 -2px var(--accent)}
+.script-find-icon{flex:0 0 27px;height:32px;background:transparent;color:#cbd8ec;border-radius:5px;padding:0;font-size:19px;line-height:1;display:grid;place-items:center}
+.script-find-icon:hover:not(:disabled),.script-find-icon:focus-visible{background:#3e4c62;color:white}
+.script-find-icon:disabled,.script-find-action:disabled{opacity:.34;cursor:not-allowed}
+.script-find-expand{font-size:16px}
+.script-find-count{display:grid;place-items:center;align-self:center;flex:0 0 69px;font-size:10px;white-space:nowrap;color:#b7c6da;font-variant-numeric:tabular-nums}
+.script-replace-indent{flex:0 0 27px}
+.script-replace-row textarea{flex:1;min-width:0}
+.script-find-action{flex:0 0 auto;min-width:62px;height:32px;padding:5px 9px;border:1px solid #4c607b;background:#2a3950;color:#e4ebf7;border-radius:6px;font-size:11px;font-weight:700}
+.script-find-action:not(:disabled):hover,.script-find-action:focus-visible{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 28%,#2a3950)}
+.script-find-help{padding:4px 0 0 32px;color:#93a5bf;font-size:10px}
+/* Keep all hits aligned with the actual textarea, including tabs, line breaks and word wrap. */
+.script-editor .script-find-layer{z-index:3;color:transparent!important;pointer-events:none;user-select:none;overflow:visible}
+.script-editor .script-find-layer .script-find-highlight{background:color-mix(in srgb,#eac17a 34%,transparent);border-radius:2px;color:transparent!important;text-shadow:none}
+.script-editor .script-find-layer .script-find-highlight.is-current{background:color-mix(in srgb,var(--accent) 51%,transparent);outline:1px solid var(--accent)}
+.app.editor-wrap .script-editor .script-find-layer{white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:normal!important;min-width:0;width:100%;max-width:100%}
+@media(max-width:850px){
+  body.mobile-script-active{overflow:hidden;overscroll-behavior:none}
+  .app.mobile-script-active{position:fixed;left:0;right:0;top:var(--mf-script-visual-top,0px);bottom:auto;width:100%;height:var(--mf-script-visual-height,100dvh);overflow:hidden}
+  .app.mobile-script-active .main,.app.mobile-script-active .workspace,.app.mobile-script-active .surface,.app.mobile-script-active .script-editor{min-height:0}
+  .app.mobile-script-active .script-editor{height:100%;padding:0;gap:0}
+  .app.mobile-script-active .script-editor .codeframe{order:1;flex:1 1 0;min-height:0}
+  .app.mobile-script-active .script-editor .script-validation-bar{order:2;flex:none;border-radius:0;border-left:0;border-right:0}
+  .app.mobile-script-active .script-editor-tools{order:3;position:relative;z-index:17;flex:0 0 auto;width:100%;min-height:49px;max-height:none;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));gap:6px;overflow-x:auto;overflow-y:hidden;background:#161e2c;border-top:1px solid #394761;box-shadow:0 -5px 20px #0307106e;scrollbar-width:thin;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .app.mobile-script-active.mobile-script-keyboard-open .script-editor-tools{padding-bottom:6px}
+  .app.mobile-script-active.mobile-script-keyboard-open .topbar{height:49px;min-height:49px}
+  .app.mobile-script-active.mobile-script-keyboard-open .tabsbar{padding:3px 7px}
+  .app.mobile-script-active.mobile-script-keyboard-open .tab{padding:6px 4px}
+  .script-editor-tools .tool{min-height:36px;padding:8px 13px;font-size:12px}
+  .script-find-widget{top:5px;right:6px;width:calc(100% - 12px);padding:6px;box-shadow:0 10px 29px #000b}
+  .script-find-input-wrap textarea,.script-replace-row textarea{font-size:14px;line-height:18px}
+  .script-find-count{flex-basis:55px;font-size:10px}
+  .script-find-icon{flex-basis:26px;height:32px}
+  .script-find-action{min-width:50px;padding:5px 6px}
+}
+@media(max-width:380px){
+  .script-find-row,.script-replace-row{gap:3px}
+  .script-find-count{flex-basis:46px;font-size:9px}
+  .script-find-icon{flex-basis:24px}
+  .script-replace-indent{flex-basis:24px}
+  .script-find-action{min-width:46px;padding:4px;font-size:10px}
+  .script-find-help{font-size:9px}
+}

@@ -44,11 +44,16 @@ function paintLine(item,scan){
 let editorScan=null,editorDocId=null,editorResizeObserver=null,miniFrame=0,miniGeometry=null,editorLineLayout=null;
 function refreshCodeVisuals(){
   const source=$('#source');if(!source)return;
-  editorScan=scanMarkdown(source.value);
+  editorScan=scanMarkdown(codeFoldFull(source));
+  const displayScan=scanMarkdown(source.value);
   const invalid=new Set(editorScan.roots.slice(1));
-  editorLineLayout=editorVisualLayout(source,editorScan.lines);
-  $('#syntax').innerHTML=editorScan.items.map((it,i)=>`<span class="syn-line ${it.kind==='heading'&&it.level===1?'syn-root':''} ${invalid.has(i)?'syn-invalid':''}">${paintLine(it,editorScan)}</span>`).join('\n')+'\n';
-  $('#lineNumbers').innerHTML=editorScan.items.map((it,i)=>`<span class="gline ${it.kind==='heading'&&it.level===1?'h1':''} ${invalid.has(i)?'error':''}" style="--mf-visual-rows:${editorLineLayout.counts[i]}">${i+1}</span>`).join('');
+  editorLineLayout=editorVisualLayout(source,displayScan.lines);
+  $('#syntax').innerHTML=displayScan.items.map((it,i)=>`<span class="syn-line ${it.kind==='heading'&&it.level===1?'syn-root':''} ${invalid.has(codeFoldOriginalIndex(source,i))?'syn-invalid':''}">${paintLine(it,displayScan)}</span>`).join('\n')+'\n';
+  $('#lineNumbers').innerHTML=displayScan.items.map((it,i)=>{
+    const original=codeFoldOriginalIndex(source,i);
+    return `<span class="gline ${it.kind==='heading'&&it.level===1?'h1':''} ${invalid.has(original)?'error':''} ${original===null?'code-fold-summary':''}" style="--mf-visual-rows:${editorLineLayout.counts[i]}">${original===null?'⋯':original+1}</span>`;
+  }).join('');
+  codeFoldPaintGutter(source,'markdownFoldGutter',displayScan.lines,editorLineLayout);
   const state=$('#rootState');state.classList.toggle('invalid',!editorScan.valid);state.textContent=(editorScan.valid?'✓ ':'⚠ ')+validationMessage(editorScan);
   state.setAttribute('aria-label',editorScan.valid?'Dokumentstruktur gültig':validationMessage(editorScan)+'; klicken zum Fehler');
   state.title=editorScan.valid?'Genau eine Root-Überschrift vorhanden':'Zum Fehler im Markdown springen';
@@ -58,11 +63,13 @@ function syncCodeScroll(){
   const source=$('#source');if(!source)return;
   $('#syntax').style.transform=`translate(${-source.scrollLeft}px, ${-source.scrollTop}px)`;
   $('#lineNumbers').style.transform=`translateY(${-source.scrollTop}px)`;
+  codeFoldSyncGutter(source,'markdownFoldGutter');
   if(!miniFrame)miniFrame=requestAnimationFrame(()=>{miniFrame=0;drawMinimap();drawEditorInteractions();positionCompletionPopup()});
 }
 function drawMinimap(){
   const source=$('#source'),map=$('#minimap'),canvas=$('#miniCanvas'),target=$('#miniViewport');
   if(!source||!map||!canvas||!editorScan||!target)return;
+  const visibleScan=codeFoldHasCollapsed(source)?scanMarkdown(source.value):editorScan;
   const width=map.clientWidth,height=map.clientHeight;if(width<1||height<1)return;
   const scale=Math.min(window.devicePixelRatio||1,2),wpx=Math.round(width*scale),hpx=Math.round(height*scale);
   if(canvas.width!==wpx||canvas.height!==hpx){canvas.width=wpx;canvas.height=hpx}
@@ -70,16 +77,16 @@ function drawMinimap(){
   ctx.setTransform(scale,0,0,scale,0,0);ctx.clearRect(0,0,width,height);
   const scrollHeight=Math.max(source.scrollHeight,source.clientHeight),maxScroll=Math.max(0,scrollHeight-source.clientHeight);
   const ratio=maxScroll?source.scrollTop/maxScroll:0;
-  const virtualHeight=Math.max(height,(editorLineLayout?.totalRows||editorScan.lines.length)*5.3+19);
+  const virtualHeight=Math.max(height,(editorLineLayout?.totalRows||visibleScan.lines.length)*5.3+19);
   // The overview travels at a reduced rate as the code scrolls: parallax.
   const mapOffset=ratio*Math.max(0,virtualHeight-height);
   const lineHeight=parseFloat(getComputedStyle(source).lineHeight)||23;
   const topPad=parseFloat(getComputedStyle(source).paddingTop)||17;
   const lineSpacing=lineHeight*virtualHeight/scrollHeight;
   const first=Math.max(0,editorIndexAtVisualRow(editorLineLayout?.offsets||[],(mapOffset*scrollHeight/virtualHeight-topPad)/lineHeight)-2);
-  const last=Math.min(editorScan.items.length,editorIndexAtVisualRow(editorLineLayout?.offsets||[],((mapOffset+height)*scrollHeight/virtualHeight-topPad)/lineHeight)+3);
+  const last=Math.min(visibleScan.items.length,editorIndexAtVisualRow(editorLineLayout?.offsets||[],((mapOffset+height)*scrollHeight/virtualHeight-topPad)/lineHeight)+3);
   for(let i=first;i<last;i++){
-    const it=editorScan.items[i],raw=it.raw;
+    const it=visibleScan.items[i],raw=it.raw;
     if(!raw.trim())continue;
     const y=((topPad+(editorLineLayout?.offsets[i]??i)*lineHeight)*virtualHeight/scrollHeight)-mapOffset;
     if(y< -8||y>height+8)continue;
@@ -95,7 +102,7 @@ function drawMinimap(){
       const check=raw.match(/\[[ xX]\]/);
       if(status||check){ctx.fillStyle=status?statusColor(status[1].toLowerCase()):check?.[0].toLowerCase()==='[x]'?statusColor('done'):statusColor('story');ctx.globalAlpha=1;ctx.fillRect(Math.min(width-7,x+len*.38),y,Math.min(13,len*.25),Math.min(3.2,Math.max(1.6,lineSpacing*.5)))}
     }
-    if(it.kind==='heading'&&it.level===1&&editorScan.roots[0]!==i){ctx.fillStyle='#fc8090';ctx.globalAlpha=1;ctx.fillRect(0,y,3,4)}
+    if(it.kind==='heading'&&it.level===1&&visibleScan.roots[0]!==i){ctx.fillStyle='#fc8090';ctx.globalAlpha=1;ctx.fillRect(0,y,3,4)}
   }
   ctx.globalAlpha=1;
   const rawThumb=source.clientHeight/scrollHeight*virtualHeight;
@@ -148,6 +155,7 @@ function focusRootProblem(){
   const source=$('#source');if(!source||!editorScan||editorScan.valid)return;
   const line=editorScan.roots[1]??0;
   const start=editorScan.lines.slice(0,line).reduce((s,x)=>s+x.length+1,0);
+  codeFoldRevealOffset(source,start);
   source.focus();source.setSelectionRange(start,start+editorScan.lines[line].length);
   const lineHeight=parseFloat(getComputedStyle(source).lineHeight)||23;
   source.scrollTop=Math.max(0,line*lineHeight-source.clientHeight/3);

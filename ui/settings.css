@@ -97,3 +97,19 @@
 .app-settings-security-note{display:block;color:#91a1b9;font-size:11px;line-height:1.55;margin-top:14px}
 .app-settings-github-status{font-size:11px;color:#bad8ce;margin:12px 0 0;line-height:1.5}
 @media(max-width:560px){.app-settings-github{padding:14px 12px}.app-settings-github-heading{align-items:flex-start;flex-direction:column}.app-settings-github-buttons .btn{flex:1 1 120px}}
+
+/* v36: avoid native password-field heuristics where text-security is supported. */
+.app-github-credential-form .github-secret-input{-webkit-text-security:disc;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.04em}
+.app-settings-token-guide{font-size:11px;line-height:1.55;color:#a7b6cd;margin-top:-3px;margin-bottom:4px}
+.app-settings-token-guide a{color:var(--accent-foreground);text-decoration:underline;text-underline-offset:3px}
+.app-settings-token-guide a:hover{color:#fff}
+
+/* v38: explicit opt-in for privileged HTML previews. */
+.app-settings-preview-security{border:1px solid #53627c;border-radius:12px;background:#141d2c;margin-top:19px;overflow:hidden}
+.app-settings-preview-security h2{font-size:17px;line-height:1.4;padding:16px 20px 0;margin:0;color:#e2eafa}
+.app-preview-storage-toggle{margin-top:4px}
+.app-preview-storage-warning{margin:0 20px 11px;padding:11px 12px;border:1px solid #a06455;border-radius:8px;background:#3c2929;color:#f7c9c1;font-size:12px;line-height:1.55}
+.app-preview-storage-warning strong{color:#ffe0d7}
+.app-preview-storage-availability{margin:0 20px 18px;color:#9eafc6;font-size:11px;line-height:1.55}
+.app-preview-storage-availability code{color:#d5baff}
+@media(max-width:850px){.app-settings-preview-security h2{padding:14px 12px 0}.app-preview-storage-warning{margin:0 12px 10px}.app-preview-storage-availability{margin:0 12px 14px}}

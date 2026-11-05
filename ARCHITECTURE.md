@@ -1,4 +1,36 @@
-# mindfagg v35 – modulare Architektur
+# mindfagg v41 - modulare Architektur
+
+## v41: Pretty Code und API-basierte GitHub-Vorschläge
+
+- `script/pretty-code.js`: Offline-Formatter für HTML/JS/CSS/XML/SVG, ohne zusätzliche Drittanbieterbibliotheken. Benutzt den bereits gebündelten Acorn-Parser für die JS-Strukturprüfung und (im Browser) `DOMParser` für XML/SVG-Wohlgeformtheit. Die Formatierung arbeitet auf `codeFoldFull(source)`, nicht auf den Fold-Platzhaltern. Bei fehlgeschlagener Prüfung ändert sie keinerlei Dokumentdaten.
+- `script/find-replace.js`: Ergänzt in der bestehenden Editor-Toolbar den Pretty-Code-Button, `script/editor.js` registriert `scriptPrettyMount(doc)`. Tatsächliche Änderungen werden an `scriptFindApplyChange()` übergeben; der normale Editor-`input`-Handler sorgt für Syntaxdiagnose, Persistenz, Undo/Redo und Find-Highlights. `script/find-replace.css` blendet den Button bei nicht unterstützten Dateiformaten aus.
+- `workspace/github.js`: `githubListAccountRepositories()` paginiert `GET /user/repos` mit dem entschlüsselten In-Memory-Token. `openGithubDialog()` verwaltet eine dialoglokale, filterbare Trefferliste und zeigt API-Fehler an. Es gibt keinen neuen persistenten Cache und keine Änderung an GitHub-Verbindungen, Sync-Baselines, Token-AES-GCM oder Projekt-ZIPs. Ein veralteter Request kann keinen geschlossenen/neuen Dialog überschreiben.
+- `workspace/github.css`: Dropdown, Scrollbereich, private/öffentliche Kennzeichnung und Tastaturfokus.
+- `index.html`, `module-manifest.json`, `sw.js`: Bindet `script/pretty-code.js` nach `script/find-replace.js`, vor `script/editor.js` ein und nimmt es in den Offline-Precache auf. SW-Version `mindfagg-v41`; keine externen Skripte/CDNs, kein Build-Schritt.
+
+**Hinweis zu Pretty Code:** Die konservative Strukturformatierung ist keine vollständige Prettier-Implementierung. JavaScript-Fehler und AST-Abweichungen verhindern eine Änderung. XML/SVG bleibt bei fehlerhafter Struktur unverändert. Bei HTML mit Inline-/Mischtext wird Inhalt nicht umgebrochen, um Textabstände zu erhalten.
+
+---
+
+# Versionshistorie: v40
+
+
+## v40: Suchen und Ersetzen, GitHub-Vorschlag, mobile Toolbar
+
+- `script/find-replace.js`: Literal-Suchlogik im vollständigen `codeFoldFull()`-Text, Ergebnisverwaltung, Fallunterscheidung, Markierungen (escaped Overlay), Navigation sowie Einzel-/Alle-Ersetzen. `scriptFindApplyChange()` schreibt den kanonischen Quelltext in den vorhandenen Code-Folding-Zustand, löst genau ein Editor-`input`-Event aus und verwendet damit die bestehende History/Autosave/Diagnose-Pipeline. Es gibt **keine zweite persistente Datenquelle**.
+- `script/find-replace.css`: Werkzeugleiste und auf-/zuklappbares Suchpanel. Auf Mobilgeräten ordnet `mobile-script-active` die Leiste am unteren Rand des über `visualViewport` angepassten Editors ein, entsprechend der Markdown-Bedienung.
+- `script/editor.js`: Fügt die neue Toolbar/Overlay-Ebene hinzu und synchronisiert Suche/Markierungen mit dem normalen Syntax-Layer, minimap und den Source-Events. `ui/router.js` gibt den temporären mobilen Viewport-Zustand beim Wechsel der Ansicht frei.
+- `workspace/github.js` / `.css`: Ergänzen nur den UI-Vorschlag für `githubCredentialAccount + '/'`; das bestehenden GitHub-Verbindungs- und Synchronisationsschema wird nicht geändert.
+- `ui/settings.js`: Setzt den fehlenden `codeFolding`-Wert und den Reset auf `false`. Ein gespeichertes `true` bleibt absichtlich erhalten.
+- `index.html`, `module-manifest.json`, `sw.js`: Registrieren die zwei neuen Script-Editor-Assets und aktivieren `mindfagg-v40` als Offline-Cache. Alle vorherigen Dateien aus v39 bleiben erforderlich.
+
+## v39: verlustfreie Codefaltung
+
+- **`core/code-folding.js`:** Scannt HTML/XML/SVG-Tags, JavaScript- und CSS-Blöcke sowie Markdown-Abschnitte und erzeugt ausschließlich für die Anzeige eine Textprojektion mit Fold-Platzhaltern. `doc.content` bleibt die einzige persistente Quelle. `codeFoldUpdateAfterInput()` führt Eingaben auf sichtbaren Quellzeilen auf den vollständigen Text zurück; vor Eingriffen in Platzhalter, Toolbar-Aktionen oder Diagnose-Navigation werden die betroffenen Bereiche aufgeklappt.
+- **`css/code-folding.css`:** Positioniert bedienbare Fold-Pfeile im Quelltext-Gutter und erhält ihre Ausrichtung bei Wordwrap, Scrollen, mobilen Viewports und ausgeblendeten Zeilennummern.
+- **Editor-Integration:** `markdown/editor.js`/`script/editor.js` initialisieren pro Dokument einen sitzungsgebundenen Faltzustand; `markdown/highlight.js`, `markdown/controls.js`, `markdown/completions.js` und `script/functions.js` respektieren Original-/Anzeigepositionen. `flushSource()` schreibt stets den unveränderten vollständigen Inhalt.
+- **Einstellungen:** `ui/settings.js` erweitert den bestehenden `mfEditorPreferencesV28`-Schlüssel um `codeFolding: true`. Keine Datenbankmigration.
+- **Ressourcen:** `index.html`, `module-manifest.json` und `sw.js` registrieren beide neuen Dateien für die Offline-PWA und heben den Cache auf `mindfagg-v39`. Alle übrigen Quelldateien aus v38 bleiben erforderlich; das v39-Änderungsarchiv ist ausdrücklich **kein** vollständiger Anwendungsordner.
 
 ## Ziel und Umfang
 
@@ -44,6 +76,8 @@ mindfagg-v30/
 │   ├── github.css           Sync-Zustand und Dialogdarstellung
 │   └── io.css
 ├── script/
+│   ├── find-replace.js       Suchen und Ersetzen über vollständigen Quelltext
+│   ├── find-replace.css      Toolbar, Floating Panel, Mobil-Viewport
 │   ├── editor.js            Scripteditor, Syntaxhighlighting, Minimap
 │   ├── functions.js         JavaScript-Funktions- und Event-Handler-Übersicht
 │   └── editor.css
@@ -94,7 +128,7 @@ mindfagg-v30/
 4. `markdown/` (Highlight → Controls → Completions → Commands → Editor)
 5. `workspace/files.js`, `preview/html-preview.js`, `ui/settings.js`
 6. `vendor/prism.min.js`, `vendor/acorn.js`
-7. `script/functions.js`, `script/editor.js`, `views/kanban.js`, `views/calendar.js`, `ui/dialogs.js`
+7. `script/functions.js`, `script/validators.js`, `script/find-replace.js`, `script/editor.js`, `views/kanban.js`, `views/calendar.js`, `ui/dialogs.js`
 8. `workspace/io.js`, danach `workspace/github.js` (GitHub-API-Client und Dialog)
 9. `ui/bindings.js` (registriert Ereignisse und startet `init()`), danach `core/service-worker.js`
 
@@ -158,3 +192,26 @@ Aus dem App-Verzeichnis: `node tests/check-structure.mjs`. Der Test benötigt nu
 - **Transaktionen:** `githubExecutePlan()` lädt und verifiziert alle Remote-Blobs **vor jeder Änderung**. Danach erfolgen ein weiterer Lokaldaten- und Ref-Vergleich sowie bei Bedarf ein Upload aller Änderungen in einem Commit (`githubCommitUploads()`, `force:false`). Nach dem Commit wird der lokale Zustand nochmals geprüft, bevor `workspaceCommitChanges()` heruntergeladene oder entfernte Dateien in **einer IndexedDB-Transaktion und einem Undo-Schritt** umsetzt. Ein Fehler oder geänderter Stand verhindert das ungefragte Überschreiben.
 - **Sicherheit & Ressourcen:** GitHub-Zugriff ausschließlich auf `https://api.github.com`, Authorization-Header, keine Weitergabe an Drittanbieter. Maximal 20 MiB pro Datei, 80 MiB je Upload/Download und 750 Downloads je Abgleich. Symlinks, Submodule, Git LFS und leere Ordner sind ausgenommen. Nicht exportierbare Dateisystem-/Browserartefakte können nicht in Git abgebildet werden.
 - **Tests:** `node tests/check-structure.mjs`, `node tests/github-sync.mjs`, `node tests/github-credentials.mjs` und `python3 tests/github-browser.py`. Der Browser-Test verwendet in dieser Umgebung temporär inline geladene Ressourcen sowie simulierte GitHub- und IndexedDB-Aktionen; die Tests enthalten keinen realen GitHub-Upload oder Browser-Neustart mit echter IndexedDB.
+
+## v36: Offline-Validatoren und neue UI-Verbindungen
+
+- `script/validators.js` wird **nach** `vendor/acorn.js` und **vor** `script/editor.js` geladen. Das Modul stellt `validateScriptContent()` (ausführbare Syntaxprüfung ohne Codeausführung), `parseJavascriptCode()`, `validateCssCode()`, `validateHtmlCode()` und `detectClipboardCodeLanguage()` bereit. Der Clipboard-Import in `workspace/io.js` verwendet dieselben Validatoren wie der Editor.
+- `script/editor.js` positioniert Fehler anhand von `{offset,line,column,length}` im Gutter und in einer separaten, nicht-interaktiven Overlay-Ebene über der Prism-Syntax. Die klickbaren Diagnosemeldungen fokussieren den Original-Textarea-Cursor. Die Prüfung nach einer Eingabe wird um 180 ms verzögert, die Speicherung bleibt getrennt davon.
+- `workspace/github.js` erzeugt Repo-Links nur aus den validierten `owner/repo`-Bestandteilen, nicht direkt aus Benutzereingaben. Appweite GitHub-Zugangsdaten bleiben in `ui/settings.js` und IndexedDB (`settings`-Store); der Wechsel der Input-Art verändert weder Kryptografie noch Synchronisationslogik.
+- `mindmap/state-layout.js` verwendet einen von der Elterntiefe abhängigen Abstand, ohne das Node-Datenformat, die Pfade oder Drag-and-drop-Operationen zu verändern.
+- `sw.js` und `module-manifest.json` führen `script/validators.js` als Offline-Ressource und verwenden v36 als Cache-Version. Keine Datenbankmigration erforderlich.
+
+## v37: Mindmap-Abstände und einheitlicher Knotendialog
+
+- `mindmap/state-layout.js`: `positionMapRows()` bestimmt die vertikalen Abstände über `siblingGap(depth)`. Bei `depth===0` 64 px (24 px mehr Abstand zwischen den Kontext-Teilbäumen); bei `depth===1` 30 px, `depth===2` 18 px, sonst 12 px (jeweils doppelt gegenüber v36). Messung und Positionierung verwenden denselben Wert, damit die Verbindungsgeometrie stimmig bleibt.
+- `ui/dialogs.js`: `editNode(path)` unterscheidet nicht mehr nach `view==='kanban'`, sondern stellt stets `nodeStatus` bereit und übernimmt den Wert beim Speichern über `lineEdit()`. Kanban-Karten können so auch ohne Drag & Drop in eine andere Statusspalte wechseln.
+- Service Worker und Manifest erhalten v37 als Cache-/Paketversion.
+
+## v38: Optionale Freigabe des Browser-Speichers für HTML-Vorschauen
+
+- `ui/settings.js`: `appEditorSettings.previewStorageAccess=false` wird wie die übrigen appweiten Präferenzen über `mfEditorPreferencesV28` lokal gespeichert. Es gibt eine eigene App-Einstellungen-Sektion mit Schalter und deutlicher Sicherheitswarnung. Der Reset-Button für **Editor**-Einstellungen verändert die Vorschau-Berechtigung nicht.
+- `preview/html-preview.js`: Das iframe erhält standardmäßig nur `allow-scripts`; erst nach Opt-in kommt `allow-same-origin` hinzu. `htmlPreviewStorageBlockedError()` erkennt Sandboxing-Fehlermeldungen für Storage-APIs. `htmlPreviewLog()` öffnet die Konsole automatisch, `htmlPreviewRenderLogs()` zeigt den Freigabe-Button, `htmlPreviewGrantStorage()` speichert die Einstellung und ruft `htmlPreviewLoad()` für einen sofortigen Neustart auf.
+- `preview/html-preview.css` und `ui/settings.css`: Sicherheitskennzeichnung und Warntext (Desktop/Mobil).
+- **Sicherheitsgrenze:** `srcdoc` plus `allow-scripts allow-same-origin` ist für nicht vertrauenswürdiges HTML **keine isolierte Sandbox**. Das Vorschau-Dokument kann den Ursprung der App und das Parent-DOM erreichen, darunter potenziell die unverschlüsselt genutzten GitHub-Zugangsdaten zur Laufzeit. Die Freigabe bleibt deshalb opt-in (Standard aus); sie gilt global für alle Projekte. Es wird **nicht** behauptet, eine separate Storage-Partition bereitzustellen. Beim Deaktivieren ist nur der künftig geladene Frame wieder isoliert; etwaige zuvor gelesene Daten können nicht zurückgerufen werden.
+- **Browsergrenzen:** Die Sandbox-Umschaltung ist automatisiert getestet. Die Testumgebung blockiert HTTP-/file-Navigation und erlaubt daher keinen aussagekräftigen End-to-End-Test von nativem `localStorage`/`IndexedDB` auf einem regulären Web-Ursprung. Diese Prüfung steht in `TESTS.md`. Keine Änderung an `mindfagg-db`, Projekt-ZIPs und VFS.
+- Service Worker und Manifest nutzen den Cache-/Paketstand v38.

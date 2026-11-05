@@ -1,0 +1,21 @@
+/* mindfagg v39: lossless source folding for Markdown, HTML, XML, SVG, CSS and JS. */
+.app.editor-code-folding{--mf-gutter-width:61px}
+.app.editor-code-folding.editor-no-lines{--mf-gutter-width:23px}
+.app.editor-code-folding.editor-no-lines .codegutter{visibility:visible;pointer-events:auto}
+.app.editor-code-folding.editor-no-lines .codegutter pre{visibility:hidden}
+.app.editor-code-folding .codegutter{position:relative;min-width:0}
+.code-fold-gutter{display:none;position:absolute;inset:0 auto 0 0;width:21px;z-index:4;pointer-events:none;will-change:transform}
+.app.editor-code-folding .code-fold-gutter{display:block}
+.code-fold-toggle{position:absolute;left:1px;display:grid;place-items:center;width:19px;height:20px;padding:0;
+  color:#9dafc8;background:transparent;border:1px solid transparent;border-radius:5px;
+  font:700 16px/1 ui-monospace,monospace;cursor:pointer;pointer-events:auto;touch-action:manipulation}
+.code-fold-toggle:hover,.code-fold-toggle:focus-visible{color:var(--accent-foreground);background:color-mix(in srgb,var(--accent) 22%,#192438);border-color:var(--accent);outline:none}
+.code-fold-toggle.collapsed{color:var(--accent-foreground)}
+.codegutter .gline.code-fold-summary{color:#8e9db6;font-style:italic;font-weight:600}
+.codeframe.has-folded-lines .syntaxlayer .syn-fold-summary{color:#a8bbce;font-style:italic}
+@media(max-width:850px){
+  .app.editor-code-folding{--mf-gutter-width:51px}
+  .app.editor-code-folding.editor-no-lines{--mf-gutter-width:25px}
+  .code-fold-toggle{height:23px;width:22px;font-size:18px;left:1px}
+}
+@media(max-width:440px){.app.editor-code-folding{--mf-gutter-width:47px}}

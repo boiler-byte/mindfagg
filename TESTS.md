@@ -1,4 +1,55 @@
-# mindfagg v35 – Test- und Regressionscheckliste
+# mindfagg v41 - Tests und Regressionen
+
+## Neu in v41
+
+- [ ] `.html`, `.css`, `.js`, `.xml` und `.svg` öffnen: **Pretty Code** in der Script-Toolbar sichtbar, auf dem Smartphone unter dem Codebereich und oberhalb der Bildschirmtastatur.
+- [ ] Jeweils ein kompaktes Beispiel formatieren. Hierarchie, CSS-Regeln und JS-Anweisungen werden lesbar eingerückt. Bei erneuter Ausführung darf kein Quelltext verloren gehen.
+- [ ] JavaScript mit Regex-Literalen, Template-Strings, Kommentaren, `for`-Schleifen und objektartigen Ausdrücken prüfen. Ungültiges JavaScript darf beim Formatieren nicht verändert werden.
+- [ ] XML/SVG mit Verarbeitungsinstruktion, selbstschließenden Elementen und gemischtem Text prüfen. Fehlerhafte XML-Struktur muss unverändert bleiben.
+- [ ] Einen Block einklappen und dann Pretty Code ausführen: Keine `eingeklappt`-Platzhalter in gespeicherte Daten übernehmen; Undo/Redo sowie Autosave prüfen.
+- [ ] `.json`, `.txt`, Markdown und andere nicht angeforderte Formate: Pretty Code nicht anzeigen.
+- [ ] GitHub-Token mit mehreren freigegebenen privaten/öffentlichen Repositories nutzen. Beim Tippen erscheinen deren `owner/repo`-Namen, nicht die zuletzt verbundenen Repositorys. Pfeiltasten/Enter/ESC und Maus testen.
+- [ ] Mindestens 101 Repositorys im GitHub-API-Mock: zweite Seite wird abgerufen; eine seltene Datei vom Ende der Liste ist per Filter erreichbar.
+- [ ] Token ohne Repository-Freigabe, abgelaufener Token und Offline-Betrieb: Fehlermeldung, freie Eingabe von `owner/repo` und der Link zum Anlegen eines Repositories bleiben nutzbar.
+- [ ] Unter HTTPS/localhost den Service-Worker auf `mindfagg-v41` aktualisieren; Pretty Code muss danach offline funktionieren. Reale GitHub-Rechte und Paginierung mit eigenem Token im normalen Browser bestätigen.
+
+Automatische Prüfungen: `node tests/check-structure.mjs`, `python tests/v41-browser.py`, `python tests/v40-browser.py`, `node tests/github-sync.mjs`, `node tests/github-credentials.mjs`, plus die alten Regressionen. Browser-Tests betten lokale Ressourcen nur für Testzwecke ein und simulieren GitHub-Endpunkte; sie beweisen keinen Live-GitHub-Zugriff oder eine SW-Aktualisierung unter HTTPS.
+
+---
+
+# mindfagg v40 – Tests und Regressionen
+
+## Neu in v40
+
+- [ ] Frische Installation und „Editor-Standardwerte wiederherstellen“: Code Folding ist **aus**; explizit gespeichertes `true` bleibt nach Neustart erhalten.
+- [ ] GitHub-Repository-Dialog mit angemeldetem Konto öffnen: Beim Fokussieren und Tippen des passenden Benutzernamen-Anfangs erscheint `login/` als anklickbarer Vorschlag. Klick bzw. Pfeil-Runter/Enter übernehmen den Wert; fremde `owner/repo`-Angaben werden nicht verändert.
+- [ ] HTML, CSS, JS, XML und SVG öffnen: Desktop-Toolbar über der Textarea, Mobil-Toolbar über der virtuellen Tastatur.
+- [ ] Suchen-Panel öffnen: Ersetzen-Zeile zunächst verborgen, `Aa` im Suchfeld schaltet die Groß-/Kleinschreibung um, Ergebniszähler und ↑/↓ funktionieren. Ersetzen-Zeile über ▸ öffnen und wieder schließen.
+- [ ] Mehrzeiligen Suchbegriff/einen mehrzeiligen Ersatz per Paste oder Umschalt+Enter eingeben, einzeln und alle ersetzen. Sonderzeichen wie `.*`, `[]`, `^` werden **wörtlich** gesucht; kein Regex-Schalter und keine Abschnittssuche.
+- [ ] Code Folding nach Bedarf einschalten, einen Treffer in einem eingeklappten Bereich suchen und gezielt einblenden. Nach „Alle ersetzen“ bleiben alle übrigen ausgeblendeten Zeilen unverändert. Undo/Redo sowie automatische Speicherung prüfen.
+- [ ] Suchen mit Strg/⌘+F, Ersetzen mit Strg/⌘+H und Schließen mit Escape prüfen; Vorschau und Syntaxdiagnosen bleiben bedienbar.
+- [ ] Nach dem Update über denselben HTTPS-/localhost-Ursprung laden und Offline-Service-Worker-Cache `mindfagg-v40` prüfen.
+
+Automatisiert: `node tests/check-structure.mjs`, `node tests/v39-preferences.mjs`, `python tests/v40-browser.py`. Die vorherigen v39-v36-GitHub-/Folding-/Syntax-Tests bleiben als Regression erhalten.
+
+---
+
+# mindfagg v39 – Test- und Regressionscheckliste
+
+## v39 – Code Folding
+
+**Automatisch bestanden:** `node tests/check-structure.mjs`, `node tests/v39-preferences.mjs`, `python tests/v39-browser.py`, `python tests/v39-advanced.py`. Dabei wurden alle sechs geforderten Sprachen, verschachtelte Faltungen, Editieren ohne Verlust ausgeblendeter Zeilen, Wiedereinblenden bei Syntaxfehlern sowie der App-Schalter geprüft. Die v36–v38-Regressionsprüfungen, GitHub-Zugangsdaten und Drei-Wege-Sync blieben erfolgreich.
+
+Manuelle Abnahme: 
+
+- [ ] Pfeile im Markdown- und Script-Editor öffnen/schließen einzelne Faltbereiche; H1/H2, Listen, Codezäune, HTML/XML/SVG-Tags, JS/CSS-Blöcke prüfen.
+- [ ] Mit Wordwrap ein-/ausgeschaltet, auf einem Smartphone und bei ausgeblendeten Zeilennummern Faltpfeile erreichbar halten.
+- [ ] Nach Einklappen weiter tippen, an anderem Quelltext kopieren/einfügen, speichern, Ansichten wechseln, Undo/Redo ausführen und Originalinhalt kontrollieren.
+- [ ] Code Folding in App-Einstellungen ausschalten, neu laden und wieder einschalten; Standardwerte zurücksetzen.
+- [ ] Syntaxfehler unterhalb einer Faltung anklicken und zur Originalzeile springen.
+- [ ] v39-Patch über v38 legen, PWA unter HTTPS/localhost laden und neue Dateien offline abrufen.
+
+**Einschränkung:** Die automatisierten Browserprüfungen liefen mit testweise eingebetteten Dateien und simulierten Daten. Echte IndexedDB-Persistenz, native Zwischenablage und PWA-Cache-Update müssen auf einem regulären Browser geprüft werden.
 
 ## Automatisierte Prüfungen in der Entwicklungsumgebung
 
@@ -103,3 +154,59 @@ Automatisiert: `node tests/v35-editor-dialog.mjs` und `node tests/check-structur
 - [ ] Beschreibung und Datum ändern, speichern, Dialog erneut öffnen: Beide Angaben bleiben korrekt.
 - [ ] Die benutzerdefinierte Markdown-Autovervollständigung funktioniert weiterhin; das Browser-Autofill ist davon unabhängig.
 - [ ] PWA nach Upgrade neu laden: Cache `mindfagg-v35` aktiv, vorhandene Projekte und GitHub-Verbindungen bleiben erhalten.
+
+## v36 - Mindmap, GitHub und Offline-Validierung
+
+Automatisch ausgeführt: `node tests/check-structure.mjs`, `node tests/v36-validation.mjs`, `node tests/v35-editor-dialog.mjs`, `node tests/github-credentials.mjs`, `node tests/github-sync.mjs`, `python tests/v36-browser.py`.
+
+- [ ] Mindmap: Zwei oder mehr Elternknoten mit mindestens zwei Unterknoten vergleichen. Unterknoten derselben Gruppe stehen sichtbar enger als Unterknoten unterschiedlicher Elterngruppen. Zoom/Fold/Drag-and-drop nachprüfen.
+- [ ] App-Einstellungen: Fine-grained Token-Link öffnet einen neuen Tab. Nur `Contents: Read and write` für die benötigten Repositorys vergeben. Auf Chrome/Safari entsteht beim Eingeben/Speichern nach Möglichkeit kein Passwort-Speicherangebot. Bei anderen Browsern kann es weiterhin auftreten.
+- [ ] Repository-Dialog: Eingabe `owner/repo` zeigt den anklickbaren Link `github.com/owner/repo`. Ungültige Eingaben verstecken den Link; `Neues Repository erstellen` bleibt über GitHub/new zugänglich. Beide Links müssen neue Tabs öffnen.
+- [ ] Script-Editor: Gültige und ungültige `.js`, `.css` und `.html` testen; Fehlermarker in Zeilennummern und Quelltext, klickbare Meldung, Markierung nach Korrektur entfernt. Wordwrap, Minimap und unterschiedliche Schriftgrößen überprüfen.
+- [ ] Zwischenablage: CSS `body { color: red; }` als `clipboard.css`, JavaScript `const value = 1;` als `clipboard.js`, normaler Text als `clipboard.txt` vorgeschlagen. Der Dateiname bleibt vor dem Import editierbar.
+- [ ] Dateimenü: Trennlinie steht zwischen `Neuer Ordner` und `Dateien hochladen` (Desktop und Mobil).
+- [ ] PWA nach Upgrade: Offline-Cache `mindfagg-v36` aktiv, bestehende Projekte/Dateien/GitHub-Zuordnungen erhalten; App ohne Netzwerk nutzbar.
+
+Die Offline-Prüfungen sind lokale Syntaxhilfen, **keine formalen Standard-Validatoren**. JavaScript mit TypeScript-/JSX-Syntax und CSS-Präprozessoren sind nicht Teil der v36-Validierung. Die native Browser-Abfrage zum Passwortspeichern lässt sich nicht universell deaktivieren.
+
+## v37 – Layout- und Dialog-Regression
+
+- [ ] Mindmap mit vier übergeordneten Knoten und jeweils drei Unterknoten öffnen: Abstände innerhalb eines Geschwisterblocks betragen jetzt doppelt so viel wie in v36; Abstand zwischen den Blöcken +24 px.
+- [ ] Auch tiefere Ebenen und eingeklappte Knoten testen; Verbindungslinien bleiben an den Knoten zentriert.
+- [ ] Kanban-Ticket anklicken: Überschrift **Knoten bearbeiten**, Status-Feld sichtbar und aktueller Status ausgewählt.
+- [ ] Status im Kanban-Dialog auf einen anderen Wert ändern und speichern: Ticket erscheint in der neuen Spalte; Markdown zeigt das Status-Tag korrekt.
+- [ ] Dasselbe Dialog-Layout in Mindmap/Kalender vergleichen, Checkbox, Beschreibung, Datum und Knotentyp weiterhin bearbeitbar.
+- [ ] Beim PWA-Update wird der Cache `mindfagg-v37` aktiviert; bestehende Projekte bleiben erhalten.
+
+Automatisiert: `node tests/v37-regression.mjs`, `python tests/v37-browser.py`, sowie alle bisherigen Node-Regressionen.
+
+## v38 – HTML-Vorschau mit optionalem localStorage/IndexedDB
+
+- [ ] **Standardzustand:** In App-Einstellungen ist „localStorage und IndexedDB erlauben“ nach der erstmaligen Installation ausgeschaltet; eine HTML-Vorschau hat `sandbox="allow-scripts"`.
+- [ ] In der Vorschau folgende HTML-Seite ausführen; bei deaktivierter Freigabe erscheint ein `SecurityError` für `localStorage` und/oder IndexedDB. Die Vorschau-Konsole öffnet automatisch, und **innerhalb der Fehlermeldung** steht „Speicherzugriff jetzt freigeben“.
+- [ ] Den Button klicken: Vorschau lädt unmittelbar neu, `localStorage` kann einen Wert speichern/auslesen und `indexedDB.open()` kann eine neue Datenbank mit Objekt-Store öffnen und einen Wert eintragen. `htmlPreviewState` kennzeichnet die Vorschau als **nicht isoliert**.
+- [ ] App-Einstellungen erneut öffnen: Schalter ist aktiviert und nach Neuladen derselben App (HTTPS/localhost, gleicher Ursprung) weiterhin aktiviert. Die Einstellung ist global für alle Projekte.
+- [ ] Schalter ausschalten und Vorschau erneut öffnen: Storage-Fehlermeldung erscheint wieder; die bereits gespeicherten Daten selbst sind in diesem Ursprung noch vorhanden, werden aber vom neuen sandboxed Frame nicht gelesen.
+- [ ] GitHub-Zugang: Warnung in den Einstellungen und im Fehler-Dialog weist ausdrücklich darauf hin, dass die Freigabe **alle Projekt-/App-Daten und GitHub-Zugangsdaten** exponieren kann. Keine Freigabe bei nicht vertrauenswürdigen Dateien aktivieren.
+- [ ] Auf `file://`, privatem Modus und Safari/Firefox prüfen, ob der Browser selbst Storage blockiert; diese Einschränkung mit einer Fehlermeldung klarstellen. Auf regulärem HTTPS/localhost gegenprüfen.
+- [ ] Frühere v36-Validator-/GitHub-Tests und v37-Mindmap-/Kanban-Tests bleiben bestanden. Offline-Cache `mindfagg-v38` wird aktiv.
+
+Minimaler Inhalt für den manuellen Storage-Test (HTML-Datei im Workspace):
+
+```html
+<!doctype html>
+<title>Speichertest</title>
+<script>
+  localStorage.setItem('preview-test', 'ok');
+  console.log('localStorage', localStorage.getItem('preview-test'));
+  const req = indexedDB.open('preview-test-db', 1);
+  req.onupgradeneeded = () => req.result.createObjectStore('values');
+  req.onsuccess = () => {
+    const tx = req.result.transaction('values', 'readwrite');
+    tx.objectStore('values').put('ok', 'status');
+    tx.oncomplete = () => console.log('IndexedDB ok');
+  };
+</script>
+```
+
+Automatisiert: `node tests/check-structure.mjs`, `node tests/v38-regression.mjs`, `python tests/v38-browser.py`. Einschränkung: Der Testbrowser läuft auf `about:blank` statt einem echten HTTP-Ursprung; die native Speicherung muss in einem regulären Browser bestätigt werden.

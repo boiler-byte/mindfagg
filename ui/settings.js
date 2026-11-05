@@ -1,7 +1,7 @@
 'use strict';
 // mindfagg v28: app-wide editor preferences and a dedicated settings page.
 const APP_EDITOR_PREFERENCES_KEY='mfEditorPreferencesV28';
-const appEditorSettings={fontSize:null,wordWrap:false,lineNumbers:true,minimap:true};
+const appEditorSettings={fontSize:null,wordWrap:false,lineNumbers:true,minimap:true,codeFolding:false,previewStorageAccess:false};
 let appSettingsOpen=false;
 function appEditorDefaultFontSize(){return window.matchMedia('(max-width:850px)').matches?16:13}
 function readAppEditorPreferences(){
@@ -10,7 +10,7 @@ function readAppEditorPreferences(){
     if(!stored||typeof stored!=='object')return;
     const size=Number(stored.fontSize);
     if(stored.fontSize!==null&&Number.isInteger(size)&&size>=8&&size<=16)appEditorSettings.fontSize=size;
-    for(const key of ['wordWrap','lineNumbers','minimap'])if(typeof stored[key]==='boolean')appEditorSettings[key]=stored[key];
+    for(const key of ['wordWrap','lineNumbers','minimap','codeFolding','previewStorageAccess'])if(typeof stored[key]==='boolean')appEditorSettings[key]=stored[key];
   }catch(error){console.warn('Editor-Einstellungen konnten nicht geladen werden:',error)}
 }
 function saveAppEditorPreferences(){
@@ -22,6 +22,7 @@ function applyAppEditorPreferences(){
   app.classList.toggle('editor-wrap',appEditorSettings.wordWrap);
   app.classList.toggle('editor-no-lines',!appEditorSettings.lineNumbers);
   app.classList.toggle('editor-no-minimap',!appEditorSettings.minimap);
+  app.classList.toggle('editor-code-folding',appEditorSettings.codeFolding);
   if(appEditorSettings.fontSize===null)document.documentElement.style.removeProperty('--mf-editor-font-size');
   else document.documentElement.style.setProperty('--mf-editor-font-size',appEditorSettings.fontSize+'px');
 }
@@ -73,13 +74,25 @@ function renderAppSettingsPage(){
         </div>
         <label class="app-setting-row"><span><strong>Wordwrap</strong><small>Lange Zeilen dynamisch umbrechen, statt horizontal zu scrollen.</small></span><input id="appWordWrap" type="checkbox" ${appEditorSettings.wordWrap?'checked':''}></label>
         <label class="app-setting-row"><span><strong>Zeilennummern anzeigen</strong><small>Zeilennummern links neben dem Quelltext.</small></span><input id="appLineNumbers" type="checkbox" ${appEditorSettings.lineNumbers?'checked':''}></label>
+        <label class="app-setting-row"><span><strong>Code Folding aktivieren</strong><small>HTML, CSS, JavaScript, SVG, XML und Markdown über die Pfeile neben den Zeilennummern ein- und ausklappen. Standardmäßig deaktiviert.</small></span><input id="appCodeFolding" type="checkbox" ${appEditorSettings.codeFolding?'checked':''}></label>
         <label class="app-setting-row"><span><strong>Scroll Minimap anzeigen</strong><small>Navigierbare Dokumentübersicht rechts neben dem Quelltext.</small></span><input id="appMinimap" type="checkbox" ${appEditorSettings.minimap?'checked':''}></label>
       </div>
+      <section class="app-settings-preview-security" aria-labelledby="appPreviewSecurityTitle">
+        <h2 id="appPreviewSecurityTitle">HTML-Vorschau · Sicherheit</h2>
+        <label class="app-setting-row app-preview-storage-toggle" for="appPreviewStorageAccess">
+          <span><strong>localStorage und IndexedDB erlauben</strong>
+            <small>HTML-Vorschauen dürfen den Browserspeicher verwenden. Standardmäßig deaktiviert.</small></span>
+          <input id="appPreviewStorageAccess" type="checkbox" ${appEditorSettings.previewStorageAccess?'checked':''}>
+        </label>
+        <p class="app-preview-storage-warning" id="appPreviewStorageWarning"><strong>Sicherheitsrisiko:</strong> Bei Freigabe wird die HTML-Vorschau mit demselben Ursprung wie mindfagg ausgeführt. Skripte in der Vorschau können auf <strong>alle lokalen Projekte, gespeicherte Zugangsdaten (auch GitHub) und die Hauptanwendung</strong> zugreifen. Nur für vollständig vertrauenswürdige HTML-Dateien aktivieren. Die Freigabe gilt für alle Projekte und bleibt bis zum Ausschalten gespeichert.</p>
+        <p class="app-preview-storage-availability">Browser können den Speicherzugriff bei <code>file://</code>, privaten Fenstern oder durch eigene Sicherheitsregeln weiterhin verhindern. Für die Vorschau möglichst HTTPS oder localhost verwenden.</p>
+      </section>
       <section class="app-settings-github" aria-labelledby="appGithubTitle">
         <div class="app-settings-github-heading"><div><h2 id="appGithubTitle">GitHub-Zugangsdaten</h2><p>Einmal anmelden und für alle zugeordneten Projekte wiederverwenden.</p></div><span class="app-settings-credential-state${githubLoggedIn?' is-connected':''}" id="appGithubConnectionState">${escapeHtml(githubCredentialLabel())}</span></div>
         <form id="appGithubForm" class="app-github-credential-form">
           <label for="appGithubToken">Fine-grained Personal Access Token</label>
-          <input id="appGithubToken" type="password" autocomplete="new-password" spellcheck="false" required placeholder="github_pat_…" aria-describedby="appGithubNote">
+          <small class="app-settings-token-guide">Fine-grained Token <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">bei GitHub erstellen</a>: Repository auswählen, unter <strong>Repository permissions</strong> für <strong>Contents</strong> die Berechtigung <strong>Read and write</strong> festlegen und den Token hier einfügen.</small>
+          <input id="appGithubToken" class="github-secret-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" required placeholder="github_pat_…" aria-describedby="appGithubNote">
           <div class="app-settings-github-buttons"><button type="submit" class="btn primary" id="appGithubSave">Token prüfen und speichern</button><button type="button" class="btn" id="appGithubRemove" ${githubLoggedIn?'':'disabled'}>Zugang entfernen</button></div>
         </form>
         <small id="appGithubNote" class="app-settings-security-note">Benötigte Repository-Berechtigung: <strong>Contents: Read and write</strong>. Der Token wird verschlüsselt im lokalen Browserspeicher auf diesem Gerät abgelegt. Er ist nicht in Projekt-ZIPs enthalten; Skripte mit Zugriff auf denselben App-Ursprung können ihn jedoch verwenden. Ausschließlich auf vertrauenswürdigem HTTPS oder localhost nutzen.</small>
@@ -88,6 +101,11 @@ function renderAppSettingsPage(){
       <div class="app-settings-footer"><button type="button" class="btn" id="resetAppSettings">Editor-Standardwerte wiederherstellen</button><span id="appSettingsStatus" role="status" aria-live="polite">Änderungen werden automatisch gespeichert.</span></div>
     </div>
   </section>`;
+  // Password managers generally ignore a text field. Use native password
+  // masking on browsers without -webkit-text-security, rather than expose PATs.
+  const githubTokenInput=$('#appGithubToken');
+  if(!(typeof CSS!=='undefined'&&CSS.supports('-webkit-text-security','disc')))
+    githubTokenInput.type='password';
   $('#closeAppSettings').onclick=closeAppSettings;
   $('#appGithubForm').onsubmit=async event=>{
     event.preventDefault();const token=$('#appGithubToken').value,save=$('#appGithubSave'),remove=$('#appGithubRemove');
@@ -124,8 +142,10 @@ function renderAppSettingsPage(){
   $('#appWordWrap').onchange=e=>{appEditorSettings.wordWrap=e.target.checked;changed()};
   $('#appLineNumbers').onchange=e=>{appEditorSettings.lineNumbers=e.target.checked;changed()};
   $('#appMinimap').onchange=e=>{appEditorSettings.minimap=e.target.checked;changed()};
+  $('#appCodeFolding').onchange=e=>{appEditorSettings.codeFolding=e.target.checked;changed()};
+  $('#appPreviewStorageAccess').onchange=e=>{appEditorSettings.previewStorageAccess=e.target.checked;changed();$('#appSettingsStatus').textContent=e.target.checked?'HTML-Vorschau: Speicherzugriff freigegeben. Sicherheitswarnung beachten.':'HTML-Vorschau: Speicherzugriff gesperrt.'};
   $('#resetAppSettings').onclick=()=>{
-    Object.assign(appEditorSettings,{fontSize:null,wordWrap:false,lineNumbers:true,minimap:true});
+    Object.assign(appEditorSettings,{fontSize:null,wordWrap:false,lineNumbers:true,minimap:true,codeFolding:false});
     changed();renderAppSettingsPage();$('#appSettingsStatus').textContent='Standardwerte wiederhergestellt.';
   };
 }

@@ -1,10 +1,10 @@
-/* mindfagg v35 Service Worker: offline app cache plus isolated, project-local VFS.
+/* mindfagg v41 Service Worker: offline app cache plus isolated, project-local VFS.
  * The virtual route is resolved from IndexedDB on EVERY request, never from
  * CacheStorage or the network. CSP's sandbox directive protects even direct
  * navigation to a preview URL without an iframe sandbox attribute. */
 'use strict';
 
-const VERSION='mindfagg-v35';
+const VERSION='mindfagg-v41';
 const CORE_CACHE=`${VERSION}-core`;
 const RUNTIME_CACHE=`${VERSION}-runtime`;
 const VFS_ROUTE='__mindfagg_preview__/';
@@ -29,7 +29,9 @@ const CORE_ASSETS=[
   './workspace/io.css',
   './workspace/github.css',
   './script/editor.css',
+  './script/find-replace.css',
   './ui/settings.css',
+  './css/code-folding.css',
   './preview/html-preview.css',
   './core/state.js',
   './core/database.js',
@@ -43,6 +45,7 @@ const CORE_ASSETS=[
   './mindmap/inline-edit.js',
   './mindmap/operations.js',
   './mindmap/interactions.js',
+  './core/code-folding.js',
   './markdown/highlight.js',
   './markdown/controls.js',
   './markdown/completions.js',
@@ -54,6 +57,9 @@ const CORE_ASSETS=[
   './vendor/prism.min.js',
   './vendor/acorn.js',
   './script/functions.js',
+  './script/validators.js',
+  './script/find-replace.js',
+  './script/pretty-code.js',
   './script/editor.js',
   './views/kanban.js',
   './views/calendar.js',

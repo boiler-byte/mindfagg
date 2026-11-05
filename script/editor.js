@@ -1,5 +1,5 @@
 'use strict';
-/* mindfagg v28 — Script editor: shared visual style with Markdown, no toolbar.
+/* mindfagg v40 — Script editor: shared visual style and find/replace toolbar.
  * Prism is bundled locally for offline syntax coloring; file contents are NEVER
  * evaluated or inserted without Prism's HTML escaping. */
 const SCRIPT_LANGUAGE_BY_EXTENSION={
@@ -10,6 +10,89 @@ const SCRIPT_LANGUAGE_BY_EXTENSION={
   json:'json',jsonc:'javascript'
 };
 let scriptMiniGeometry=null,scriptMiniFrame=0,scriptMinimapLines=[],scriptLineLayout=null;
+let scriptValidationState={docId:null,language:null,errors:[]},scriptValidationTimer=null;
+function scriptErrorPosition(source,error){
+  const mapped=codeFoldVisibleIndex(source,error.line-1);
+  const index=Math.max(0,Math.min(scriptMinimapLines.length-1,mapped<0?error.line-1:mapped));
+  const style=getComputedStyle(source),lineHeight=parseFloat(style.lineHeight)||23;
+  const top=(parseFloat(style.paddingTop)||0)+(scriptLineLayout?.offsets[index]??index)*lineHeight;
+  const line=scriptMinimapLines[index]||'',chars=line.slice(0,Math.max(0,error.column-1));
+  const canvas=scriptErrorPosition.canvas||(scriptErrorPosition.canvas=document.createElement('canvas'));
+  const ctx=canvas.getContext('2d');if(ctx)ctx.font=style.font;
+  let visual='';let column=0;
+  for(const ch of chars){if(ch==='\t'){const cells=2-column%2;visual+=' '.repeat(cells);column+=cells}else{visual+=ch;column++}}
+  const charWidth=Math.max(1,ctx?.measureText('M').width||8);
+  let x=(parseFloat(style.paddingLeft)||0)+(ctx?.measureText(visual).width||visual.length*charWidth);
+  let y=top;
+  if(appEditorSettings.wordWrap){
+    const available=Math.max(charWidth,source.clientWidth-(parseFloat(style.paddingLeft)||0)-(parseFloat(style.paddingRight)||0));
+    const textX=x-(parseFloat(style.paddingLeft)||0);
+    const row=Math.floor(textX/available);
+    y+=row*lineHeight;x=(parseFloat(style.paddingLeft)||0)+textX%available;
+  }
+  return {index,top,y,x,lineHeight,charWidth};
+}
+function paintScriptValidation(){
+  const source=$('#scriptSource'),layer=$('#scriptErrorLayer');
+  if(!source||!layer||scriptValidationState.docId!==editorDocId)return;
+  const errors=scriptValidationState.errors;
+  const problematic=new Set(errors.map(error=>codeFoldVisibleIndex(source,error.line-1)));
+  $('#scriptLineNumbers')?.querySelectorAll('.gline').forEach((line,i)=>{
+    line.classList.toggle('error',problematic.has(i));
+    const error=errors.find(item=>codeFoldVisibleIndex(source,item.line-1)===i);
+    if(error)line.title=error.message;else line.removeAttribute('title');
+  });
+  const width=Math.max(source.clientWidth,source.scrollWidth);
+  layer.style.width=width+'px';
+  layer.replaceChildren();
+  const highlighted=new Set();
+  for(const error of errors.slice(0,25)){
+    const pos=scriptErrorPosition(source,error);
+    if(!highlighted.has(pos.index)){
+      const line=document.createElement('span');line.className='script-invalid-line';
+      line.style.top=pos.top+'px';line.style.height=((scriptLineLayout?.counts[pos.index]||1)*pos.lineHeight)+'px';
+      layer.appendChild(line);highlighted.add(pos.index);
+    }
+    const marker=document.createElement('span');marker.className='script-invalid-token';
+    marker.style.top=(pos.y+pos.lineHeight-6)+'px';marker.style.left=pos.x+'px';
+    marker.style.width=Math.max(5,Math.min(9,error.length)*pos.charWidth)+'px';
+    layer.appendChild(marker);
+  }
+  layer.style.transform=`translate(${-source.scrollLeft}px, ${-source.scrollTop}px)`;
+}
+function scriptFocusDiagnostic(error){
+  const input=$('#scriptSource');if(!input)return;
+  codeFoldRevealOffset(input,error.offset);
+  input.focus({preventScroll:true});
+  const at=codeFoldMapToVisible(codeFoldState(input),error.offset);
+  input.setSelectionRange(at,Math.min(input.value.length,at+error.length));
+  const pos=scriptErrorPosition(input,error);
+  input.scrollTop=Math.max(0,pos.y-input.clientHeight/3);
+  input.scrollLeft=Math.max(0,pos.x-input.clientWidth/3);
+  syncScriptCodeScroll();
+}
+function refreshScriptValidation(){
+  const source=$('#scriptSource'),doc=docs.find(item=>item.id===editorDocId);
+  if(!source||!doc)return;
+  const result=validateScriptContent(codeFoldFull(source),pathExtension(workspacePath(doc)));
+  scriptValidationState={docId:doc.id,language:result.language,errors:result.errors};
+  const bar=$('#scriptValidationBar');if(!bar)return;
+  bar.replaceChildren();
+  const label=document.createElement('span');label.className='script-validation-label';
+  if(!result.language){label.textContent='Syntaxpr\u00fcfung: HTML, CSS und JavaScript (.html, .css, .js).'}
+  else if(!result.errors.length){label.textContent=result.language+': keine Syntaxfehler erkannt.';label.classList.add('is-valid')}
+  else{label.textContent=result.language+': '+result.errors.length+' Fehler';label.classList.add('is-invalid')}
+  bar.appendChild(label);
+  for(const error of result.errors.slice(0,3)){
+    const button=document.createElement('button');button.type='button';button.className='script-diagnostic-link';
+    button.textContent='Zeile '+error.line+':'+error.column+' - '+error.message;
+    button.title='Fehlerstelle im Script-Editor anzeigen';
+    button.onclick=()=>scriptFocusDiagnostic(error);bar.appendChild(button);
+  }
+  if(result.errors.length>3){const more=document.createElement('span');more.textContent='+'+(result.errors.length-3)+' weitere';bar.appendChild(more)}
+  paintScriptValidation();
+}
+
 function scriptLanguage(doc){return SCRIPT_LANGUAGE_BY_EXTENSION[pathExtension(workspacePath(doc))]||null}
 function scriptPaintSource(source,doc){
   const lang=scriptLanguage(doc);
@@ -24,8 +107,11 @@ function refreshScriptVisuals(){
   scriptMinimapLines=text.replace(/\r\n?/g,'\n').split('\n');
   scriptLineLayout=editorVisualLayout(source,scriptMinimapLines);
   $('#scriptSyntax').innerHTML=scriptPaintSource(text,doc)+'\n';
-  $('#scriptLineNumbers').innerHTML=scriptMinimapLines.map((_,i)=>'<span class="gline" style="--mf-visual-rows:'+scriptLineLayout.counts[i]+'">'+(i+1)+'</span>').join('');
+  $('#scriptLineNumbers').innerHTML=scriptMinimapLines.map((_,i)=>{const original=codeFoldOriginalIndex(source,i);return '<span class="gline '+(original===null?'code-fold-summary':'')+'" style="--mf-visual-rows:'+scriptLineLayout.counts[i]+'">'+(original===null?'⋯':original+1)+'</span>'}).join('');
+  codeFoldPaintGutter(source,'scriptFoldGutter',scriptMinimapLines,scriptLineLayout);
   syncScriptCodeScroll();
+  if(scriptValidationState.docId===doc.id)paintScriptValidation();
+  scriptFindRenderHighlights();
 }
 function syncScriptCodeScroll(){
   const source=$('#scriptSource');if(!source)return;
@@ -33,6 +119,9 @@ function syncScriptCodeScroll(){
   if(!syntax||!gutter)return;
   syntax.style.transform=`translate(${-source.scrollLeft}px, ${-source.scrollTop}px)`;
   gutter.style.transform=`translateY(${-source.scrollTop}px)`;
+  codeFoldSyncGutter(source,'scriptFoldGutter');
+  const errors=$('#scriptErrorLayer');if(errors)errors.style.transform=`translate(${-source.scrollLeft}px, ${-source.scrollTop}px)`;
+  scriptFindSyncScroll();
   if(!scriptMiniFrame)scriptMiniFrame=requestAnimationFrame(()=>{scriptMiniFrame=0;drawScriptMinimap()});
 }
 function scriptMiniColor(line,lang){
@@ -121,24 +210,31 @@ function wireScriptMinimap(){
 function renderEnhancedScriptEditor(){
   const doc=documentNow();editorDocId=doc.id;scriptMiniGeometry=null;
   $('#surface').innerHTML=`<div class="script-editor">
+    ${scriptFindWidgetHtml()}
     <div class="codeframe script-codeframe">
-      <div class="codegutter" aria-hidden="true"><pre id="scriptLineNumbers"></pre></div>
-      <div class="codepane"><pre class="syntaxlayer script-syntax" id="scriptSyntax" aria-hidden="true"></pre><textarea id="scriptSource" aria-label="Script-Datei bearbeiten" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" wrap="off"></textarea></div>
+      <div class="codegutter"><pre id="scriptLineNumbers" aria-hidden="true"></pre><div class="code-fold-gutter" id="scriptFoldGutter" aria-label="Codefaltung"></div></div>
+      <div class="codepane"><pre class="syntaxlayer script-syntax" id="scriptSyntax" aria-hidden="true"></pre><pre class="syntaxlayer script-find-layer" id="scriptFindLayer" aria-hidden="true"></pre><div id="scriptErrorLayer" class="script-error-layer" aria-hidden="true"></div><textarea id="scriptSource" aria-label="Script-Datei bearbeiten" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" wrap="off"></textarea></div>
       <div class="minimap" id="scriptMinimap" role="scrollbar" aria-label="Script-Minimap, scrollbar" aria-controls="scriptSource" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><canvas id="scriptMiniCanvas" aria-hidden="true"></canvas><div class="mini-viewport" id="scriptMiniViewport"></div></div>
     </div>
+    <div class="script-validation-bar" id="scriptValidationBar" role="status" aria-live="polite"></div>
   </div>`;
   const input=$('#scriptSource');input.value=doc.content||'';input.wrap=appEditorSettings.wordWrap?'soft':'off';
-  refreshScriptVisuals();wireScriptMinimap();
+  codeFoldInitialize(input,doc,pathExtension(workspacePath(doc)),()=>{refreshScriptVisuals();paintScriptValidation()});
+  clearTimeout(scriptValidationTimer);scriptValidationState={docId:doc.id,language:null,errors:[]};
+  refreshScriptVisuals();wireScriptMinimap();refreshScriptValidation();scriptFindMount(input);scriptPrettyMount(doc);
   input.onscroll=syncScriptCodeScroll;
   input.oninput=()=>{
-    const value=input.value,d=docs.find(item=>item.id===editorDocId);if(!d)return;
+    const value=codeFoldUpdateAfterInput(input),d=docs.find(item=>item.id===editorDocId);if(!d)return;
     if(d.content!==value){docHistoryFor(d.id).redo.length=0;deletionHistoryFor(d.projectId).redo.length=0}
     d.content=value;failedDocWrites.delete(d.id);updateHistoryButtons();updateSaveStatus();
-    refreshScriptVisuals();
+    refreshScriptVisuals();scriptFindSourceChanged();
+    clearTimeout(scriptValidationTimer);
+    scriptValidationTimer=setTimeout(()=>{if($('#scriptSource')===input)refreshScriptValidation()},180);
     clearTimeout(saveTimer);const id=d.id;
     saveTimer=setTimeout(()=>saveSource(id,value).catch(error=>{console.error(error);toast('Speichern fehlgeschlagen')}),650);
   };
   input.onkeydown=event=>{
+    if(event.key==='Tab'&&codeFoldHasCollapsed(input))codeFoldExpandAll(input);
     if((event.ctrlKey||event.metaKey)&&!event.altKey){
       const key=event.key.toLowerCase();
       if(key==='z'||key==='y'){event.preventDefault();changeHistory(key==='y'||event.shiftKey?'redo':'undo');return}
@@ -149,7 +245,7 @@ function renderEnhancedScriptEditor(){
     }
   };
   if(typeof ResizeObserver!=='undefined'){
-    editorResizeObserver=new ResizeObserver(()=>{if(appEditorSettings.wordWrap)refreshScriptVisuals();else syncScriptCodeScroll()});
+    editorResizeObserver=new ResizeObserver(()=>{if(appEditorSettings.wordWrap)refreshScriptVisuals();else syncScriptCodeScroll();paintScriptValidation()});
     editorResizeObserver.observe(input);editorResizeObserver.observe($('#scriptMinimap'));
   }
   requestAnimationFrame(()=>{if(document.querySelector('#scriptSource')===input)syncScriptCodeScroll()});

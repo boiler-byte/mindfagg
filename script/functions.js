@@ -135,9 +135,11 @@ function scriptGoToOffset(offset){
   const d=documentNow();if(!d||fileKind(d)!=='script')return;
   activeFilePanel='script';render();
   const source=$('#scriptSource');if(!source)return;
-  const at=Math.max(0,Math.min(Number(offset)||0,source.value.length));
-  source.focus({preventScroll:true});source.setSelectionRange(at,at);
-  const before=source.value.slice(0,at),line=before.split('\n').length-1;
+  const at=Math.max(0,Math.min(Number(offset)||0,codeFoldFull(source).length));
+  codeFoldRevealOffset(source,at);
+  const visibleAt=codeFoldMapToVisible(codeFoldState(source),at);
+  source.focus({preventScroll:true});source.setSelectionRange(visibleAt,visibleAt);
+  const before=source.value.slice(0,visibleAt),line=before.split('\n').length-1;
   const lineHeight=parseFloat(getComputedStyle(source).lineHeight)||23;
   source.scrollTop=Math.max(0,line*lineHeight-source.clientHeight/3);
   syncScriptCodeScroll();

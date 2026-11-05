@@ -26,3 +26,6 @@
 @media(max-width:850px){.workspace-actions-menu button{min-height:46px}.workspace-import-modes{gap:12px}.workspace-import-list{max-height:132px}}
 .workspace-conflict-info{margin:3px 0 9px;color:#8dbea9;font-size:11px;line-height:1.45}
 .workspace-conflict-info.has-conflicts{color:#f1c483}
+
+/* v36: separate file/folder creation from uploading/importing. */
+.workspace-actions-menu .workspace-menu-separator{height:1px;margin:6px 7px;background:#41516a;pointer-events:none}

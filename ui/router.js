@@ -3,6 +3,7 @@
 function toast(s){let e=$('#toast');e.textContent=s;e.classList.remove('hidden');clearTimeout(toast._timer);toast._timer=setTimeout(()=>e.classList.add('hidden'),2600)}
 
 function render(){
+  scriptMobileViewportInactive();
   let p=project(),d=documentNow();
   if(d){
     ensureSvgScript(d);

@@ -153,6 +153,8 @@ function openToolbarStatus(){
 // the hierarchy unless the user explicitly indents or outdents a list item.
 function editorApplyRange(from,to,replacement,selectionStart,selectionEnd=selectionStart){
   const source=$('#source');if(!source)return;
+  // Toolbar/shortcut actions must never replace a folded placeholder.
+  if(codeFoldHasCollapsed(source))codeFoldExpandAll(source);
   const top=source.scrollTop,left=source.scrollLeft;
   source.setRangeText(replacement,from,to,'end');
   source.setSelectionRange(selectionStart,selectionEnd);

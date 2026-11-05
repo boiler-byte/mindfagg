@@ -32,7 +32,7 @@ async function openCompletionDocument(){
   navigateLink(target.doc,target.heading);
 }
 function completionForCaret(){
-  const source=$('#source');if(!source||editorComposing||source.selectionStart!==source.selectionEnd)return null;
+  const source=$('#source');if(!source||editorComposing||codeFoldHasCollapsed(source)||source.selectionStart!==source.selectionEnd)return null;
   const position=linePosition(source.selectionStart),item=editorScan.items[position.line];
   if(!item||item.kind==='code'||item.kind==='fence'||item.kind==='comment')return null;
   const lineStart=editorScan.offsets[position.line],before=source.value.slice(lineStart,source.selectionStart);

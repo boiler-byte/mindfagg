@@ -235,6 +235,24 @@ async function workspaceReadUploads(descriptors){
   }
   return entries;
 }
+// Suggestions are based on the clipboard content, not the edited destination name.
+function workspaceClipboardPreferredExtension(item){
+  const mime=String(item.file?.type||item.mime||'').split(';')[0].toLowerCase();
+  if(mime==='text/html')return 'html';
+  // Plain-text clipboard content may be recognized as HTML, CSS, JS, JSON, etc.
+  if(typeof item.text==='string')return pathExtension(workspaceSuggestTextName(item.text));
+  // For pasted files prefer their actual media type over a misleading filename.
+  const typed=Object.keys(workspaceMime).find(extension=>workspaceMime[extension]===mime);
+  return typed||pathExtension(item.path||item.file?.name||'');
+}
+function workspaceClipboardFilesInFolder(folder){
+  return workspaceCurrentFiles().filter(doc=>pathParent(workspacePath(doc))===folder);
+}
+function workspaceClipboardDefaultName(item,folder){
+  const preferred=workspaceClipboardPreferredExtension(item);
+  if(preferred==='html'&&!workspaceClipboardFilesInFolder(folder).some(doc=>['html','htm'].includes(pathExtension(workspacePath(doc)))))return 'index.html';
+  return item.path;
+}
 function openFileImportDialog(descriptors,options={}){
   if(!projectId)return toast('Bitte zuerst einen Workspace auswählen');
   if(!descriptors.length)return toast('Keine Dateien zum Importieren');
@@ -248,14 +266,28 @@ function openFileImportDialog(descriptors,options={}){
   openModal(`<h2>${editable?'Zwischenablage als Datei einfügen':'Dateien importieren'}</h2><p>${escapeHtml(workspaceImportSummary(descriptors))}</p>
     ${imageFile?`<div class="workspace-clipboard-preview"><img src="${previewURL}" alt="Bild aus der Zwischenablage"></div>`:editable&&descriptors[0].text?`<pre class="workspace-clipboard-text">${escapeHtml(descriptors[0].text.slice(0,1500))}</pre>`:workspaceFileSamples(descriptors)}
     <form id="workspaceFilesForm">
-    ${editable?`<div class="field"><label for="workspaceImportName">Dateiname</label><input id="workspaceImportName" required maxlength="200" value="${escapeHtml(initialName)}"></div>`:''}
+    ${editable?`<div class="field"><label for="workspaceImportName">Dateiname</label><input id="workspaceImportName" list="workspaceImportNameOptions" required maxlength="200" value="${escapeHtml(initialName)}"><datalist id="workspaceImportNameOptions"></datalist></div>`:''}
     ${workspaceImportFolderForm(selected)}${workspaceConflictForm()}
     <div class="modalactions"><button type="button" class="btn" id="cancelModal">Abbrechen</button><button type="submit" class="btn primary">${editable?'Datei einfügen':'Dateien importieren'}</button></div></form>`);
   wireCancel();
-  const refreshConflicts=()=>workspaceUpdateConflictInfo(editable?[$('#workspaceImportName').value]:descriptors.map(d=>d.path),$('#workspaceImportFolder').value);
-  $('#workspaceImportFolder').addEventListener('change',refreshConflicts);
-  if(editable)$('#workspaceImportName').addEventListener('input',refreshConflicts);
-  refreshConflicts();
+  const folderInput=$('#workspaceImportFolder'),nameInput=editable?$('#workspaceImportName'):null;
+  const preferredExtension=editable?workspaceClipboardPreferredExtension(descriptors[0]):'';
+  let nameEdited=false;
+  function refreshClipboardNameSuggestions(){
+    if(!editable)return;
+    const files=workspaceClipboardFilesInFolder(folderInput.value);
+    const list=$('#workspaceImportNameOptions');
+    const suggestions=files.filter(doc=>pathExtension(workspacePath(doc))===preferredExtension)
+      .map(doc=>pathName(workspacePath(doc)))
+      .sort((a,b)=>a.localeCompare(b,'de',{numeric:true,sensitivity:'base'}));
+    list.replaceChildren(...suggestions.map(name=>{const option=document.createElement('option');option.value=name;return option}));
+    // Auto-name HTML only as long as the user has not edited the filename.
+    if(!nameEdited&&preferredExtension==='html')nameInput.value=workspaceClipboardDefaultName(descriptors[0],folderInput.value);
+  }
+  const refreshConflicts=()=>workspaceUpdateConflictInfo(editable?[nameInput.value]:descriptors.map(d=>d.path),folderInput.value);
+  folderInput.addEventListener('change',()=>{refreshClipboardNameSuggestions();refreshConflicts()});
+  if(editable)nameInput.addEventListener('input',()=>{nameEdited=true;refreshConflicts()});
+  refreshClipboardNameSuggestions();refreshConflicts();
   if(previewURL){const button=$('#cancelModal');button.addEventListener('click',()=>URL.revokeObjectURL(previewURL),{once:true})}
   $('#workspaceFilesForm').onsubmit=async event=>{
     event.preventDefault();const submit=$('#workspaceFilesForm [type="submit"]');submit.disabled=true;
@@ -364,7 +396,8 @@ function workspaceClipboardFromEvent(event){
   if(data)for(const item of data.items){if(item.kind==='file'){const file=item.getAsFile();if(file)files.push({file,path:file.name&&file.name!=='image.png'?file.name:'clipboard.'+((file.type||'image/png').split('/')[1].replace('jpeg','jpg').replace('svg+xml','svg')||'png')})}}
   if(files.length)return files;
   const text=data?.getData('text/plain')||data?.getData('text/html')||'';
-  return text?[{path:workspaceSuggestTextName(text),bytes:new TextEncoder().encode(text),text,mime:'text/plain'}]:[];
+  const mime=data?.getData('text/plain')?'text/plain':'text/html';
+  return text?[{path:mime==='text/html'?'clipboard.html':workspaceSuggestTextName(text),bytes:new TextEncoder().encode(text),text,mime}]:[];
 }
 function openWorkspacePasteFallback(){
   openModal(`<h2>Aus Zwischenablage einfügen</h2><p>Der Browser erlaubt hier keinen direkten Zugriff auf die Zwischenablage. Füge den Inhalt mit <strong>Strg+V</strong> bzw. <strong>⌘V</strong> in dieses Feld ein.</p>
@@ -372,7 +405,7 @@ function openWorkspacePasteFallback(){
     <div class="modalactions"><button type="button" class="btn" id="cancelModal">Abbrechen</button><button type="button" class="btn primary" id="workspacePasteText">Text übernehmen</button></div>`);
   wireCancel();
   const area=$('#workspacePasteArea');area.focus();
-  area.onpaste=event=>{const contents=workspaceClipboardFromEvent(event);if(contents.some(item=>item.file)){event.preventDefault();openFileImportDialog(contents,{clipboard:true})}};
+  area.onpaste=event=>{const contents=workspaceClipboardFromEvent(event);if(contents.some(item=>item.file||item.mime==='text/html')){event.preventDefault();openFileImportDialog(contents,{clipboard:true})}};
   $('#workspacePasteText').onclick=()=>{
     if(!area.value)return toast('Zwischenablage ist leer');const text=area.value;
     openFileImportDialog([{path:workspaceSuggestTextName(text),bytes:new TextEncoder().encode(text),text}],{clipboard:true});
@@ -388,7 +421,7 @@ async function pasteWorkspaceClipboard(){
       if(fileType){const blob=await item.getType(fileType),ext=fileType==='image/svg+xml'?'svg':fileType==='image/jpeg'?'jpg':fileType.split('/')[1].replace(/[^a-z0-9]/gi,'')||'bin';
         descriptors.push({file:new File([blob],'clipboard.'+ext,{type:fileType}),path:'clipboard.'+ext});continue}
       const textType=item.types.includes('text/plain')?'text/plain':item.types.includes('text/html')?'text/html':null;
-      if(textType){const text=await (await item.getType(textType)).text();descriptors.push({path:workspaceSuggestTextName(text),bytes:new TextEncoder().encode(text),text})}
+      if(textType){const text=await (await item.getType(textType)).text();descriptors.push({path:textType==='text/html'?'clipboard.html':workspaceSuggestTextName(text),bytes:new TextEncoder().encode(text),text,mime:textType})}
     }
     if(!descriptors.length)throw Error('Kein unterstützter Inhalt');
     openFileImportDialog(descriptors,{clipboard:true});

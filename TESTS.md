@@ -1,4 +1,36 @@
-# mindfagg v41 - Tests und Regressionen
+# mindfagg v43 - Tests und Regressionen
+
+## Neu in v43
+
+- [ ] **Editor-Minimap:** HTML/CSS/JS mit Syntaxfehler öffnen: dieselben Fehlerzeilen im Editor und in der Minimap rot. Nach Korrektur der Syntax die roten Minimap-Zeilen entfernen; gefaltete Fehlerblöcke und Wortumbruch prüfen.
+- [ ] **Dialoge:** In einem Eingabefeld eine Textmarkierung beginnen, Maus außerhalb des Dialogs loslassen. Dialog bleibt offen. Ein tatsächlicher Hintergrund-Klick (drücken und loslassen auf dem Backdrop) schließt ihn weiter; Schließen/Abbrechen/Escape funktionieren weiterhin.
+- [ ] **Sidebar:** **Alle Ordner einklappen** steht vor **+** und **⋯** und erscheint nur, wenn sichtbare aufgeklappte Ordner vorhanden sind. Alle einklappen, Projekt wechseln, Browser neu starten und den Zustand prüfen. Durch explizite Auswahl dürfen Ordner wieder geöffnet werden.
+- [ ] **Ordner verwalten:** Leerer Ordner zeigt nur **Leeren Ordner löschen**. Ordner mit Dateien oder mit ausschließlich leeren Unterordnern zeigt **Ordner löschen** und eine Bestätigung. Abbrechen verändert nichts; Bestätigen löscht auch alle Unterordner und Dateien. **Rückgängig** stellt die komplette Ordnerstruktur wieder her.
+- [ ] **Script-Editor:** Dropdown **Einfügen ▾**: **Einfügen** fügt den Clipboard-Text an der Cursorposition bzw. über selektierten Text ein, **Ersetzen** überschreibt den gesamten Inhalt. Code Folding, Fehlerprüfung, Undo/Redo und Autosave prüfen. Ohne Clipboard-Berechtigung darf keine Änderung passieren.
+- [ ] Mobile: Clipboard-Menü öffnet oberhalb der Toolbar und verdeckt nicht den Code. Bei Clipboard-Berechtigungsprompts und verweigerten Berechtigungen bleibt der Quelltext unbeschädigt.
+- [ ] Service Worker unter derselben HTTPS-/localhost-Adresse von v42 auf `mindfagg-v43` aktualisieren und Offlinefunktion testen; IndexedDB-Workspace und ZIP-Format bleiben unverändert.
+
+Automatisierte Prüfungen: `node tests/check-structure.mjs`, `python tests/v43-browser.py` sowie sämtliche früheren `tests/*.mjs` und `tests/*browser.py`. Der v43-Browsertest verwendet einen simulierten Clipboard-API-Zugriff, lokale Speicherinitialisierung und einen Transaktions-Dummy an der IndexedDB-Grenze, da direkte Navigation im Testbrowser gesperrt ist.
+
+---
+
+# Versionshistorie: v42
+
+## Neu in v42
+
+- [ ] **GitHub-Repository zuordnen:** Native Browser-Datalist am Repository-Feld, keine selbst erstellte Vorschlagsbox; vorhandene private/öffentliche Repositories des Tokens werden angezeigt, auch nach API-Paginierung. Repository-Namen können per Browser-Tastatur/Maus gewählt werden.
+- [ ] GitHub-Fehler (offline, Token ohne Rechte): Statusmeldung sichtbar und beliebige gültige `owner/repo`-Namen weiterhin manuell eingeben; Repository-Link und Link zum Anlegen erhalten.
+- [ ] **Zwischenablage als Datei einfügen:** Datalist zeigt nur Dateinamen im ausgewählten Zielordner mit derselben bevorzugten Dateiendung wie der Clipboard-Inhalt. Root-/Unterordner, Groß-/Kleinschreibung der Endung, mehrere Dateitypen und andere Projekte prüfen.
+- [ ] Zielordner ändern: Datalist aktualisiert sich; ein manuell eingegebener Dateiname bleibt erhalten. Kollisionsbehandlung und Dateiimport weiterhin ausprobieren.
+- [ ] HTML in einen Ordner **ohne** `.html`/`.htm`: Dateiname `index.html`; mit vorhandener HTML-Datei bleibt der normale Zwischenablage-Dateiname und die HTML-Datalist wird gezeigt. Beim Ordnerwechsel Namen nur dann automatisch anpassen, wenn ihn der Nutzer noch nicht bearbeitet hat.
+- [ ] `text/html`-Zwischenablage (auch HTML-Fragmente), HTML-Klartext und PNG-Bilder testen. Upload- und ZIP-Import-Dialoge dürfen unverändert sein.
+- [ ] Über denselben HTTPS-/localhost-Ursprung aktualisieren und neuen Service-Worker-Cache `mindfagg-v42` im Online- und Offlinebetrieb prüfen.
+
+Automatische Prüfungen: `node tests/check-structure.mjs`, `python tests/v42-browser.py`, `python tests/v41-browser.py`, `python tests/v40-browser.py`, `node tests/github-sync.mjs`, `node tests/github-credentials.mjs` und alle früheren Regressionstests. Browserprüfungen simulieren GitHub-Antworten und importierte Dateien.
+
+---
+
+# Versionshistorie: v41
 
 ## Neu in v41
 

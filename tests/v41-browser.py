@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v41 browser regression: offline Pretty Code and token-scoped GitHub suggestions."""
+"""v41 Pretty Code browser regression, adapted to the v42 native GitHub datalist."""
 from pathlib import Path
 import re
 from playwright.sync_api import sync_playwright
@@ -100,22 +100,18 @@ with sync_playwright() as pw:
   repo.focus()
   page.wait_for_function('repoCalls.length>=2')
   page.wait_for_function("document.querySelector('#githubRepoLookup').textContent.includes('102')")
-  assert page.locator('#githubRepoOptions .github-repo-choice').count()==9
+  assert repo.get_attribute('list')=='githubRepoOptions'
+  assert page.locator('#githubRepoOptions option').count()==102
   assert all(call['token']=='test-only' and 'per_page=100' in call['path'] for call in page.evaluate('repoCalls'))
   assert not page.locator('#githubUseAccount').count()
-  repo.fill('private-space')
-  assert page.locator('#githubRepoOptions .github-repo-choice').count()==1
-  assert page.locator('#githubRepoOptions .github-repo-choice').first.inner_text().startswith('miramax11/private-space')
-  page.locator('#githubRepoOptions .github-repo-choice').first.click()
-  assert repo.input_value()=='miramax11/private-space'
-  assert not page.locator('#githubRepoSuggestion').is_visible()
+  assert page.locator('#githubRepoSuggestion').count()==0
+  assert 'miramax11/private-space' in page.locator('#githubRepoOptions option').evaluate_all('(nodes)=>nodes.map(n=>n.value)')
+  assert 'team/repo-a' in page.locator('#githubRepoOptions option').evaluate_all('(nodes)=>nodes.map(n=>n.value)')
+  repo.fill('miramax11/private-space')  # native datalist performs the filtering
   assert page.locator('#githubRepositoryOpen').get_attribute('href')=='https://github.com/miramax11/private-space'
-  repo.fill('team/')
-  repo.press('ArrowDown')
-  assert page.evaluate('document.activeElement.classList.contains("github-repo-choice")')
-  page.keyboard.press('Enter')
-  assert repo.input_value()=='team/repo-a'
-  print('PASS: GitHub suggestions use token-scoped API, pagination, filtering and keyboard selection')
+  repo.fill('team/repo-a')
+  assert page.locator('#githubRepositoryOpen').get_attribute('href')=='https://github.com/team/repo-a'
+  print('PASS: GitHub native datalist loads token-scoped, paginated repositories')
 
   # API errors are explicit, manual entry is never prevented.
   page.evaluate("githubApi=async()=>{throw Error('Insufficient token permissions')};closeModal();openGithubDialog()")

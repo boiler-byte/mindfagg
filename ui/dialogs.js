@@ -1,6 +1,18 @@
 'use strict';
 // Projekt- und Dokumentdialoge, Knotenformulare, Einstellungen sowie ZIP-Import/Export.
-function openModal(html){$('#modal').classList.remove('node-modal');$('#modal').innerHTML=html;$('#modalBack').classList.remove('hidden')}function closeModal(){if(typeof githubBusy!=='undefined'&&githubBusy&&($('#githubModal')||$('#githubConflictModal')))return;$('#modalBack').classList.add('hidden')};$('#modalBack').onclick=e=>{if(e.target===$('#modalBack'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+function openModal(html){$('#modal').classList.remove('node-modal');$('#modal').innerHTML=html;$('#modalBack').classList.remove('hidden')}
+function closeModal(){if(typeof githubBusy!=='undefined'&&githubBusy&&($('#githubModal')||$('#githubConflictModal')))return;$('#modalBack').classList.add('hidden')}
+// A drag starting inside a dialog may end on the backdrop (e.g. when selecting
+// input text). Its synthesized click must NOT dismiss the dialog.
+let modalBackdropPointerStart=false,modalBackdropPointerEnd=false;
+$('#modalBack').addEventListener('pointerdown',event=>{modalBackdropPointerStart=event.target===$('#modalBack');modalBackdropPointerEnd=false});
+$('#modalBack').addEventListener('pointerup',event=>{modalBackdropPointerEnd=event.target===$('#modalBack')});
+$('#modalBack').addEventListener('pointercancel',()=>{modalBackdropPointerStart=false;modalBackdropPointerEnd=false});
+$('#modalBack').addEventListener('click',event=>{
+  if(event.target===$('#modalBack')&&modalBackdropPointerStart&&modalBackdropPointerEnd)closeModal();
+  modalBackdropPointerStart=false;modalBackdropPointerEnd=false;
+});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeModal()});
 function formActions(label='Speichern'){return `<div class="modalactions"><button class="btn" type="button" id="cancelModal">Abbrechen</button><button class="btn primary" type="submit">${label}</button></div>`}function wireCancel(){$('#cancelModal').onclick=closeModal}
 function openProjectSettings(){
   const p=project();if(!p)return;

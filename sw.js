@@ -1,10 +1,10 @@
-/* mindfagg v41 Service Worker: offline app cache plus isolated, project-local VFS.
+/* mindfagg v43 Service Worker: offline app cache plus isolated, project-local VFS.
  * The virtual route is resolved from IndexedDB on EVERY request, never from
  * CacheStorage or the network. CSP's sandbox directive protects even direct
  * navigation to a preview URL without an iframe sandbox attribute. */
 'use strict';
 
-const VERSION='mindfagg-v41';
+const VERSION='mindfagg-v43';
 const CORE_CACHE=`${VERSION}-core`;
 const RUNTIME_CACHE=`${VERSION}-runtime`;
 const VFS_ROUTE='__mindfagg_preview__/';

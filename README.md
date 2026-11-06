@@ -1,4 +1,40 @@
-# mindfagg v41
+# mindfagg v43
+
+Offline-fähiger Workspace mit Markdown, Mindmap, Kanban, Kalender, Scripteditor und GitHub-Synchronisation.
+
+## Neu in v43: Editor, Dialoge, Sidebar und Ordnerverwaltung
+
+- **Rote Zeilen in der Script-Minimap:** Syntaxfehler aus der integrierten HTML/CSS/JavaScript-Prüfung werden auf denselben sichtbaren Zeilen wie im Editor rot markiert, auch in Codefaltungen. Nach einer Korrektur verschwinden die roten Minimap-Zeilen bei der nächsten Prüfung.
+- **Dialoge:** Ein Dialog wird nur durch einen echten Klick auf den Hintergrund (Drücken **und** Loslassen außerhalb) oder durch seine vorhandenen Schließen-/Abbrechen-Aktionen geschlossen. Das Ziehen einer Markierung aus einem Input heraus schließt ihn nicht mehr versehentlich.
+- **Sidebar:** Neuer **Alle Ordner einklappen**-Button vor **+** und **⋯**. Er erscheint nur, wenn ein sichtbarer Ordner aufgeklappt ist. Eingeklappte Ordner werden für jedes Projekt getrennt in `localStorage` gespeichert und beim Wiederöffnen wiederhergestellt. Ein explizit ausgewählter Ordner kann weiterhin seine Vorfahren öffnen.
+- **Ordner verwalten:** In einem leeren Ordner steht **Leeren Ordner löschen**. Für Ordner mit Dateien oder Unterordnern steht **Ordner löschen** mit Sicherheitsabfrage zur Verfügung. Dateien und Unterordner werden gemeinsam in einer atomaren Workspace-Transaktion gelöscht; **Rückgängig** kann die Löschung innerhalb der Sitzung wiederherstellen.
+- **Script-Editor-Toolbar:** Neues Dropdown **Einfügen ▾** mit **Einfügen** (Clipboard-Text an der Cursorposition bzw. über markierten Text) und **Ersetzen** (vollständiger Quelltext). Beide verwenden die bestehende Bearbeitungs-, Undo-/Redo-, Syntaxprüfungs- und Autosave-Pipeline. Benötigt im Browser Clipboard-Leseberechtigung und einen sicheren Ursprung (HTTPS oder localhost); bei fehlender Berechtigung bleibt der Inhalt unverändert.
+- **Offline-PWA:** Neuer Cache-Schlüssel `mindfagg-v43`. Keine IndexedDB- oder ZIP-Formatmigration.
+
+**Installation:** `mindfagg-v43.zip` enthält die vollständige App. Über dieselbe HTTPS-/localhost-Adresse wie bisher installieren, um vorhandene IndexedDB-Projekte zu behalten. Vor dem Update ein Workspace-ZIP sichern.
+
+**Prüfen:** `node tests/check-structure.mjs`, `python tests/v43-browser.py`, `python tests/v42-browser.py`, `python tests/v41-browser.py`, `python tests/v40-browser.py` sowie die übrigen Regressionen. Browserprüfungen arbeiten mit isoliertem Testspeicher und simuliertem Clipboard; Berechtigungen und Service-Worker-Aktualisierung sind im echten HTTPS-/localhost-Browser zu prüfen.
+
+---
+
+# Versionshistorie: v42
+
+Offline-fähiger Workspace mit Markdown, Mindmap, Kanban, Kalender, Scripteditor und GitHub-Synchronisation.
+
+## Neu in v42: native Repository- und Dateinamen-Datalists
+
+- **GitHub-Repository zuordnen:** Das Repository-Eingabefeld verwendet jetzt eine native HTML-`datalist` statt eines eigenen Dropdowns. Die Vorschläge kommen weiterhin ausschließlich aus den vom hinterlegten GitHub-Token erreichbaren Repositories (bis zu zehn API-Seiten mit je 100 Einträgen). Die Browser-Datalist filtert bei der Eingabe; `owner/repo` bleibt auch dann frei editierbar, wenn der API-Abruf fehlschlägt. Der Repository-Link wird weiterhin beim Ändern des Eingabefeldes aktualisiert.
+- **Zwischenablage als Datei einfügen:** Das Eingabefeld **Dateiname** besitzt eine Datalist mit den bereits vorhandenen Dateien **im gewählten Zielordner** und mit der zur Zwischenablage passenden Dateiendung (z. B. `.css`, `.js`, `.html` oder `.png`). Beim Wechsel des Zielordners werden die Vorschläge neu aufgebaut; Unterordner und andere Projekte sind ausgeschlossen. Dateinamen bleiben frei editierbar. Bei identischem Dateinamen gelten weiterhin **Umbenennen**, **Ersetzen** und **Überspringen**.
+- **HTML-Standardname:** Wird HTML eingefügt und enthält der Zielordner noch keine `.html`- oder `.htm`-Datei, steht zunächst `index.html` im Feld. Bei einem Ordnerwechsel wird der automatisch vorgeschlagene Name angepasst, solange der Dateiname nicht manuell verändert wurde. HTML-Fragmente mit dem MIME-Typ `text/html` werden ebenfalls als HTML erkannt.
+- **Offline-PWA:** Neuer Cache-Schlüssel `mindfagg-v42`; keine Datenbankmigration und keine Änderung am ZIP-Format.
+
+**Installation:** `mindfagg-v42.zip` ist das **vollständige App-Paket** auf Basis von v41. Die Dateien unter derselben HTTPS-/localhost-Adresse wie bisher bereitstellen, damit IndexedDB-Daten erhalten bleiben. Vor dem Aktualisieren ein Workspace-ZIP-Backup erstellen.
+
+**Prüfen:** `node tests/check-structure.mjs`, `python tests/v42-browser.py`, `python tests/v41-browser.py`, `python tests/v40-browser.py` und die weiteren Regressionstests. Die GitHub-API wird in Browser-Tests simuliert; echte Token-Rechte und native Datalist-Popup-Darstellung bitte im regulären Browser überprüfen.
+
+---
+
+# Versionshistorie: v41
 
 Offline-fähiger Workspace mit Markdown, Mindmap, Kanban, Kalender, Scripteditor und GitHub-Synchronisation.
 

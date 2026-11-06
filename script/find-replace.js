@@ -1,5 +1,5 @@
 'use strict';
-/* mindfagg v40: literal, multiline find and replace for the Script editor.
+/* mindfagg v43: literal, multiline find/replace and clipboard toolbar for Script editor.
  * Search and replacement always use the FULL source, never fold placeholders.
  * The preview layer is inert and contains only escaped text. No regex UI. */
 const scriptFindState={docId:null,open:false,replaceOpen:false,caseSensitive:false,
@@ -21,8 +21,13 @@ function scriptFindMatches(text,needle,caseSensitive=false){
 }
 function scriptFindWidgetHtml(){
   return `<div class="script-editor-tools" role="toolbar" aria-label="Script-Editor-Werkzeuge">
+    <button type="button" class="tool" id="scriptClipboardToggle" title="Text aus Zwischenablage einfügen oder Dateiinhalt ersetzen" aria-haspopup="menu" aria-controls="scriptClipboardMenu" aria-expanded="false">Einfügen ▾</button>
     <button type="button" class="tool" id="scriptFindToggle" title="Suchen und Ersetzen (Strg/⌘+F)" aria-controls="scriptFindWidget" aria-expanded="false">⌕ Suchen &amp; Ersetzen</button>
     <button type="button" class="tool" id="scriptPrettyCode" title="Code lesbar formatieren" aria-label="Pretty Code">{ } Pretty Code</button>
+  </div>
+  <div class="script-clipboard-menu" id="scriptClipboardMenu" role="menu" aria-label="Zwischenablage einfügen" hidden>
+    <button type="button" role="menuitem" id="scriptClipboardInsert">Einfügen <small>An Cursorposition</small></button>
+    <button type="button" role="menuitem" id="scriptClipboardReplace">Ersetzen <small>Gesamten Dateiinhalt</small></button>
   </div>
   <section class="script-find-widget" id="scriptFindWidget" aria-label="Suchen und Ersetzen" hidden>
     <div class="script-find-row">

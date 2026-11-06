@@ -11,6 +11,41 @@ const WORKSPACE_TEXT_NAMES=new Set(['dockerfile','makefile','license','readme','
 const WORKSPACE_IMAGE_MIME={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',bmp:'image/bmp',svg:'image/svg+xml',avif:'image/avif',ico:'image/x-icon',apng:'image/apng'};
 const WORKSPACE_AUDIO_MIME={mp3:'audio/mpeg',wav:'audio/wav',wave:'audio/wav',ogg:'audio/ogg',oga:'audio/ogg',opus:'audio/ogg',m4a:'audio/mp4',aac:'audio/aac',flac:'audio/flac',weba:'audio/webm',aif:'audio/aiff',aiff:'audio/aiff',mid:'audio/midi',midi:'audio/midi'};
 const workspaceFolderOpen=new Map();
+const WORKSPACE_FOLDER_STORAGE_KEY='mfWorkspaceCollapsedFolders';
+try{
+  const stored=JSON.parse(localStorage.getItem(WORKSPACE_FOLDER_STORAGE_KEY)||'[]');
+  if(Array.isArray(stored))for(const key of stored.slice(0,4000)){
+    if(typeof key==='string'&&key.length<2200&&key.includes(':'))workspaceFolderOpen.set(key,false);
+  }
+}catch(error){console.warn('Gespeicherte Ordneransicht konnte nicht geladen werden:',error)}
+function workspacePersistFolderOpen(){
+  try{localStorage.setItem(WORKSPACE_FOLDER_STORAGE_KEY,JSON.stringify([...workspaceFolderOpen].filter(([,open])=>open===false).map(([key])=>key)))}
+  catch(error){console.warn('Ordneransicht konnte nicht gespeichert werden:',error)}
+}
+function workspaceSetFolderOpen(path,open,projectKey=projectId){
+  if(!projectKey||!path)return;
+  const key=projectKey+':'+path;
+  if(open)workspaceFolderOpen.delete(key);else workspaceFolderOpen.set(key,false);
+  workspacePersistFolderOpen();
+}
+function workspaceCollapseFolders(){
+  if(!projectId)return;
+  for(const path of workspaceFolderPaths())workspaceFolderOpen.set(projectId+':'+path,false);
+  workspacePersistFolderOpen();render();
+}
+function workspaceUpdateCollapseButton(){
+  const button=$('#collapseFolders');if(!button)return;
+  button.hidden=!projectId||!$('#docList')?.querySelector('.folder-toggle[aria-expanded="true"]');
+}
+function workspaceRenameFolderOpenStates(folder,nextPath,projectKey=projectId){
+  const prefix=projectKey+':',updates=[];
+  for(const [key,value] of workspaceFolderOpen){
+    const path=key.startsWith(prefix)?key.slice(prefix.length):'';
+    if(path===folder||path.startsWith(folder+'/'))updates.push([key,prefix+nextPath+path.slice(folder.length),value]);
+  }
+  for(const [before,after,value] of updates){workspaceFolderOpen.delete(before);workspaceFolderOpen.set(after,value)}
+  if(updates.length)workspacePersistFolderOpen();
+}
 let activeFolderPath='',workspacePreviewURL=null,activeFilePanel='script';
 function workspacePath(doc){
   return typeof doc?.path==='string'&&doc.path?doc.path:(doc?.name||'Projekt').replace(/[\\/]/g,'_')+'.md';
@@ -84,8 +119,12 @@ function workspaceFolderOptions(selected=activeFolderPath){
   return [''].concat(workspaceFolderPaths()).map(folder=>`<option value="${escapeHtml(folder)}" ${folder===selected?'selected':''}>${escapeHtml(folder||'/ (Wurzel)')}</option>`).join('');
 }
 function workspaceExpandAncestors(path){
-  const parts=path.split('/');
-  for(let i=1;i<=parts.length;i++)workspaceFolderOpen.set(projectId+':'+parts.slice(0,i).join('/'),true);
+  const parts=path.split('/');let changed=false;
+  for(let i=1;i<=parts.length;i++){
+    const key=projectId+':'+parts.slice(0,i).join('/');
+    if(workspaceFolderOpen.delete(key))changed=true;
+  }
+  if(changed)workspacePersistFolderOpen();
 }
 function workspaceTreeHtml(p){
   if(!p)return '';
@@ -125,7 +164,7 @@ function wireWorkspaceTree(){
     try{await flushMapInlineEdit();await flushSource()}
     catch(error){console.error(error);toast('Änderungen konnten nicht gespeichert werden');return}
     if(menu){event.stopPropagation();openWorkspaceFolderSettings(menu.dataset.folderMenu);return}
-    if(toggle){const path=toggle.dataset.folderToggle,key=projectId+':'+path;workspaceFolderOpen.set(key,workspaceFolderOpen.get(key)===false);render();return}
+    if(toggle){const path=toggle.dataset.folderToggle,key=projectId+':'+path;workspaceSetFolderOpen(path,workspaceFolderOpen.get(key)===false);render();return}
     if(folder){appSettingsOpen=false;activeFolderPath=folder.dataset.folder;workspaceExpandAncestors(activeFolderPath);render();return}
     if(file)selectDocument(file.dataset.doc);
   };
@@ -154,13 +193,17 @@ function openWorkspaceFolderSettings(folder){
   const empty=filesInside.length===0&&childFolders.length===0;
   openModal(`<h2>Ordner verwalten</h2><p>${escapeHtml(folder)}</p><form id="folderEditForm">
     <div class="field"><label for="folderNewName">Name</label><input id="folderNewName" required maxlength="180" value="${escapeHtml(pathName(folder))}"></div>
-    <div class="modalactions document-modal-actions"><button type="button" class="btn delete-document" id="removeFolder" ${empty?'':'disabled title="Nur leere Ordner können gelöscht werden"'}>Leeren Ordner löschen</button><span class="document-action-spacer"></span><button type="button" class="btn" id="cancelModal">Abbrechen</button><button type="submit" class="btn primary">Umbenennen</button></div></form>`);
+    <div class="modalactions document-modal-actions"><button type="button" class="btn delete-document" id="removeFolder">${empty?'Leeren Ordner löschen':'Ordner löschen'}</button><span class="document-action-spacer"></span><button type="button" class="btn" id="cancelModal">Abbrechen</button><button type="submit" class="btn primary">Umbenennen</button></div></form>`);
   wireCancel();
   $('#removeFolder').onclick=async()=>{
-    if(!empty)return;
-    const next={...p,folders:(p.folders||[]).filter(path=>path!==folder)};
-    try{await workspaceCommitBatch([],next.folders,docId);activeFolderPath=workspaceFolderPaths(p).includes(pathParent(folder))?pathParent(folder):'';closeModal();render();toast('Ordner gelöscht · Rückgängig möglich')}
-    catch(error){console.error(error);toast('Ordner konnte nicht gelöscht werden')}
+    if(!empty){confirmWorkspaceFolderDelete(folder);return}
+    const remaining=(p.folders||[]).filter(path=>path!==folder);
+    try{
+      await workspaceCommitBatch([],remaining,docId);
+      workspaceFolderOpen.delete(p.id+':'+folder);workspacePersistFolderOpen();
+      activeFolderPath=workspaceFolderPaths(p).includes(pathParent(folder))?pathParent(folder):'';
+      closeModal();render();toast('Ordner gelöscht · Rückgängig möglich');
+    }catch(error){console.error(error);toast('Ordner konnte nicht gelöscht werden')}
   };
   $('#folderEditForm').onsubmit=async e=>{
     e.preventDefault();const name=$('#folderNewName').value.trim(),nextPath=workspaceValidPath([pathParent(folder),name].filter(Boolean).join('/'));
@@ -174,9 +217,40 @@ function openWorkspaceFolderSettings(folder){
     const newFolders=[...new Set([...(p.folders||[]).map(movePath),nextPath])];
     try{
       await workspaceCommitBatch(moved,newFolders,docId);
+      workspaceRenameFolderOpenStates(folder,nextPath,p.id);
       activeFolderPath=movePath(activeFolderPath);changeWorkspaceFolder(nextPath);
       closeModal();render();toast('Ordner umbenannt · Rückgängig möglich');
     }catch(error){console.error(error);toast('Ordner konnte nicht umbenannt werden')}
+  };
+}
+// Deleting a nonempty folder removes all contained documents and subfolders
+// as ONE undoable, atomic workspace batch, after an explicit confirmation.
+function confirmWorkspaceFolderDelete(folder){
+  const p=project();if(!p||!workspaceFolderPaths(p).includes(folder))return;
+  const inside=docs.filter(d=>d.projectId===p.id&&workspacePath(d).startsWith(folder+'/'));
+  const children=workspaceFolderPaths(p).filter(path=>path.startsWith(folder+'/'));
+  const count=inside.length;
+  openModal(`<h2>Ordner löschen?</h2><p>Soll <strong>${escapeHtml(folder)}</strong> mit ${count} ${count===1?'Datei':'Dateien'} und ${children.length} ${children.length===1?'Unterordner':'Unterordnern'} gelöscht werden?</p>
+    <div class="project-delete-warning">Alle Dateien und Unterordner werden gelöscht. Diese Aktion lässt sich in dieser Sitzung mit Rückgängig wiederherstellen.</div>
+    <div class="modalactions"><button class="btn" type="button" id="cancelFolderDelete">Zurück</button><button class="btn delete-document" type="button" id="confirmFolderDelete">Ordner löschen</button></div>`);
+  $('#cancelFolderDelete').onclick=()=>openWorkspaceFolderSettings(folder);
+  $('#confirmFolderDelete').onclick=async()=>{
+    const button=$('#confirmFolderDelete');button.disabled=true;
+    const current=project();if(!current||current.id!==p.id)return;
+    const files=docs.filter(d=>d.projectId===p.id&&workspacePath(d).startsWith(folder+'/'));
+    const deletedIds=new Set(files.map(d=>d.id));
+    const remainingFolders=(p.folders||[]).filter(path=>path!==folder&&!path.startsWith(folder+'/'));
+    const selected=deletedIds.has(docId)?docs.find(d=>d.projectId===p.id&&!deletedIds.has(d.id))?.id||null:docId;
+    try{
+      await workspaceCommitChanges([],files.map(d=>d.id),remainingFolders,selected);
+      for(const key of [...workspaceFolderOpen.keys()]){
+        const prefix=p.id+':';const path=key.startsWith(prefix)?key.slice(prefix.length):'';
+        if(path===folder||path.startsWith(folder+'/'))workspaceFolderOpen.delete(key);
+      }
+      workspacePersistFolderOpen();
+      activeFolderPath=workspaceFolderPaths(p).includes(pathParent(folder))?pathParent(folder):'';
+      closeModal();render();toast('Ordner samt Inhalt gelöscht · Rückgängig möglich');
+    }catch(error){console.error(error);toast('Ordner konnte nicht gelöscht werden');if(button.isConnected)button.disabled=false}
   };
 }
 function isSvgScriptFile(doc){return fileKind(doc)==='script'&&pathExtension(workspacePath(doc))==='svg'}

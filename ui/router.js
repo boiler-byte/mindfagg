@@ -21,6 +21,7 @@ function render(){
   $('#projectSettings').onclick=async()=>{await flushMapInlineEdit();await flushSource();setMobileMenu(false);openProjectSettings()};
   $('#docList').innerHTML=workspaceTreeHtml(p);
   wireWorkspaceTree();
+  workspaceUpdateCollapseButton();
   $('#breadcrumb').textContent=`${p?.name||'Workspace'} / ${d?workspacePath(d):'Keine Datei'}`;
   $('#renameDoc').disabled=!d||appSettingsOpen;
   updateHistoryButtons();

@@ -42,19 +42,19 @@ with sync_playwright() as pw:
     page.evaluate('openGithubDialog()')
     repository=page.locator('#githubRepository')
     repository.focus()
-    page.wait_for_function("document.querySelector('#githubRepoOptions button') !== null")
-    assert page.locator('#githubRepoOptions button').count()==2
-    repository.fill('examples')
-    assert page.locator('#githubRepoOptions button').count()==1
-    page.locator('#githubRepoOptions button').click()
+    page.wait_for_function("document.querySelector('#githubRepoOptions option') !== null")
+    assert repository.get_attribute('list')=='githubRepoOptions'
+    assert page.locator('#githubRepoOptions option').count()==2
+    assert page.locator('#githubRepoOptions option').evaluate_all('(nodes)=>nodes.map(n=>n.value)')==['miramax11/demo','miramax11/examples']
+    repository.fill('miramax11/examples')  # native datalist values can be entered or selected
     assert repository.input_value()=='miramax11/examples'
-    assert not page.locator('#githubRepoSuggestion').is_visible()
+    assert page.locator('#githubRepoSuggestion').count()==0
     repository.fill('miramax11/demo')
     assert page.locator('#githubRepositoryOpen').get_attribute('href')=='https://github.com/miramax11/demo'
-    repository.fill('somebody/')
-    assert not page.locator('#githubRepoOptions button').count()
+    repository.fill('somebody/repo')
+    assert page.locator('#githubRepositoryOpen').get_attribute('href')=='https://github.com/somebody/repo'
     page.locator('#cancelModal').click()
-    print('PASS: GitHub token-visible repository suggestion and mouse selection')
+    print('PASS: native GitHub datalist and unrestricted owner/repo entry')
 
     samples={
         'index.html':'<section>\n  Alpha\n  Alpha\n</section>\n',

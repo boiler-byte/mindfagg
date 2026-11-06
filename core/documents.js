@@ -143,7 +143,7 @@ function persistDocId(){
     else localStorage.removeItem('msDoc');
   }catch(e){console.warn('Dokumentauswahl konnte nicht gespeichert werden:',e)}
 }
-function selectProject(id,{keepSidebarOpen=false}={}){if(!keepSidebarOpen)setMobileMenu(false);appSettingsOpen=false;activeFilePanel='script';projectId=id||null;try{if(projectId)localStorage.setItem('msProject',projectId);else localStorage.removeItem('msProject')}catch(e){console.warn('Projektauswahl konnte nicht gespeichert werden:',e)}let pd=docs.filter(d=>d.projectId===projectId);let old=docId;docId=pd.some(d=>d.id===old)?old:pd[0]?.id||null;activeFolderPath=docId?pathParent(workspacePath(documentNow())):'';workspaceExpandAncestors(activeFolderPath);scopePath='0';render();githubProjectActivated(project())}
+function selectProject(id,{keepSidebarOpen=false}={}){if(!keepSidebarOpen)setMobileMenu(false);appSettingsOpen=false;activeFilePanel='script';projectId=id||null;try{if(projectId)localStorage.setItem('msProject',projectId);else localStorage.removeItem('msProject')}catch(e){console.warn('Projektauswahl konnte nicht gespeichert werden:',e)}let pd=docs.filter(d=>d.projectId===projectId);let old=docId;docId=pd.some(d=>d.id===old)?old:pd[0]?.id||null;activeFolderPath=docId?pathParent(workspacePath(documentNow())):'';scopePath='0';render();githubProjectActivated(project())}
 function selectDocument(id){setMobileMenu(false);appSettingsOpen=false;activeFilePanel='script';docId=id;const d=documentNow();if(d)changeWorkspaceFolder(pathParent(workspacePath(d)));scopePath='0';render()}
 
 // A shared scanner keeps root validation, highlighting and the tree parser consistent.

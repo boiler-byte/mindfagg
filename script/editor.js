@@ -1,5 +1,5 @@
 'use strict';
-/* mindfagg v40 — Script editor: shared visual style and find/replace toolbar.
+/* mindfagg v43 — Script editor: shared visual style and find/replace toolbar.
  * Prism is bundled locally for offline syntax coloring; file contents are NEVER
  * evaluated or inserted without Prism's HTML escaping. */
 const SCRIPT_LANGUAGE_BY_EXTENSION={
@@ -59,6 +59,7 @@ function paintScriptValidation(){
     layer.appendChild(marker);
   }
   layer.style.transform=`translate(${-source.scrollLeft}px, ${-source.scrollTop}px)`;
+  if(!scriptMiniFrame)scriptMiniFrame=requestAnimationFrame(()=>{scriptMiniFrame=0;drawScriptMinimap()});
 }
 function scriptFocusDiagnostic(error){
   const input=$('#scriptSource');if(!input)return;
@@ -150,16 +151,19 @@ function drawScriptMinimap(){
   const first=Math.max(0,editorIndexAtVisualRow(scriptLineLayout?.offsets||[],(mapOffset*scrollHeight/virtualHeight-topPad)/lineHeight)-2);
   const last=Math.min(scriptMinimapLines.length,editorIndexAtVisualRow(scriptLineLayout?.offsets||[],((mapOffset+height)*scrollHeight/virtualHeight-topPad)/lineHeight)+3);
   const lang=scriptLanguage(documentNow());
+  const diagnosticLines=new Set(scriptValidationState.docId===editorDocId
+    ?scriptValidationState.errors.map(error=>codeFoldVisibleIndex(source,error.line-1)).filter(i=>i>=0)
+    :[]);
   for(let i=first;i<last;i++){
-    const line=scriptMinimapLines[i];if(!line.trim())continue;
+    const line=scriptMinimapLines[i],invalid=diagnosticLines.has(i);if(!line.trim()&&!invalid)continue;
     const y=((topPad+(scriptLineLayout?.offsets[i]??i)*lineHeight)*virtualHeight/scrollHeight)-mapOffset;
     if(y< -8||y>height+8)continue;
     const leading=(line.match(/^\s*/)||[''])[0].replace(/\t/g,'  ').length;
     const x=4+Math.min(leading,36)*.83;
-    const len=Math.max(2,Math.min(width-x-5,line.trimEnd().length*.95));
+    const len=Math.max(invalid?13:2,Math.min(width-x-5,line.trimEnd().length*.95));
     if(len<=0)continue;
-    ctx.fillStyle=scriptMiniColor(line,lang);ctx.globalAlpha=.82;
-    ctx.fillRect(x,y,len,Math.min(3.2,Math.max(1.6,lineSpacing*.5)));
+    ctx.fillStyle=invalid?'#ff657e':scriptMiniColor(line,lang);ctx.globalAlpha=invalid?1:.82;
+    ctx.fillRect(x,y,len,invalid?Math.min(4,Math.max(2.5,lineSpacing*.7)):Math.min(3.2,Math.max(1.6,lineSpacing*.5)));
   }
   ctx.globalAlpha=1;
   const rawThumb=source.clientHeight/scrollHeight*virtualHeight;
@@ -221,7 +225,7 @@ function renderEnhancedScriptEditor(){
   const input=$('#scriptSource');input.value=doc.content||'';input.wrap=appEditorSettings.wordWrap?'soft':'off';
   codeFoldInitialize(input,doc,pathExtension(workspacePath(doc)),()=>{refreshScriptVisuals();paintScriptValidation()});
   clearTimeout(scriptValidationTimer);scriptValidationState={docId:doc.id,language:null,errors:[]};
-  refreshScriptVisuals();wireScriptMinimap();refreshScriptValidation();scriptFindMount(input);scriptPrettyMount(doc);
+  refreshScriptVisuals();wireScriptMinimap();refreshScriptValidation();scriptFindMount(input);scriptClipboardMount(input);scriptPrettyMount(doc);
   input.onscroll=syncScriptCodeScroll;
   input.oninput=()=>{
     const value=codeFoldUpdateAfterInput(input),d=docs.find(item=>item.id===editorDocId);if(!d)return;
@@ -249,4 +253,62 @@ function renderEnhancedScriptEditor(){
     editorResizeObserver.observe(input);editorResizeObserver.observe($('#scriptMinimap'));
   }
   requestAnimationFrame(()=>{if(document.querySelector('#scriptSource')===input)syncScriptCodeScroll()});
+}
+
+// v43: User-initiated clipboard text insertion/replacement. The canonical full
+// text is modified via scriptFindApplyChange, preserving Undo and autosave.
+let scriptClipboardOutsideHandler=null;
+function scriptClipboardMount(source){
+  if(scriptClipboardOutsideHandler)document.removeEventListener('pointerdown',scriptClipboardOutsideHandler);
+  const editor=source.closest('.script-editor'),toggle=$('#scriptClipboardToggle'),menu=$('#scriptClipboardMenu');
+  if(!editor||!toggle||!menu)return;
+  function close(){menu.hidden=true;toggle.setAttribute('aria-expanded','false')}
+  function open(){
+    menu.hidden=false;toggle.setAttribute('aria-expanded','true');
+    const buttonRect=toggle.getBoundingClientRect(),editorRect=editor.getBoundingClientRect();
+    menu.style.left=Math.max(5,Math.min(buttonRect.left-editorRect.left,editorRect.width-menu.offsetWidth-5))+'px';
+    const below=buttonRect.bottom-editorRect.top+4;
+    menu.style.top=(below+menu.offsetHeight>editorRect.height-6
+      ?Math.max(5,buttonRect.top-editorRect.top-menu.offsetHeight-4):below)+'px';
+  }
+  toggle.onclick=()=>menu.hidden?open():close();
+  toggle.onkeydown=event=>{
+    if(event.key==='ArrowDown'){event.preventDefault();open();$('#scriptClipboardInsert').focus()}
+    if(event.key==='Escape'){event.preventDefault();close()}
+  };
+  menu.onkeydown=event=>{
+    if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();toggle.focus()}
+  };
+  scriptClipboardOutsideHandler=event=>{
+    if(!menu.hidden&&!menu.contains(event.target)&&!toggle.contains(event.target))close();
+  };
+  document.addEventListener('pointerdown',scriptClipboardOutsideHandler);
+  async function applyClipboard(mode){
+    close();
+    const originalDoc=editorDocId;
+    if(!navigator.clipboard?.readText){toast('Zwischenablage benötigt HTTPS/localhost. Alternativ Strg+V verwenden.');return}
+    try{
+      // Capture the selection BEFORE the async browser permission prompt.
+      const a=source.selectionStart,b=source.selectionEnd;
+      const text=await navigator.clipboard.readText();
+      if(!source.isConnected||editorDocId!==originalDoc)return;
+      if(!text){toast('Die Zwischenablage enthält keinen Text');return}
+      if(mode==='replace'){
+        scriptFindApplyChange(text,text.length);
+      }else{
+        const state=codeFoldState(source);
+        let from=state?codeFoldMapToFull(state,a):a,to=state?codeFoldMapToFull(state,b):b;
+        if(state&&(from===null||to===null||codeFoldTouchesPlaceholder(state,a,b))){
+          source.setSelectionRange(a,b);codeFoldExpandAll(source);
+          from=source.selectionStart;to=source.selectionEnd;
+        }
+        if(from===null||to===null)return toast('Einfügeposition konnte nicht ermittelt werden');
+        const full=codeFoldFull(source);
+        scriptFindApplyChange(full.slice(0,from)+text+full.slice(to),from+text.length);
+      }
+      source.focus({preventScroll:true});syncScriptCodeScroll();
+    }catch(error){console.warn('Zwischenablage konnte nicht gelesen werden:',error);toast('Zwischenablage konnte nicht gelesen werden. Bitte Berechtigung prüfen oder Strg+V verwenden.')}
+  }
+  $('#scriptClipboardInsert').onclick=()=>applyClipboard('insert');
+  $('#scriptClipboardReplace').onclick=()=>applyClipboard('replace');
 }

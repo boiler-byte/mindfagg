@@ -1,4 +1,29 @@
-# mindfagg v41 - modulare Architektur
+# mindfagg v43 - modulare Architektur
+
+## v43: Syntax-Minimap, modal-sichere Pointer, persistente Ordner und Clipboard
+
+- `script/editor.js` färbt Minimap-Zeilen anhand der von `validateScriptContent` gelieferten Diagnosezeilen (`codeFoldVisibleIndex`) rot. Die Canvas-Ansicht wird bei jeder Aktualisierung der Syntaxprüfung neu gezeichnet. Die neue Toolbar-Aktion liest `navigator.clipboard.readText()` nur nach Benutzerinteraktion und übergibt Änderungen an `scriptFindApplyChange()`, ohne Quelltext an den Fold-Platzhaltern vorbei zu schreiben.
+- `script/find-replace.js` und `script/find-replace.css` fügen das zweiteilige Clipboard-Menü als **Geschwisterelement** der scrollbaren Toolbar hinzu. Es wird außerhalb der Toolbar positioniert, damit es auf Desktop- und Mobilansichten nicht abgeschnitten wird; auf Mobilgeräten öffnet es nach oben.
+- `ui/dialogs.js` schließt durch den Backdrop nur nach einer `pointerdown`- und `pointerup`-Sequenz, deren beide Ziele der Backdrop waren. Textauswahl/Dragging, deren Presspunkt in einem Dialog liegt, schließen ihn nicht.
+- `workspace/files.js`, `ui/router.js`, `ui/bindings.js`, `workspace/files.css` und `index.html` integrieren den Collapse-All-Button und speichern geschlossene Ordner über `mfWorkspaceCollapsedFolders` projekt- und pfadbezogen in `localStorage`. Fehlende Einträge entsprechen standardmäßig geöffneten Ordnern. Beim Projektwechsel werden gespeicherte geschlossene Ordner nicht automatisch geöffnet.
+- `workspace/files.js` zeigt abhängig von Dateien **oder** Unterordnern eine der beiden Löschaktionen. Für nichtleere Ordner löscht `workspaceCommitChanges()` Dateien und explizite Unterordner gemeinsam über die bestehende transaktionale Undo-Historie. Ordnerumbenennung übernimmt gespeicherte offene/geschlossene Zustände.
+- `sw.js`, `module-manifest.json` und `tests/check-structure.mjs` setzen die Cache- und App-Version auf **v43**. Kein neues Laufzeitmodul, keine Schema- oder ZIP-Änderung. `tests/v43-browser.py` prüft die neuen UI-Flows mit simuliertem lokalem Transaktionsspeicher.
+
+---
+
+# Versionshistorie: v42
+
+## v42: native Datalists in GitHub-Zuordnung und Zwischenablage-Import
+
+- `workspace/github.js`: `openGithubDialog()` verknüpft das Repository-`input` über `list` mit einem nativen `datalist`-Element. `githubListAccountRepositories()` lädt weiterhin nur token-berechtigte Repositories, paginiert bis zu zehn Mal und hängt neue Optionen schrittweise an, ohne ein eigenes Fokus-/Tastatur-/Dropdown-System. Ein veralteter Abruf darf keinen anderen Dialog oder Token befüllen. Die bisherige Link-Aktualisierung und die freie Repository-Eingabe bleiben erhalten.
+- `workspace/github.css`: Entfernt die Regeln für den eigenen Popup-/Listen-Controller; nur die unaufdringliche API-Statusmeldung bleibt.
+- `workspace/io.js`: `workspaceClipboardPreferredExtension()` bestimmt die zur Zwischenablage passende Erweiterung. `workspaceClipboardFilesInFolder()` berücksichtigt ausschließlich Dateien im gewählten Ordner und im aktuellen Projekt. Der Clipboard-Dialog befüllt eine native Datalist, die beim Zielordnerwechsel erneuert wird. `workspaceClipboardDefaultName()` setzt bei HTML in einem Ordner ohne `.html`/`.htm` den Vorschlagsnamen `index.html`. Manuell geänderte Dateinamen werden nicht überschrieben; die bestehenden Validierungs- und Konfliktregeln bleiben maßgeblich.
+- `sw.js`, `module-manifest.json`: Cache-/Anwendungsversion `v42` für die vollständige offline-fähige App. Keine Änderung an IndexedDB, ZIP-Datenformat oder GitHub-Verbindungsschema.
+- `tests/v42-browser.py`: Prüft GitHub-Paginierung und -Fehler sowie ordner- und endungsabhängige Dateinamenvorschläge, HTML-Spezialfall und den unveränderten Datei-Upload-Dialog.
+
+---
+
+# Versionshistorie: v41
 
 ## v41: Pretty Code und API-basierte GitHub-Vorschläge
 
@@ -41,7 +66,7 @@ v32 baut auf der v30-Strukturrefaktorierung auf. Der neue Import-/Export-Bereich
 ## Verzeichnisstruktur
 
 ```text
-mindfagg-v30/
+mindfagg-v43/
 ├── index.html                HTML-Grundgerüst und Ressourcenreferenzen
 ├── module-manifest.json     Registrierte lokale Scripts, Styles und Cache-Assets
 ├── manifest.webmanifest     PWA-Metadaten

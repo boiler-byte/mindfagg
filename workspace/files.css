@@ -13,3 +13,8 @@
 .audio-preview h2{font-size:17px;line-height:1.35;max-width:100%;overflow-wrap:anywhere;margin:0}
 .audio-preview audio{display:block;width:min(100%,520px);min-width:0;min-height:48px;accent-color:var(--accent)}
 @media(max-width:850px){.audio-preview{padding:20px 12px;gap:16px}.audio-preview audio{width:100%}}
+
+/* v43: collapse-all control only appears while an expanded folder is visible. */
+.collapse-folders-button{display:grid;place-items:center;min-width:32px;height:31px;padding:4px 6px}
+.collapse-folders-button[hidden]{display:none!important}
+.collapse-folders-button svg{display:block}

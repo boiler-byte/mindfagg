@@ -57,3 +57,11 @@
   .script-find-action{min-width:46px;padding:4px;font-size:10px}
   .script-find-help{font-size:9px}
 }
+
+/* v43: clipboard menu is a sibling of the horizontally scrollable toolbar,
+   preventing the overflow clipping that affects nested dropdowns. */
+.script-clipboard-menu{position:absolute;z-index:22;min-width:210px;padding:5px;background:#243046;border:1px solid #566984;border-radius:9px;box-shadow:0 10px 30px #0009}
+.script-clipboard-menu[hidden]{display:none!important}
+.script-clipboard-menu button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:9px 12px;border-radius:6px;background:transparent;text-align:left;color:#eef3ff;font-weight:700;font-size:12px}
+.script-clipboard-menu button small{color:#acbbd2;font-size:10px;font-weight:450}
+.script-clipboard-menu button:hover,.script-clipboard-menu button:focus-visible{background:color-mix(in srgb,var(--accent) 23%,#28374c);outline:1px solid var(--accent)}

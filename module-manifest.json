@@ -1,5 +1,5 @@
 {
-  "version": "v43",
+  "version": "v48",
   "runtime": "classic-scripts",
   "stylesheets": [
     "css/foundation.css",
@@ -21,7 +21,8 @@
     "script/find-replace.css",
     "ui/settings.css",
     "css/code-folding.css",
-    "preview/html-preview.css"
+    "preview/html-preview.css",
+    "workspace/patch-tool.css"
   ],
   "scripts": [
     "core/state.js",
@@ -57,6 +58,8 @@
     "ui/dialogs.js",
     "workspace/io.js",
     "workspace/github.js",
+    "workspace/patch-tool.js",
+    "ui/browser-back.js",
     "ui/bindings.js",
     "core/service-worker.js"
   ],
@@ -84,6 +87,7 @@
     "./ui/settings.css",
     "./css/code-folding.css",
     "./preview/html-preview.css",
+    "./workspace/patch-tool.css",
     "./core/state.js",
     "./core/database.js",
     "./core/history.js",
@@ -117,6 +121,8 @@
     "./ui/dialogs.js",
     "./workspace/io.js",
     "./workspace/github.js",
+    "./workspace/patch-tool.js",
+    "./ui/browser-back.js",
     "./ui/bindings.js",
     "./core/service-worker.js",
     "./icons/icon.svg",

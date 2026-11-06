@@ -1,6 +1,6 @@
 'use strict';
 // Projekt- und Dokumentdialoge, Knotenformulare, Einstellungen sowie ZIP-Import/Export.
-function openModal(html){$('#modal').classList.remove('node-modal');$('#modal').innerHTML=html;$('#modalBack').classList.remove('hidden')}
+function openModal(html){$('#modal').classList.remove('node-modal','patch-modal');$('#modal').innerHTML=html;$('#modalBack').classList.remove('hidden')}
 function closeModal(){if(typeof githubBusy!=='undefined'&&githubBusy&&($('#githubModal')||$('#githubConflictModal')))return;$('#modalBack').classList.add('hidden')}
 // A drag starting inside a dialog may end on the backdrop (e.g. when selecting
 // input text). Its synthesized click must NOT dismiss the dialog.

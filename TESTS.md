@@ -1,4 +1,101 @@
-# mindfagg v43 - Tests und Regressionen
+# mindfagg v48 - UI-Regressionspruefung
+
+1. Ohne gespeicherten Access Token erscheint kein Repository-Button. **Patch-Tool** und **Teilen** sind weiterhin nebeneinander sichtbar und oeffnen die bisherigen Dialoge.
+2. Nach hinterlegtem GitHub-Token erscheint der Repository-Button. Nach Entfernung des Tokens verschwindet er sofort. Bei Projektwechsel wird sein Zustand konsistent aktualisiert.
+3. `⋯` zeigt als Tooltip **Download** und im Menue nur ZIP-Download und aktuelle Datei. Der Untertext der aktuellen Datei ist der echte Dateiname inklusive Erweiterung. Dateinamen mit HTML-Sonderzeichen bleiben als Text sichtbar.
+4. In den Menues haben **Neue Datei** und **Aktuelle Datei herunterladen** Dokument-Icons, **Neuer Ordner** ein Ordner-Icon und **ZIP importieren** sowie **ZIP herunterladen** ein ZIP-Ordner-Icon (Reissverschluss).
+5. Bei fehlendem Projekt sind die Direktbuttons deaktiviert. Auf Desktop und Mobil sind beide Buttons nebeneinander lesbar.
+6. `node tests/check-structure.mjs` und `python tests/v48-browser.py` erfolgreich. Danach die bisherigen JavaScript- und Browser-Regressionen wiederholen.
+
+---
+
+# mindfagg v47 - Tests und Regressionen
+
+## Neu in v47
+
+- [ ] **Teilen - Globale Auswahl:** Oberhalb der gruppierten Dateiliste steht `Alle waehlen`. Standardmaessig sind alle Dateien angehakt. Ein Klick deaktiviert alle Verzeichnis- und Datei-Checkboxen und sperrt den Share-Button. Erneut aktivieren stellt die gesamte Auswahl wieder her.
+- [ ] Bei Teilauswahl ist die globale Checkbox `indeterminate`; bei einer teilweise markierten Gruppe ist auch deren Checkbox `indeterminate`. Beidseitige Synchronisation zwischen allen drei Ebenen testen.
+- [ ] **Groessen:** Jede Datei zeigt ihre tatsaechlich exportierte Dateigroesse. Binaere Inhalte, Unicode (UTF-8), unveraenderte Originalbytes und leere Dateien pruefen; die Anzeige darf nicht die komprimierte ZIP-Groesse sein.
+- [ ] **Summen:** Direkt unter der Dateiliste stehen `X von Y gewaehlt` und `Gesamtgroesse: ...`. Die Summe veraendert sich bei globaler, gruppenweiser und einzelner Auswahl. Ohne Auswahl: 0 B. Leeres Projekt: globale Checkbox deaktiviert, Summe 0.
+- [ ] **Patch-Phrase kopieren:** Button links von `Abbrechen` im Teilen-Dialog. Kopiert exakt die aktuelle KI-Phrase aus dem Patch-Tool, ohne den Dialog zu schliessen; Clipboard-API und Fallback pruefen.
+- [ ] **Weiterhin teilen:** Nur ausgewaehlte Dateien als ZIP oder Einzeldateien versenden, inklusive Pfad-/Namenskollisionen, aller Elternordner, nativer Share-Abbruch und Download-Fallback.
+- [ ] **Browser History Back:** Ein neu gestarteter App-Tab faengt die Zurueck-Taste ab. Bei offenem Dialog wird nur der Dialog geschlossen. Ohne Dialog: ein Druck oeffnet die mobile Sidebar, der naechste schliesst sie. Wiederholte Rueck-Navigation darf die Seite nicht verlassen.
+- [ ] Ist beim Dialog ein mobiles Menue bereits offen, darf Back zunaechst nur den Dialog schliessen; weiterer Back-Druck schliesst das Menue. Auf breitem Bildschirm Sidebar ein-/ausblenden. Ein durch laufende GitHub-Aktion gesperrter Dialog darf nicht unterlaufen werden.
+- [ ] Status nach Reload, Desktop/Mobil-Wechsel, Fokus, Tastatur, ZIP-Export, Undo/Redo und Offline-Neustart pruefen.
+
+**Automatisiert:** `node tests/check-structure.mjs`; `node tests/v44-patch.mjs`; `node tests/v45-patch.mjs`; `python tests/v47-browser.py` und `python tests/v46-browser.py`. Die lokalen Browser-Skripte nutzen eingebettete Module (ohne echtes IndexedDB oder Service-Worker), zusaetzlich native mobile Hardware-Back- und PWA-Installation im Zielbrowser testen.
+
+---
+
+# mindfagg v46 - Tests und Regressionen
+
+## Neu in v46
+
+- [ ] **Patch pruefen:** Eigenstaendiger Button existiert nicht. Nach jeder manuellen Texteingabe wird die vorherige Vorschau versteckt und der **rote** klickbare Text **„Patch prüfen, um die Vorschau zu aktualisieren.“** eingeblendet. Maus, Tab/Enter/Leertaste pruefen.
+- [ ] JSON aus Zwischenablage, Datei, Drag-and-drop und Projekt einlesen. Neues JSON aktualisiert die Vorschau sofort; Fehler zeigen das bisherige Formatpruefungs-Feedback.
+- [ ] Jede `patch-preview-file` ist beim ersten Laden zugeklappt. Ein Klick auf die Datei-Kopfzeile zeigt die einzelnen Hunks/Operationen; nochmaliger Klick klappt zu.
+- [ ] Kopfzeile enthaelt `operation` und **`patch / found / total`**; fuer einen Updateblock mit zwei Hunks und nur einem anwendbaren Treffer: zuerst `2 / 1 / 2`. Wird ein Hunk abgewaehlt, steht `1 / 1 / 2`; der Block bleibt aufgeklappt.
+- [ ] Mehrere auf-/zugeklappte Dateibloecke unabhaengig testen. Neuer Patch setzt den Zustand zurueck, die angewaehlten Fehler verhindern weiter das Einspielen.
+- [ ] **Teilen** mit Share-Icon im `⋯`-Menue oeffnet Dialog. Die Radios **Als ZIP** / **Als Einzeldateien** lassen sich wechseln (ZIP ist Default).
+- [ ] Dateiliste zeigt die Kopfzeile **root (Wurzel)** und alle Verzeichnisse mit vollem relativen Pfad; eine **Alle wählen**-Checkbox pro Gruppe. Jede Datei hat eine eigene Checkbox. Angewaehlte Dateien beim Wechsel der Versandart beibehalten.
+- [ ] Gruppen-Checkbox deaktiviert/aktiviert nur die Dateien ihrer Gruppe. Ein einzeln abgewaehlter Dateieintrag setzt die Gruppen-Checkbox auf `indeterminate`, erneutes Alle wählen markiert die Gruppe komplett.
+- [ ] Ohne Auswahl ist Teilen deaktiviert; bei leerer Root-Gruppe ist deren Checkbox deaktiviert, die Ueberschrift bleibt sichtbar.
+- [ ] Selektives ZIP teilen und wieder importieren: nur angewaehlte Dateien, ihre noetigen Ordner und passende Workspace-Metadaten. Normaler vollstaendiger ZIP-Download enthaelt weiterhin alle Dateien und auch leere Ordner.
+- [ ] Einzeldateien an das native Share-Menue uebergeben; Bytes und MIME pruefen. Gleichnamige Dateien aus verschiedenen Ordnern haben eindeutige Share-Namen.
+- [ ] Ohne `navigator.share` / bei `canShare() === false` werden nur die angewaehlten Dateien heruntergeladen. Native Freigabe abgebrochen (`AbortError`) erzeugt keinen Download; bei anderen Share-Fehlern wird ein Download angeboten.
+- [ ] Desktop, Smartphone, Tastaturfokus, Dialog-Backdrop und bestehende v45-Patch-, Undo/Redo-, Editor- und ZIP-Funktionen durchtesten.
+
+**Automatisiert in v46:** `node tests/check-structure.mjs`, `node tests/v44-patch.mjs`, `node tests/v45-patch.mjs`, `python tests/v44-browser.py`, `python tests/v45-browser.py`, `python tests/v46-browser.py` und vorhandene v36-v43-Tests.
+
+**Grenze der Browser-Testumgebung:** Produktionsskripte werden zum Testen in ein temporaeres Dokument eingebettet; die Share-API wird kontrolliert simuliert. Ein tatsaechlicher System-Share-Dialog, Mehrfachdownloads und Service-Worker-Aktualisierung muessen unter HTTPS oder localhost mit echten Browserberechtigungen bestaetigt werden.
+
+---
+
+## Versionshistorie: v45
+
+
+## Neu in v45
+
+- [ ] Das Patch-Tool zeigt links vom Button **Ausgewaehlte Vorgaenge einspielen** die standardmaessig deaktivierte Checkbox **Patch speichern**.
+- [ ] Checkbox aktiviert: Nach erfolgreicher Ausfuehrung erscheint im Projekt-Root genau eine Datei mit dem Namen `YYYY-MM-DD-HHmmss.patch.json` (6-stellige Uhrzeit, z. B. `2026-11-06-213105.patch.json`). Bei einer gleichnamigen Datei wird ein neuer, freier Sekundenwert genutzt.
+- [ ] Gespeicherte Datei laden: Sie enthaelt nur angehakte Vorgangs-Bloecke und bei `update` nur angehakte Hunks; das Format ist gueltig, und die Datei erscheint in der Liste `.patch.json`.
+- [ ] Checkbox aus: Keine neue Patch-Datei. Einspielen und Rueckgaengig funktionieren unveraendert.
+- [ ] Alle fuenf Operationen `create`, `update`, `replace`, `delete`, `rename` einzeln und kombiniert testen; alle sind anfangs angehakt. Einzelne Update-Hunks lassen sich abwaehlen.
+- [ ] `create` in neuem Unterordner und `rename` in einen anderen Ordner: Sidebar zeigt die erforderlichen Ordner. Nach Undo verschwindet die neu erstellte Struktur, nach Redo wird sie wiederhergestellt.
+- [ ] Mehrere aufeinander folgende Operationen auf dieselbe Datei (z. B. `create` -> `update` -> `rename`) betreffen den jeweiligen Zwischenstand. `replace` mit leerem `content` wird akzeptiert.
+- [ ] `delete`/`rename` auch auf Binaerdateien; `create`/`update`/`replace` fuer Binaerdaten zurueckweisen.
+- [ ] Unbekannte Operationen, zusaetzliche Felder, absolute/Pfad-Traversal-Namen, Zielkonflikte (auch unterschiedliche Gross-/Kleinschreibung), ungültige Hunks und fehlende Dateien verweigern das Einspielen.
+- [ ] Die Vorschau schreibt nichts in die Dateien. Eine fehlgeschlagene ausgewaehlte Operation verhindert alle Aenderungen, selbst wenn andere gueltig sind.
+- [ ] Mit **einem Undo** sowohl alle Dateioperationen als auch eine ggf. gespeicherte Patch-Datei rueckgaengig machen. Mit **einem Redo** alles wiederherstellen.
+- [ ] Altes v44-Format ohne `operation` bleibt als `update` nutzbar. Angepasste kopierbare KI-Phrase enthaelt alle fuenf Formate und korrekte Feldangaben.
+- [ ] Auf Desktop und Smartphone die responsive Buttonzeile sowie HTML-Escaping in der Vorschau pruefen; Service-Worker-Cache `mindfagg-v45` aktualisieren.
+
+**Automatisierte Tests:** `node tests/check-structure.mjs`, `node tests/v44-patch.mjs`, `node tests/v45-patch.mjs`, `python tests/v44-browser.py`, `python tests/v45-browser.py` sowie alle zuvor vorhandenen Regressionstests.
+
+**Testumgebung:** Die Browser-Tests verwenden in dieser Umgebung in die Seite eingebettete Originalskripte und einen transaktionsbasierten IndexedDB-Simulator. Echte Persistenz ueber einen Neustart, PWA-Service-Worker und native Clipboard-Berechtigungen manuell unter HTTPS/localhost pruefen.
+
+---
+
+## Versionshistorie: v44
+
+## Neu in v44
+
+- [ ] Collapse-All-Button: gestrichelter Rahmen mit Minus, nur bei sichtbaren offenen Ordnern.
+- [ ] Sidebar `+` zeigt **Patch-Tool**; Dialog enthaelt **Einspielen** und **Erstellen**.
+- [ ] JSON manuell einfuegen, per Zwischenablage-Button laden, per `.json`-Dateiauswahl laden und per Drag&Drop importieren.
+- [ ] Projektinterne `.patch.json`-Datei auswaehlen und laden; andere Dateiendungen / Projekte nicht anbieten.
+- [ ] Ungültiges JSON, fehlende Pflichtfelder, zusätzliche Felder, leere Suchtexte, ungültige occurrence, unsichere Pfade, fehlende und binaere Dateien zurueckweisen bzw. als ungültig markieren.
+- [ ] Preview zeigt jeden Hunk und die Beschreibung der Datei; anfangs alle Haken gesetzt. Fehlerhafte Vorgaenge koennen gezielt abgewaehlt werden.
+- [ ] Literal-Treffer Nr. 2 sowie aufeinanderfolgende Ersetzungen im selben Dokument pruefen; Einspielen deaktiviert, wenn ein ausgewaehlter Vorgang nicht passt.
+- [ ] Mehrere Dateien auf einmal patchen, mit **einem** Rueckgaengig alle Originaltexte zurueckholen, mit Redo beide wiederherstellen.
+- [ ] Nach Editor-, Ordner- und Projektwechseln ist der Patch-Dialog weiterhin korrekt und die Sidebar bleibt benutzbar.
+- [ ] Prompt-Erweiterung kopieren; Browserberechtigungen und Offline-Verhalten unter HTTPS/localhost manuell pruefen.
+
+**Automatisiert:** `node tests/check-structure.mjs`, `node tests/v44-patch.mjs`, `python tests/v44-browser.py`, danach die v43- und aelteren Regressionen.
+
+---
+
+## Versionshistorie: v43
 
 ## Neu in v43
 

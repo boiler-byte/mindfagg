@@ -1,0 +1,73 @@
+/* v46: contextual patch validation and accessible, collapsed file previews. */
+.modal.patch-modal{width:min(920px,100%);max-height:calc(100dvh - 28px);padding:20px 22px;overscroll-behavior:contain}
+.patch-tool{display:grid;gap:16px;min-width:0}
+.patch-tool>p{margin:0;color:#a5b4cc}
+.patch-section{border:1px solid #38485f;background:#131d2b;border-radius:12px;padding:15px;min-width:0}
+.patch-section h3{font-size:15px;margin:0 0 8px;color:#ecf1fc}
+.patch-section>p{margin:0 0 12px}
+.patch-section .field{margin:8px 0 11px}
+.patch-section .field textarea{min-height:125px;height:clamp(125px,19dvh,240px);resize:vertical;background:#0c1421;color:#e7edf9;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}
+.patch-input-actions{display:flex;flex-wrap:wrap;gap:7px;margin:7px 0 11px}
+.patch-dropzone{border:2px dashed #4d607c;border-radius:9px;background:#121c2b;color:#b2c4db;text-align:center;padding:15px 10px;font-size:12px;transition:background .14s,border-color .14s}
+.patch-dropzone.drag-over,.patch-dropzone:focus-visible{background:color-mix(in srgb,var(--accent) 14%,#121c2b);border-color:var(--accent);outline:none;color:#f0f4ff}
+.patch-project-select{display:grid;gap:6px;margin:12px 0}
+.patch-project-select label{font-size:11px;font-weight:700;color:#abb9ce}
+.patch-project-controls{display:flex;gap:7px;align-items:stretch}
+.patch-project-controls select{flex:1;min-width:0;border:1px solid #39485e;background:#101724;color:#edf2ff;padding:9px;border-radius:8px;font-size:12px}
+.patch-project-controls button{flex:none}
+.patch-message{margin:12px 0;padding:9px 11px;border:1px solid #3e5369;background:#17283a;color:#c4d5e5;border-radius:8px;font-size:12px;overflow-wrap:anywhere}
+.patch-message[data-kind="error"]{border-color:#905065;background:#35212c;color:#ffd5dd}
+.patch-preview{display:grid;gap:11px;margin:12px 0;min-width:0}
+.patch-preview h4{margin:0;display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:13px}
+.patch-preview h4 span{font-size:11px;color:#a8b6c9;font-weight:500}
+.patch-preview-file{min-width:0;border:1px solid #38465b;border-radius:9px;background:#182231;overflow:hidden}
+.patch-preview-file-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;padding:10px 12px;background:#1c2a3b;font-size:12px;cursor:pointer;list-style:none}
+.patch-preview-file-head::-webkit-details-marker{display:none}
+.patch-preview-file-head::before{content:"";width:7px;height:7px;flex:none;border-right:2px solid #bdc8da;border-bottom:2px solid #bdc8da;transform:rotate(-45deg);transition:transform .12s}
+.patch-preview-file[open]>.patch-preview-file-head::before{transform:rotate(45deg)}
+.patch-preview-file-head:hover,.patch-preview-file-head:focus-visible{background:#2a3850;outline:none;color:#fff}
+.patch-preview-file-head:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+.patch-preview-file-title{display:flex;min-width:0;flex:1 1 180px;flex-wrap:wrap;gap:3px 9px;align-items:baseline}
+.patch-preview-file-title strong{overflow-wrap:anywhere;color:#e8edfa}
+.patch-preview-file-title small{flex-basis:100%;color:#9fb1c9;font-size:11px}
+.patch-preview-file-meta{display:flex;flex:0 1 auto;align-items:center;gap:10px;flex-wrap:wrap}
+.patch-preview-operation-type{color:var(--accent-foreground);border:1px solid #555f80;background:#252c46;border-radius:5px;padding:2px 7px;font:700 11px/1.4 ui-monospace,monospace}
+.patch-preview-file-counts{display:flex;gap:8px;align-items:center;color:#a6b7d0;white-space:nowrap;font:11px/1.4 ui-monospace,monospace}
+.patch-preview-file-counts strong{color:#eef3fd;font-weight:700}
+.patch-preview-file-body{border-top:1px solid #38465b}
+.patch-validate-link{border:0;background:transparent;color:#ff8195;font:700 12px/1.45 ui-sans-serif,system-ui,sans-serif;padding:0;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.patch-validate-link:hover,.patch-validate-link:focus-visible{color:#ffd4dc;outline-offset:3px}
+.patch-message[data-kind="needs-validation"]{background:#301d28;border-color:#8c4355;color:#ff9aa9}
+.patch-preview-operation{padding:10px 12px;border-top:1px solid #303e51}
+.patch-preview-operation:first-child{border-top:0}
+.patch-preview-operation.patch-invalid{background:#45233430}
+.patch-operation-title{display:flex;flex-wrap:wrap;align-items:center;gap:7px 10px;cursor:pointer;font-size:12px}
+.patch-operation-title input{accent-color:var(--accent);height:17px;width:17px;flex:none}
+.patch-operation-status{font-size:11px;color:#96d2bb;overflow-wrap:anywhere}
+.patch-operation-status.is-error{color:#ffb8c5}
+.patch-preview-diff{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+.patch-preview-diff>div{min-width:0}
+.patch-preview-diff small{display:block;margin-bottom:4px;color:#93a7c0;font:700 10px/1.5 ui-sans-serif,system-ui,sans-serif}
+.patch-preview-diff pre,.patch-prompt{margin:0;overflow:auto;max-height:180px;white-space:pre-wrap;overflow-wrap:anywhere;background:#0e1723;border:1px solid #324055;border-radius:7px;color:#c5d5e9;padding:9px;font:11px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}
+.patch-preview-diff pre{min-height:45px}
+.patch-preview-diff pre em{color:#8ca0bb}
+.patch-action-row{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.patch-save-option{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#d1e0f3;cursor:pointer;user-select:none;margin-right:auto}
+.patch-save-option input{width:17px;height:17px;accent-color:var(--accent);flex:none}
+.patch-save-note{display:block;margin-top:8px;color:#90a2bd;font-size:10px;line-height:1.5}
+.patch-operation-hint{margin:8px 0 0;color:#b6c9df;font-size:11px;overflow-wrap:anywhere}
+.patch-preview-single{grid-template-columns:minmax(0,1fr)}
+.patch-create .patch-prompt{max-height:185px;margin-bottom:10px;user-select:text}
+.patch-tool>.modalactions{margin:0}
+@media(max-width:650px){
+ .modal.patch-modal{padding:14px;max-height:calc(100dvh - 16px)}
+ .patch-tool{gap:11px}
+ .patch-section{padding:11px}
+ .patch-preview-diff{grid-template-columns:minmax(0,1fr)}
+ .patch-input-actions .btn{flex:1 1 auto}
+ .patch-action-row .btn{width:100%}
+ .patch-action-row .patch-save-option{width:100%}
+ .patch-preview-file-head{align-items:flex-start}
+ .patch-preview-file-meta{flex:1 1 100%;justify-content:space-between;padding-left:19px}
+ .patch-preview-file-counts{font-size:10px}
+}

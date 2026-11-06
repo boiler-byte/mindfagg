@@ -49,3 +49,12 @@
 /* v42: native <datalist> for the repository input; no custom popup. */
 .github-repo-lookup{margin:5px 0 0;color:#a8bacf;font-size:10px;line-height:1.5}
 .github-repo-lookup:empty{display:none}
+
+/* v48: token-gated repository action and two persistent file actions. */
+.github-sync-button[hidden]{display:none}
+.workspace-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0 7px 13px}
+.workspace-quick-button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:39px;padding:8px 7px;border:1px solid #3b4b63;border-radius:9px;background:#192537;color:#c4d2e5;font-size:11px;font-weight:700;white-space:nowrap}
+.workspace-quick-button svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.workspace-quick-button:hover:not(:disabled),.workspace-quick-button:focus-visible{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,#192537);color:var(--accent-foreground)}
+.workspace-quick-button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:380px){.workspace-quick-button{gap:5px;padding:8px 5px;font-size:10px}}

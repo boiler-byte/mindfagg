@@ -12,6 +12,7 @@ function render(){
   persistDocId();
   applyProjectAccent(p);
   githubUpdateIndicator(p);
+  for(const id of ['#workspacePatchQuick','#workspaceShareQuick'])$(id).disabled=!p;
   githubScheduleLocalStatus(p?.id);
   $('.app').classList.toggle('settings-open',appSettingsOpen);
   $('#projectLabel').innerHTML=`<select id="projectSelect" aria-label="Projekt auswählen, nach letzter Änderung sortiert">${projectOptionsHtml()}</select><button type="button" class="project-settings-button" id="projectSettings" aria-label="Projekteinstellungen" title="Status-Bezeichnungen und -Farben bearbeiten">⚙</button>`;

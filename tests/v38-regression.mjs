@@ -53,6 +53,6 @@ inspect.error="SecurityError: Failed to execute 'open' on 'IDBFactory': The docu
 assert.equal(vm.runInContext('htmlPreviewStorageBlockedError(error)',inspect),true);
 inspect.error='Uncaught ReferenceError: nothing is defined';
 assert.equal(vm.runInContext('htmlPreviewStorageBlockedError(error)',inspect),false);
-assert.equal(JSON.parse(load('module-manifest.json')).version,'v43');
-assert.match(load('sw.js'),/const VERSION='mindfagg-v43'/);
+assert.equal(JSON.parse(load('module-manifest.json')).version,'v48');
+assert.match(load('sw.js'),/const VERSION='mindfagg-v48'/);
 console.log('PASS: v38 preview permissions default off, persist, recognize blocked storage, reload, and update cache version');

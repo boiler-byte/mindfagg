@@ -12,18 +12,26 @@ function toggleWorkspaceActionMenu(kind,anchor){
   if(workspaceActionMenu?.dataset.kind===kind){closeWorkspaceActionMenu();return}
   closeWorkspaceActionMenu();
   const options=kind==='add'?[
-    ['new-file','file-plus','Neue Datei','Markdown oder Script'],
-    ['new-folder','folder-plus','Neuer Ordner',''],
+    ['new-file','file','Neue Datei','Markdown oder Script'],
+    ['new-folder','folder','Neuer Ordner',''],
     ['upload','upload','Dateien hochladen','Mehrfachauswahl'],
     ['paste','clipboard','Aus Zwischenablage','Text, Bilder oder Dateien'],
-    ['zip-import','archive','ZIP importieren','Projekt oder Ordner']
+    ['zip-import','zip','ZIP importieren','Projekt oder Ordner']
   ]:[
-    ['zip-download','download','ZIP herunterladen','Aktueller Workspace'],
-    ['zip-share','share','ZIP teilen','System-Teilen-Dialog'],
-    ['file-download','file','Aktuelle Datei herunterladen','Originalformat']
+    ['zip-download','zip','ZIP herunterladen','Aktueller Workspace'],
+    ['file-download','file','Aktuelle Datei herunterladen',documentNow()?fileLabel(documentNow()):'']
   ];
   const menu=document.createElement('div');menu.id='workspaceActionsMenu';menu.dataset.kind=kind;menu.className='workspace-actions-menu';menu.role='menu';menu.setAttribute('aria-label',kind==='add'?'Dateien hinzufügen':'Workspace-Aktionen');
-  menu.innerHTML=options.map(([action,icon,label,detail])=>`${kind==='add'&&action==='upload'?'<div class="workspace-menu-separator" role="separator" aria-hidden="true"></div>':''}<button role="menuitem" type="button" data-workspace-action="${action}" ${(!projectId||action==='file-download'&&!documentNow())?'disabled':''}><span class="workspace-menu-icon" aria-hidden="true">${{ 'file-plus':'▤','folder-plus':'▱','upload':'⇧','clipboard':'▣','archive':'▥','download':'⇩','share':'↗','file':'⇩'}[icon]}</span><span><strong>${label}</strong>${detail?`<small>${detail}</small>`:''}</span></button>`).join('');
+  // Static SVGs avoid font-dependent glyphs; ZIP is a folder with a zipper.
+  const svg=(paths)=>`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+  const icons={
+    file:svg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/>'),
+    folder:svg('<path d="M20 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2Z"/>'),
+    zip:svg('<path d="M20 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2Z"/><path d="M15 7v2m0 2v2m0 2v1"/><rect x="13.5" y="16" width="3" height="2.5" rx=".5"/>'),
+    upload:svg('<path d="M12 16V4M7 9l5-5 5 5M4 17v3h16v-3"/>'),
+    clipboard:svg('<rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4.5V3h6v1.5M8 11h8M8 15h8"/>')
+  };
+  menu.innerHTML=options.map(([action,icon,label,detail])=>`${kind==='add'&&action==='upload'?'<div class="workspace-menu-separator" role="separator" aria-hidden="true"></div>':''}<button role="menuitem" type="button" data-workspace-action="${action}" ${(!projectId||action==='file-download'&&!documentNow())?'disabled':''}><span class="workspace-menu-icon" aria-hidden="true">${icons[icon]||''}</span><span><strong>${escapeHtml(label)}</strong>${detail?`<small>${escapeHtml(detail)}</small>`:''}</span></button>`).join('');
   document.body.appendChild(menu);workspaceActionMenu=menu;
   const box=anchor.getBoundingClientRect(),r=menu.getBoundingClientRect();
   menu.style.left=Math.max(8,Math.min(innerWidth-r.width-8,box.right-r.width))+'px';
@@ -44,36 +52,173 @@ async function workspaceExecuteAction(action){
     else if(action==='upload')$('#workspaceFileInput').click();
     else if(action==='zip-import')$('#workspaceZipInput').click();
     else if(action==='paste')await pasteWorkspaceClipboard();
+    else if(action==='patch'){setMobileMenu(false);openPatchTool()}
     else if(action==='zip-download'){setMobileMenu(false);await downloadWorkspaceZip()}
-    else if(action==='zip-share'){setMobileMenu(false);await shareWorkspaceZip()}
+    else if(action==='zip-share'){setMobileMenu(false);openWorkspaceShareDialog()}
     else if(action==='file-download'){setMobileMenu(false);await downloadWorkspaceCurrentFile()}
   }catch(error){console.error(error);toast('Dateiaktion fehlgeschlagen: '+error.message)}
 }
 function workspaceCurrentFiles(){const p=project();return p?docs.filter(d=>d.projectId===p.id):[]}
-async function workspaceBuildZip(){
-  await flushMapInlineEdit();await flushSource();
+// Construct a ZIP synchronously so it can also be passed directly to the
+// native Share API from a user click (without losing transient activation).
+function workspaceBuildZipSelection(selectedFiles=workspaceCurrentFiles(),includeAllFolders=true){
   const p=project();if(!p)throw Error('Kein Workspace ausgewählt');
-  const entries=[],occupied=new Set(),files=workspaceCurrentFiles();
-  for(const folder of workspaceFolderPaths(p)){const path=folder+'/';if(!occupied.has(path)){entries.push({path,bytes:new Uint8Array()});occupied.add(path)}}
+  const files=[...selectedFiles];
+  const folders=includeAllFolders?workspaceFolderPaths(p):
+    [...new Set(files.flatMap(d=>workspaceFolderAncestors(workspacePath(d))))].sort((a,b)=>a.localeCompare(b,'de',{numeric:true}));
+  const entries=[],occupied=new Set();
+  for(const folder of folders){const path=folder+'/';if(!occupied.has(path)){entries.push({path,bytes:new Uint8Array()});occupied.add(path)}}
   for(const d of files){const path=workspacePath(d);if(occupied.has(path))throw Error('Doppelter Pfad: '+path);occupied.add(path);entries.push({path,bytes:exportFileBytes(d)})}
-  const metadata={format:'mindfagg-workspace',version:32,name:p.name,accentColor:projectAccentColor(p),statusSettings:statusSettingsFor(p),folders:p.folders||[],documents:files.filter(d=>fileKind(d)==='markdown').map(d=>({file:workspacePath(d),name:d.name,mapCollapsedPaths:d.mapCollapsedPaths||[],mapPositions:d.mapPositions||{}}))};
+  const metadata={format:'mindfagg-workspace',version:32,name:p.name,accentColor:projectAccentColor(p),statusSettings:statusSettingsFor(p),folders:includeAllFolders?(p.folders||[]):folders,
+    documents:files.filter(d=>fileKind(d)==='markdown').map(d=>({file:workspacePath(d),name:d.name,mapCollapsedPaths:d.mapCollapsedPaths||[],mapPositions:d.mapPositions||{}}))};
   entries.push({path:workspaceExportMetadataPath(occupied),bytes:JSON.stringify(metadata,null,2)});
   return {blob:zipWorkspace(entries),name:workspaceZipFilename(p)};
+}
+async function workspaceBuildZip(){
+  await flushMapInlineEdit();await flushSource();
+  return workspaceBuildZipSelection();
 }
 async function downloadWorkspaceZip(){
   try{const {blob,name}=await workspaceBuildZip();saveWorkspaceBlob(blob,name);toast('Workspace-ZIP heruntergeladen')}
   catch(error){console.error(error);toast('ZIP-Export fehlgeschlagen: '+error.message)}
 }
-async function shareWorkspaceZip(){
-  try{
-    const {blob,name}=await workspaceBuildZip();
-    const file=typeof File==='function'?new File([blob],name,{type:'application/zip'}):null;
-    if(file&&typeof navigator.share==='function'&&(!navigator.canShare||navigator.canShare({files:[file]}))){
-      try{await navigator.share({files:[file],title:name})}
-      catch(error){if(error.name==='AbortError')return;console.warn('Teilen fehlgeschlagen:',error);saveWorkspaceBlob(blob,name);toast('Teilen nicht möglich · ZIP heruntergeladen')}
-    }else{saveWorkspaceBlob(blob,name);toast('Teilen nicht unterstützt · ZIP heruntergeladen')}
-  }catch(error){console.error(error);toast('ZIP konnte nicht geteilt werden: '+error.message)}
+// The root is always listed, even if it contains no files. Nested directory
+// groups are derived from real file paths and shown in lexicographic order.
+function workspaceShareGroups(files=workspaceCurrentFiles()){
+  const groups=new Map([['',[]]]);
+  for(const file of files){
+    const path=pathParent(workspacePath(file));
+    if(!groups.has(path))groups.set(path,[]);
+    groups.get(path).push(file);
+  }
+  return [...groups].sort((a,b)=>!a[0]?-1:!b[0]?1:a[0].localeCompare(b[0],'de',{numeric:true}))
+    .map(([folder,items])=>({folder,files:items.sort((a,b)=>fileLabel(a).localeCompare(fileLabel(b),'de',{numeric:true}))}));
 }
+// Display the number of actual exported bytes: UTF-8 text, original bytes when
+// unchanged, and binary data are all handled by exportFileBytes().
+function workspaceShareSizeLabel(bytes){
+  const units=['B','KB','MB','GB','TB'];
+  let value=Math.max(0,bytes),unit=0;
+  while(value>=1024&&unit<units.length-1){value/=1024;unit++}
+  return new Intl.NumberFormat('de-DE',{maximumFractionDigits:unit?1:0}).format(value)+' '+units[unit];
+}
+function workspaceShareIndividualFiles(items){
+  const basenames=new Map(),used=new Set();
+  for(const d of items){const key=fileLabel(d).toLocaleLowerCase('de');basenames.set(key,(basenames.get(key)||0)+1)}
+  return items.map(d=>{
+    const basename=fileLabel(d),path=workspacePath(d),key=basename.toLocaleLowerCase('de');
+    let name=(basenames.get(key)>1?path.replaceAll('/','__'):basename),candidate=name,index=2;
+    while(used.has(candidate.toLocaleLowerCase('de'))){candidate=index+'__'+name;index++}
+    used.add(candidate.toLocaleLowerCase('de'));
+    return new File([exportFileBytes(d)],candidate,{type:workspaceMimeFor(path)});
+  });
+}
+function openWorkspaceShareDialog(){
+  if(!projectId)return toast('Kein Projekt ausgewählt');
+  const originProject=projectId,files=workspaceCurrentFiles(),groups=workspaceShareGroups(files);
+  const selected=new Set(files.map(d=>d.id));
+  const fileSizes=new Map(files.map(d=>[d.id,exportFileBytes(d).byteLength]));
+  const markup=groups.map((group,i)=>`<section class="workspace-share-group" data-share-section="${i}">
+      <div class="workspace-share-group-header"><strong>${escapeHtml(group.folder||'root (Wurzel)')}</strong>
+        <label class="workspace-share-select-all"><input type="checkbox" data-share-group="${i}" ${group.files.length?'checked':'disabled'}>Alle wählen</label>
+        <small>${group.files.length} ${group.files.length===1?'Datei':'Dateien'}</small></div>
+      <div class="workspace-share-files">${group.files.length?group.files.map(d=>`<label class="workspace-share-file"><input type="checkbox" data-share-file="${escapeHtml(d.id)}" checked>
+        <span class="workspace-share-filename">${escapeHtml(fileLabel(d))}</span>
+        <span class="workspace-share-size">${workspaceShareSizeLabel(fileSizes.get(d.id))}</span></label>`).join(''):'<span class="workspace-share-empty">Keine Dateien in diesem Verzeichnis.</span>'}</div></section>`).join('');
+  openModal(`<div id="workspaceShareDialog" class="workspace-share-dialog">
+    <h2>Dateien teilen</h2><p>Wähle die Dateien aus, die gesendet werden sollen.</p>
+    <fieldset class="workspace-share-modes"><legend>Versandart</legend>
+      <label><input type="radio" name="workspaceShareMode" value="zip" checked> Als ZIP</label>
+      <label><input type="radio" name="workspaceShareMode" value="files"> Als Einzeldateien</label>
+    </fieldset>
+    <div class="workspace-share-global"><label class="workspace-share-select-all"><input type="checkbox" id="workspaceShareAll" ${files.length?'checked':'disabled'}> Alle wählen</label></div>
+    <div class="workspace-share-list" aria-label="Dateien zum Teilen auswählen">${markup}</div>
+    <div class="workspace-share-totals" role="status" aria-live="polite"><span id="workspaceShareCount"></span><span id="workspaceShareBytes"></span></div>
+    <p class="workspace-share-info">Beim Einzelversand bleiben die Dateiinhalte erhalten, aber nicht die Verzeichnisstruktur. Gleichnamige Dateien erhalten einen Pfadpräfix. Ohne System-Teilen werden Downloads angeboten.</p>
+    <div class="modalactions workspace-share-actions"><button type="button" class="btn workspace-share-copy" id="workspaceShareCopyPatch">Patch-Phrase kopieren</button><button type="button" class="btn" id="workspaceShareCancel">Abbrechen</button><button type="button" class="btn primary" id="workspaceShareSubmit">Teilen</button></div>
+  </div>`);
+  const root=$('#workspaceShareDialog');
+  function update(){
+    if(!root.isConnected)return;
+    groups.forEach((group,i)=>{
+      const input=root.querySelector(`[data-share-group="${i}"]`);
+      const count=group.files.filter(d=>selected.has(d.id)).length;
+      input.checked=count===group.files.length&&count>0;
+      input.indeterminate=count>0&&count<group.files.length;
+    });
+    const all=root.querySelector('#workspaceShareAll');
+    all.checked=files.length>0&&selected.size===files.length;
+    all.indeterminate=selected.size>0&&selected.size<files.length;
+    root.querySelector('#workspaceShareCount').textContent=selected.size+' von '+files.length+' gewählt';
+    const totalBytes=files.reduce((sum,d)=>sum+(selected.has(d.id)?fileSizes.get(d.id):0),0);
+    root.querySelector('#workspaceShareBytes').textContent='Gesamtgröße: '+workspaceShareSizeLabel(totalBytes);
+    root.querySelector('#workspaceShareSubmit').disabled=selected.size===0;
+  }
+  root.addEventListener('change',event=>{
+    const input=event.target;
+    if(input.matches('[data-share-file]')){
+      if(input.checked)selected.add(input.dataset.shareFile);else selected.delete(input.dataset.shareFile);
+    }else if(input.matches('[data-share-group]')){
+      const group=groups[Number(input.dataset.shareGroup)];
+      for(const d of group.files){if(input.checked)selected.add(d.id);else selected.delete(d.id)}
+    }else if(input.matches('#workspaceShareAll')){
+      for(const d of files){if(input.checked)selected.add(d.id);else selected.delete(d.id)}
+    }
+    root.querySelectorAll('[data-share-file]').forEach(box=>{box.checked=selected.has(box.dataset.shareFile)});
+    update();
+  });
+  root.querySelector('#workspaceShareCancel').onclick=closeModal;
+  root.querySelector('#workspaceShareCopyPatch').onclick=async()=>{
+    // Both dialogs share the exact, versioned prompt phrase from the Patch-Tool.
+    try{
+      if(await writeMapClipboard(PATCH_TOOL_PROMPT))toast('Patch-Phrase kopiert');
+      else toast('Patch-Phrase konnte nicht kopiert werden');
+    }catch(error){console.error(error);toast('Patch-Phrase konnte nicht kopiert werden')}
+  };
+  root.querySelector('#workspaceShareSubmit').onclick=()=>{
+    if(projectId!==originProject){toast('Das Projekt wurde gewechselt. Bitte Teilen erneut öffnen.');return}
+    const latest=new Map(docs.filter(d=>d.projectId===originProject).map(d=>[d.id,d]));
+    const chosen=files.filter(d=>selected.has(d.id)).map(d=>latest.get(d.id)).filter(Boolean);
+    if(!chosen.length){update();return}
+    const mode=root.querySelector('[name="workspaceShareMode"]:checked').value;
+    let fileAttachments,downloadItems;
+    try{
+      if(mode==='zip'){
+        const {blob,name}=workspaceBuildZipSelection(chosen,chosen.length===files.length);
+        downloadItems=[{blob,name}];
+        fileAttachments=typeof File==='function'?[new File([blob],name,{type:'application/zip'})]:null;
+      }else{
+        downloadItems=chosen.map(d=>({blob:new Blob([exportFileBytes(d)],{type:workspaceMimeFor(workspacePath(d))}),name:fileLabel(d)}));
+        fileAttachments=typeof File==='function'?workspaceShareIndividualFiles(chosen):null;
+        if(fileAttachments)downloadItems=fileAttachments.map(file=>({blob:file,name:file.name}));
+      }
+    }catch(error){console.error(error);toast('Dateien konnten nicht vorbereitet werden: '+error.message);return}
+    const button=root.querySelector('#workspaceShareSubmit');
+    const fallback=()=>{
+      for(const item of downloadItems)saveWorkspaceBlob(item.blob,item.name);
+      closeModal();toast(mode==='zip'?'ZIP-Download gestartet':'Einzeldatei-Downloads gestartet (ggf. Browserfreigabe nötig)');
+    };
+    let canShare=!!fileAttachments&&typeof navigator.share==='function';
+    if(canShare&&typeof navigator.canShare==='function'){
+      try{canShare=!!navigator.canShare({files:fileAttachments})}catch(error){console.warn('Dateifreigabe nicht unterstützt:',error);canShare=false}
+    }
+    if(!canShare){fallback();return}
+    button.disabled=true;
+    // Start share synchronously within the click handler. Awaiting a save/ZIP
+    // before navigator.share would discard the browser's user gesture.
+    try{
+      Promise.resolve(navigator.share({files:fileAttachments,title:project()?.name||'mindfagg'}))
+        .then(()=>{closeModal();toast('Dateien geteilt')})
+        .catch(error=>{
+          if(error?.name==='AbortError'){if(button.isConnected)button.disabled=false;return}
+          console.warn('Teilen nicht möglich:',error);fallback();
+        });
+    }catch(error){console.warn('Teilen nicht möglich:',error);fallback()}
+  };
+  update();
+}
+// Keep the previous function as a public entrypoint for existing integrations.
+function shareWorkspaceZip(){openWorkspaceShareDialog()}
 async function downloadWorkspaceCurrentFile(){
   try{await flushMapInlineEdit();await flushSource();const d=documentNow();if(!d)throw Error('Keine Datei ausgewählt');
     saveWorkspaceBlob(new Blob([exportFileBytes(d)],{type:workspaceMimeFor(workspacePath(d))}),fileLabel(d));toast('Datei heruntergeladen')

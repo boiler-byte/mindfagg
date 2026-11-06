@@ -1,4 +1,140 @@
-# mindfagg v43
+# mindfagg v48
+
+Delta-Update fuer die vollstaendige Installation **mindfagg v47**. Das ZIP enthaelt ausschliesslich neue oder geaenderte Dateien; unveraenderte Module bleiben aus v47 bestehen.
+
+## Neu in v48: Sidebar-Aktionen und einheitliche Dateimenue-Icons
+
+- **Dateiliste:** **Patch-Tool** und **Teilen** stehen dauerhaft als zwei nebeneinander liegende Schaltflaechen unter der GitHub-/Repository-Zeile. Die beiden Eintraege wurden aus den `+`- bzw. `Download`-Dropdowns entfernt, damit die Aktionen an einer Stelle liegen. Beide verwenden weiterhin dieselben Dialoge und Speicher-/Editor-Flush-Funktionen. Ohne aktives Projekt sind sie deaktiviert.
+- **Repository:** Der GitHub-Button wird nur angezeigt, wenn ein gepruefter Access Token im App-Speicher verfuegbar ist. Das gilt nach dem Laden, beim Speichern und beim Entfernen des Tokens. Die Repository-Zuordnung bleibt weiterhin projektbezogen; der Zugang kann jederzeit in den App-Einstellungen angelegt werden.
+- **Download-Menue:** Das `⋯`-Menue besitzt jetzt den Tooltip **Download**. **ZIP herunterladen** und **ZIP importieren** verwenden ein Ordner-mit-Reissverschluss-Icon, **Aktuelle Datei herunterladen** ein Datei-Icon. Sein Untertext ist der echte Dateiname, einschliesslich Erweiterung (z. B. `index.html`); der bisherige Untertext **Originalformat** entfaellt. Der Dateiname wird bei jedem Oeffnen des Menues frisch ermittelt und HTML-sicher dargestellt.
+- **Hinzufuegen-Menue:** **Neue Datei** verwendet ein Dokument-Icon, **Neuer Ordner** ein Ordner-Icon und **ZIP importieren** das ZIP-Ordner-Icon.
+- **Offline-PWA:** Der Cache-Schluessel wechselt zu `mindfagg-v48`; Dateiformat und IndexedDB bleiben unveraendert.
+
+**Installation:** Vorher Workspace sichern und `mindfagg-v48.zip` ueber die vorhandene vollstaendige v47-Installation entpacken; Verzeichnisstruktur beibehalten. Nicht eigenstaendig startbar.
+
+**Tests:** `node tests/check-structure.mjs`, `python tests/v48-browser.py` und die bisherigen Regressionstests. Fuer native Berechtigungen sowie PWA-Cache-Wechsel auf dem Zielgeraet nochmals pruefen.
+
+---
+
+# mindfagg v47
+
+Delta-Update fuer die vollstaendige Installation **mindfagg v46**. Das ZIP enthaelt nur neue und geaenderte Dateien und ist **nicht eigenstaendig lauffaehig**.
+
+## Neu in v47: Dateien teilen und Browser-Zurueck-Navigation
+
+### Dateien teilen
+
+- **Globales Alle waehlen:** Eine Checkbox oberhalb der Dateiliste waehlt alle Projektdateien an oder ab. Sie ist bei einer teilweise getroffenen Auswahl im Zwischenzustand (indeterminate) und bei einem leeren Workspace deaktiviert. Die bisherigen Verzeichnis-Checkboxen und Einzeldatei-Checkboxen bleiben erhalten und synchronisieren sich gegenseitig.
+- **Dateigroesse je Datei:** Rechts neben jedem Dateinamen steht die exportierte Dateigroesse in B/KB/MB/GB. Gezaehlt werden die tatsaechlichen exportierten Bytes, bei Text UTF-8 (bzw. unveraenderte Originalbytes) und bei binaeren Dateien die Binaerdaten, nicht die Groesse des komprimierten ZIPs.
+- **Summe unter der Liste:** Anzahl der ausgewaehlten Dateien ("X von Y gewaehlt") und ihre addierte Dateigroesse ("Gesamtgroesse: ...") werden nach jeder Aenderung sofort aktualisiert. Ohne Auswahl bleibt der Teilen-Button gesperrt.
+- **Patch-Phrase kopieren:** Neuer Button links von **Abbrechen** im Teilen-Dialog. Er kopiert exakt `PATCH_TOOL_PROMPT`, dieselbe KI-Phrase wie im Patch-Tool. Zuerst wird die Clipboard-API genutzt, bei Bedarf die vorhandene lokale Kopiermethode. Der Dialog bleibt dabei geoeffnet.
+- **ZIP/Einzeldateien:** Unveraendert: geteilt werden nur markierte Dateien, Verzeichnisse bleiben im ZIP erhalten; mehrere Einzeldateien werden per System-Teilen oder Download-Fallback verarbeitet.
+
+### Browser-Zurueck / History Back
+
+- Beim Start wird eine zusaetzliche gleichseitige Browser-History-Position angelegt. Dadurch fuehrt ein Druck auf die Browser-/Geraete-Zurueck-Taste innerhalb der App nicht zur vorherigen Webseite.
+- **Bei geoeffnetem Dialog** wird dieser zuerst geschlossen. Ein waehrend der GitHub-Synchronisation gesperrter Dialog bleibt gemaess der bisherigen Sicherheitslogik offen.
+- **Ohne Dialog** schaltet jeder weitere Zurueck-Druck die Sidebar um: auf schmalen Bildschirmen oeffnen/schliessen, auf breiten Bildschirmen ausblenden/einblenden. Das bestehende Menue-Symbol und dessen Bedienung bleiben erhalten.
+- Die History-Position wird nach jedem Zurueck-Ereignis erneut aktiviert. Es werden keine Projektdateien oder Navigationseintraege gespeichert; die Funktion benoetigt keine Migration.
+
+**Installation:** Vorher Workspace sichern. Das Delta-ZIP `mindfagg-v47.zip` im **bestehenden v46-App-Verzeichnis** entpacken, Dateien ersetzen und die Verzeichnisstruktur beibehalten. Offline-Cache ist `mindfagg-v47` (alte Cache-Version wird beim Aktivieren des neuen Service Workers abgeloest).
+
+**Pruefen:** `node tests/check-structure.mjs`, `python tests/v47-browser.py`, `python tests/v46-browser.py` und die bisherigen Regressionstests. Der Browser-Test nutzt eingebettete Produktionsmodule und simulierte Dateifreigabe; native Geraete-Zurueck-Tasten, Clipboard-Berechtigungen und PWA-Service-Worker-Aktivierung sollten zusaetzlich auf dem Zielgeraet geprueft werden.
+
+---
+
+# mindfagg v46
+
+Delta-Update fuer eine vorhandene **vollstaendige mindfagg v45**. Die Archivdatei enthaelt **nur neue oder veraenderte Dateien**; sie ist nicht eigenstaendig lauffaehig.
+
+## Neu in v46: Einklappbare Patchvorschau und selektives Teilen
+
+### Patch-Tool
+
+- Der separate Button **Patch pruefen** entfällt. Sobald die JSON-Eingabe bearbeitet wird, erscheint der **rote, klickbare Hinweis** **„Patch prüfen, um die Vorschau zu aktualisieren.“**. Ein Klick darauf validiert den Inhalt und erzeugt die Vorschau neu. Der Hinweis ist als Button auch mit der Tastatur bedienbar.
+- Jeder `.patch-preview-file`-Block ist nun ein nativ aufklappbares `<details>`-Element. Alle Dateibloecke sind **nach dem Einlesen standardmaessig eingeklappt**. Ein Klick auf die Ueberschrift oeffnet/schliesst die einzelnen Hunks und Operationen.
+- In jeder Dateikopfzeile stehen Dateipfad, optional Beschreibung und Zielpfad, **`operation: update/create/replace/delete/rename`** sowie **`patch / found / total`**. `patch` ist die Anzahl ausgewaehlter Schritte/Hunks, `found` die Anzahl anwendbarer Treffer bei Simulation des **vollstaendigen** Patches und `total` die Anzahl der im JSON erwarteten Schritte/Hunks. Daher bleibt `found` bei manueller Abwahl gleich, waehrend `patch` sinkt.
+- Die ausgeklappten Bereiche bleiben bei Checkbox-Aenderungen offen. Das Laden eines anderen Patches setzt die Vorschau wieder in den eingeklappten Ausgangszustand. Formatvalidierung, atomare Anwendung, Patch-Speicherung sowie Undo/Redo aus v45 bleiben erhalten.
+
+### Dateien teilen
+
+- Im `⋯`-Dropdown heisst **ZIP teilen** jetzt **Teilen** und hat ein Share-Icon. Der Eintrag oeffnet einen neuen Dialog statt sofort den bisherigen ZIP-Versand zu starten.
+- Versandauswahl: **Als ZIP** (standardmaessig) oder **Als Einzeldateien** (mehrere separate Dateianhaenge in einer System-Teilen-Aktion).
+- Darunter werden **alle Projektdateien nach ihrem direkten Verzeichnis gruppiert**. Die erste Gruppe lautet **root (Wurzel)** (auch falls dort keine Datei liegt), danach folgen die Unterverzeichnisse mit ihren relativen Pfaden. Jede Gruppe bietet **Alle wählen** und jede Datei eine eigene Checkbox. Ein teilweise ausgewaehltes Verzeichnis zeigt einen Zwischenzustand; ohne Dateiauswahl ist **Teilen** deaktiviert.
+- Im ZIP befinden sich **nur die ausgewaehlten Dateien**, ihre notwendigen Elternordner und die passende `mindfagg-workspace.json`-Metadaten-Datei, damit das ZIP weiterhin importierbar bleibt. Der normale Befehl **ZIP herunterladen** exportiert unveraendert das gesamte Projekt inklusive leerer Ordner.
+- Beim Einzelversand bleiben Dateiinhalte originalgetreu. Da die Web-Share-API keine Ordnerstruktur in Dateianhaengen bereitstellt, erhalten **gleichnamige Dateien aus unterschiedlichen Ordnern** unterschiedliche Dateinamen mit einem Pfadpraefix (z. B. `src__app.js`). Ist systemweites Datei-Teilen nicht verfuegbar, werden die ausgewaehlten Dateien als Downloads angeboten; der Browser kann mehrere Downloads gesondert bestaetigen oder blockieren.
+
+**Installation:** Workspace vorher sichern. `mindfagg-v46.zip` **ueber die vorhandene v45-Installation entpacken**, vorhandene Dateien ersetzen und `workspace/`, `tests/` als Unterordner beibehalten. Service-Worker-Cache: `mindfagg-v46`.
+
+**Tests:** `node tests/check-structure.mjs`, `node tests/v44-patch.mjs`, `node tests/v45-patch.mjs`, `python tests/v46-browser.py`, aktualisierte `v44-browser.py` und `v45-browser.py` sowie bisherige Regressionstests. Browser-Tests arbeiten mit temporaer eingebetteten Produktionsskripten; natives Teilen und Langzeit-PWA-Persistenz sind zusaetzlich auf echten Geraeten zu testen.
+
+---
+
+## Versionshistorie: v45
+
+
+Delta-Update fuer eine bereits installierte **vollstaendige mindfagg v44**. Das ZIP enthaelt **nur neue und geaenderte Dateien** und ist alleine nicht lauffaehig.
+
+## Neu in v45: Erweiterte Patch-Operationen und Patch speichern
+
+- **Patch speichern:** Option (Checkbox) links von **Ausgewaehlte Vorgaenge einspielen**. Ist sie aktiviert, legt das Patch-Tool nach erfolgreichem Einspielen im **Projekt-Root** eine Datei namens `YYYY-MM-DD-HHmmss.patch.json` ab (Beispiel: `2026-11-06-213105.patch.json`). Bei einer Kollision innerhalb derselben Sekunde wird der naechste freie Sekundenname gewaehlt; bestehende Dateien werden niemals ueberschrieben.
+- **Gespeicherter Inhalt:** Die Datei enthaelt ausschliesslich die **tatsaechlich ausgewaehlten und eingespielten Operationen**, in Originalreihenfolge. Bei `update` werden abgewaehlte Hunks nicht mitgespeichert. Die .patch.json-Datei und alle Datei-/Ordneraenderungen werden als **eine einzige atomare Undo-/Redo-Aktion** gespeichert. Mit einem Undo verschwindet auch die neue Patch-Datei, mit Redo erscheint sie wieder.
+- **Format:** Das Wurzelobjekt enthaelt `patches` als nichtleere Liste. Pro Patchblock sind `operation` und `file` erforderlich; `description` ist optional. Andere Felder als die unten beschriebenen werden zurueckgewiesen.
+
+| `operation` | Wirkung | Weitere Pflichtfelder |
+| --- | --- | --- |
+| `create` | Neue Textdatei anlegen (inkl. erforderlicher Unterordner) | `content` (String, auch leer) |
+| `update` | In einer vorhandenen Textdatei wortgetreu suchen und ersetzen | `hunks`: nichtleere Liste mit `search` (nichtleer), `replace` (String), `occurrence` (positive 1-basierte Ganzzahl) |
+| `replace` | Gesamten Inhalt einer vorhandenen Textdatei ersetzen | `content` (String, auch leer) |
+| `delete` | Vorhandene Datei entfernen (auch binaer) | keine |
+| `rename` | Vorhandene Datei umbenennen oder verschieben (auch binaer) | `to` (neuer projekt-relativer Pfad) |
+
+Beispiel:
+
+```json
+{
+  "patches": [
+    {"operation": "update", "file": "index.html", "description": "Titel", "hunks": [{"search": "<h1>Alt</h1>", "replace": "<h1>Neu</h1>", "occurrence": 1}]},
+    {"operation": "create", "file": "src/hello.js", "content": "const name = 'Welt';"},
+    {"operation": "replace", "file": "src/app.js", "content": "console.log('neu');"},
+    {"operation": "rename", "file": "src/old-name.js", "to": "src/new-name.js"},
+    {"operation": "delete", "file": "src/unused.js"}
+  ]
+}
+```
+
+Alle **ausgewaehlten** Vorgaenge werden der Reihe nach auf einen virtuellen Dateistand angewendet. Die Vorschau meldet fehlende Dateien, Trefferfehler, Kollisionen mit Dateien/Ordnern, unsichere Pfade und nicht editierbare Binaerdateien. Wenn irgendein ausgewaehlter Vorgang nicht passt, wird nichts geschrieben. Ein einzelner `update`-Hunk laesst sich weiterhin abwaehlen; andere Operationen koennen als Ganzes abgewaehlt werden. Das bisherige v44-Format ohne `operation` wird als `update` unter Beibehaltung seines bisherigen Pflichtfelds `description` akzeptiert.
+
+Die kopierbare **KI-Prompt-Phrase** ist fuer alle fuenf Operationen angepasst. Keine automatische KI-Ausfuehrung und keine Ausfuehrung von Patch-Inhalten als Programmcode.
+
+**Installation:** Vorher ein Workspace-ZIP sichern, dann den Inhalt von `mindfagg-v45.zip` im **bestehenden v44-App-Ordner** entpacken und vorhandene Dateien ersetzen. `workspace/` und `tests/` als Unterordner beibehalten. Der Offline-Service-Worker verwendet nun den Cache `mindfagg-v45`. Die Anwendung benoetigt weiterhin alle unveraenderten Dateien aus v44.
+
+**Tests:** `node tests/check-structure.mjs`, `node tests/v44-patch.mjs`, `node tests/v45-patch.mjs`, `python tests/v44-browser.py`, `python tests/v45-browser.py` und die bereits bestehenden Regressionstests. Browser-Tests verwenden in der isolierten Testumgebung einen simulierten IndexedDB-Transaktionsspeicher; echte Persistenz und Service-Worker-Aktualisierung unter HTTPS/localhost zusaetzlich pruefen.
+
+---
+
+## Versionshistorie: v44
+
+Offline-Patch fuer die bestehende vollstaendige mindfagg-v43-Installation. **Das v44-ZIP enthaelt ausschließlich neue und geaenderte Dateien** und wird ueber die bestehende v43-Ordnerstruktur entpackt; alleine ist das ZIP nicht startfaehig.
+
+## Neu in v44: Patch-Tool und Collapse-Symbol
+
+- **Sidebar:** Das Symbol von **Alle Ordner einklappen** zeigt jetzt ein Minus innerhalb eines gestrichelten Rahmens. Die bisherige Sichtbarkeits- und Speicherlogik bleibt erhalten.
+- **Datei-/Ordner-Dropdown (+):** Zusaetzlicher Eintrag **Patch-Tool**. Der Dialog ist in **Einspielen** und **Erstellen** gegliedert.
+- **Patch-Import:** JSON in das Eingabefeld einfuegen oder mit **Aus Zwischenablage einfuegen** lesen, eine `.json`-Datei auswaehlen, eine `.json`-Datei auf die Drop-Zone ziehen oder eine bestehende `.patch.json`-Datei aus dem Projekt laden. Diese Wege verwenden dieselbe Formatpruefung.
+- **Patch-Format:** Nur `{"patches":[{"file":"index.html","description":"...","hunks":[{"search":"alter Text","replace":"neuer Text","occurrence":1}]}]}`. Alle Felder muessen vorhanden sein; keine fremden Felder, regulare Ausdruecke oder ausfuehrbarer Patch-Code. `search` ist ein nichtleerer, wortgetreuer Text. `occurrence` ist 1-basiert; Treffer werden nicht ueberlappend gezaehlt. Mehrere Hunks werden nacheinander auf die jeweils aktualisierte Datei angewendet. `replace` darf leer sein. Nur bereits vorhandene, textbasierte Projektdateien werden geaendert.
+- **Vorschau:** Zeigt jede Datei mit Beschreibung sowie jeden einzelnen Such-/Ersetzungsvorgang mit Checkbox, Trefferpruefung und den Quelltext-Ausschnitten. Alle Vorgaenge sind anfangs ausgewaehlt. Fehlende Dateien bzw. Suchtexte blockieren das Einspielen, bis die betroffenen Vorgaenge korrigiert oder abgewaehlt sind. Vor dem Schreiben wird die aktuelle Projektversion nochmals ueberprueft.
+- **Einspielen / Undo:** Alle ausgewaehlten Ersetzungen werden **atomar** in einer Workspace-Transaktion gespeichert; ein einziges Rueckgaengig stellt alle betroffenen Dateien wieder her. Die vorherige Datei-/Ordnerstruktur bleibt unangetastet. Keine neuen Datenbanktabellen, keine Formatmigration.
+- **Erstellen:** Kopierbare Prompt-Erweiterung zur Erzeugung eines exakt passenden JSON-Patches durch eine KI. Fuer sichere exakte Suchtexte muessen der KI die betroffenen Originaldateien bereitgestellt werden. Es gibt keinen direkten KI-Aufruf.
+- **Offline-PWA:** Cache-Version `mindfagg-v44`, neue Module `workspace/patch-tool.js` und `workspace/patch-tool.css`.
+
+**Installation:** Vorher den Workspace als ZIP sichern. Das v44-Update in denselben Ordner bzw. unter demselben HTTPS-/localhost-Ursprung wie v43 einspielen, wobei vorhandene Dateien ueberschrieben und neue Module unter `workspace/` hinzugefuegt werden. Ohne die unveraenderten v43-Dateien ist v44 nicht vollstaendig.
+
+**Tests:** `node tests/check-structure.mjs`, `node tests/v44-patch.mjs`, `python tests/v44-browser.py` und bisherige Regressionen. Der Browser-Test verwendet temporaer inline eingebettete Module, einen simulierten lokalen Transaktionsspeicher sowie simulierte Clipboard-Berechtigungen. Einen echten PWA-Cache-Wechsel sowie Clipboard-Rechte und Langzeit-Persistenz unter HTTPS/localhost zusaetzlich manuell pruefen.
+
+---
+
+## Versionshistorie: v43
 
 Offline-fähiger Workspace mit Markdown, Mindmap, Kanban, Kalender, Scripteditor und GitHub-Synchronisation.
 

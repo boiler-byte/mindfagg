@@ -295,6 +295,7 @@ function githubStatusText(p){
 }
 function githubUpdateIndicator(p=project()){
   const button=$('#githubSync');if(!button)return;
+  button.hidden=!githubCredentialToken;
   const cfg=githubConnection(p),status=githubProjectStatuses.get(p?.id);
   const label=githubStatusText(p),text=$('#githubSyncText');if(text)text.textContent=label;
   button.disabled=!p||githubBusy;

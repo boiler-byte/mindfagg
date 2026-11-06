@@ -3,3 +3,9 @@
    expand the page beyond the viewport instead of scrolling internally. */
 .app{grid-template-rows:minmax(0,1fr)}
 .main{min-height:0}
+
+/* v47: on wide screens Browser Back can also collapse/restore the sidebar. */
+@media(min-width:851px){
+  .app.back-sidebar-hidden{grid-template-columns:minmax(0,1fr)}
+  .app.back-sidebar-hidden .sidebar{display:none}
+}

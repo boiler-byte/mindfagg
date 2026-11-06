@@ -1,4 +1,67 @@
-# mindfagg v43 - modulare Architektur
+# mindfagg v48 - Aenderungen an der UI
+
+- `index.html`: Zwei permanente Sidebar-Buttons (`workspacePatchQuick`, `workspaceShareQuick`) unter dem nur bei vorhandenem Token sichtbaren `githubSync`. Der `workspaceMore`-Tooltip lautet Download.
+- `workspace/github.css`: responsive Zwei-Spalten-Buttonzeile; explizite `[hidden]`-Regel fuer den GitHub-Button.
+- `workspace/github.js`: `githubUpdateIndicator()` bindet `.hidden` an `Boolean(githubCredentialToken)`. Der bisherige Aufruf aus Rendern, Credential-Speichern und Entfernen bleibt die einzige Sichtbarkeitsquelle.
+- `ui/bindings.js`/`ui/router.js`: neue Direktbuttons nutzen `workspaceExecuteAction`, wechseln ohne Projekt in den deaktivierten Zustand.
+- `workspace/io.js`: Creation/Import und Download-Menues verwenden konsistente statische SVG-Symbole (Datei, Ordner, ZIP-Ordner). Die Download-Zeile liest den Dateinamen aus `fileLabel(documentNow())` beim Oeffnen; HTML-Escaping bleibt erhalten.
+- `sw.js` / `module-manifest.json`: v48-Cache; keine neuen Laufzeit-Assets, keine Datenmigration.
+
+---
+
+# mindfagg v47 - modulare Architektur
+
+## v47: Dateifreigabe mit Groessensummen und App-lokale Back-Navigation
+
+- **`workspace/io.js` / `workspace/io.css`:** Im Teilen-Dialog wird `fileSizes` einmal pro Dateiauswahl aus `exportFileBytes(doc).byteLength` abgeleitet und nach Dateinamen angezeigt. `workspaceShareSizeLabel()` wandelt Bytezahlen in lesbare B/KB/MB/GB-Einheiten um. Der `selected`-Set steuert jetzt globale/Verzeichnis-/Datei-Checkboxen; `update()` berechnet die Anzahl und Byte-Summe. Der Share-Aufruf nutzt unveraendert die echte Dateiauswahl und synchrones `navigator.share()`.
+- **KI-Phrase:** `#workspaceShareCopyPatch` benutzt `writeMapClipboard(PATCH_TOOL_PROMPT)` (vorhandener Clipboard-Fallback aus `mindmap/operations.js`). `PATCH_TOOL_PROMPT` bleibt zentral im `workspace/patch-tool.js`, das vor `ui/bindings.js` geladen wird.
+- **`ui/browser-back.js` (neu):** `initBrowserBackNavigation()` legt per `history.pushState` einen Same-URL-Guard an und behandelt `popstate`. Dialoge haben Vorrang (`closeModal()` inklusive GitHub-Busy-Sperre), andernfalls wird die Sidebar umgeschaltet. Nach jedem Event wird der Guard erneut angelegt. Mobile nutzt `setMobileMenu()`, Desktop `back-sidebar-hidden`. Dieser Mechanismus fängt bewusst den normalen History-Back innerhalb der App ab.
+- **`ui/bindings.js`:** Initialisiert die Navigation vor dem bisherigen asynchronen `init()`. `index.html` bindet das neue Script vor `ui/bindings.js` ein, `css/foundation.css` enthaelt die Desktop-Layoutregel.
+- **`sw.js` / `module-manifest.json`:** Fuegen das neue Script in die Offline-Assetliste ein und aktualisieren die Cache-Version auf `mindfagg-v47`. Das IndexedDB-Schema und das Projektformat bleiben unveraendert.
+- **`tests/v47-browser.py`:** Prueft Bytegroessen von UTF-8-/Binaerdaten, Global-/Gruppen-/Dateiauswahl, native Share-Payloads, Patch-Phrase und reale `history.back()`-Ausloesung im Chromium.
+
+---
+
+# mindfagg v46 - modulare Architektur
+
+## v46: kontextbezogene Patch-Pruefung, einklappbare Vorschaudateien und Share-Auswahl
+
+- **`workspace/patch-tool.js` / `.css`:** Der eigenstaendige Validate-Button entfällt. `patchToolMessage(..., 'needs-validation')` bietet einen roten, als Button fokussierbaren Link zu `patchToolParseInput()`. `patchToolRenderPreview()` baut pro Datei ein natives `details > summary` mit `operation` und dem Tripel `patch / found / total`. Eine zweite, **rein virtuelle** Vollplan-Simulation zaehlt anwendbare Treffer unabhaengig von der aktiven Auswahl. `patchToolState.expanded` behaelt geoeffnete Dateien bei der UI-Neuzeichnung (nicht ueber das Laden eines neuen Patches hinaus). Die Checkboxen, finalen Auswahlauswertungen, Speichertransaktion und Undo/Redo bleiben unveraendert.
+- **`workspace/io.js` / `.css`:** Die `zip-share`-Menueaktion oeffnet `openWorkspaceShareDialog()`. `workspaceShareGroups()` sortiert und gruppiert Dateien nach ihrem unmittelbaren Elternverzeichnis, Root immer zuerst. Dateiauswahl und Gruppen-Checkboxen steuern einen Satz von IDs, inklusive des nativen Zwischenzustands `indeterminate`. Keine Dateiauswahl deaktiviert den Share-Button.
+- **ZIP-/Einzeldateien:** `workspaceBuildZipSelection(files, includeAllFolders)` erstellt synchron ein selektives, importierbares ZIP, einschliesslich Metadaten und erforderlicher Elternordner; `workspaceBuildZip()` ruft den Builder nach bisherigen Flushes fuer den **vollstaendigen Export** auf. `workspaceShareIndividualFiles()` erzeugt originalgetreue `File`-Objekte mit eindeutigen Namen (Pfadpraefix bei Doppelungen). Der Klick ruft `navigator.share({files})` synchron auf, um die Browser-User-Activation zu erhalten. Wenn `share`/`canShare` Dateianhaenge nicht unterstuetzen, folgt der dateitypgerechte Download-Fallback; Abbruch durch den Benutzer loest keinen Download aus.
+- **Keine Persistenzmigration:** IndexedDB, Projekt-ZIP-Format und Historie bleiben unveraendert. `sw.js` und `module-manifest.json` wechseln zur Version **v46**. `tests/v46-browser.py` deckt Vorschau, Selektion, selektive ZIP-Inhalte, originale Einzeldateien, gleiche Basenamen und Download-Fallback ab. Die v44/v45-UI-Tests verwenden nun das klickbare Hinweisfeld und klappen den benoetigten Dateiblock auf.
+- **Delta-Lieferung:** Nur neue und tatsaechlich geaenderte Dateien gegen v45. Alle anderen Module stammen weiterhin aus der vorhandenen Installation.
+
+---
+
+## Versionshistorie: v45
+
+
+## v45: Geordnete Dateioperationen, selektives Patch-Archiv und atomare Historie
+
+- **Format-Pruefung (`workspace/patch-tool.js`):** Pro Eintrag `operation` + `file`, optional `description`. Typabhaengige Pflichtfelder: `create`/`replace` -> `content`; `update` -> `hunks[]` mit `search`, `replace`, `occurrence`; `delete` -> keine; `rename` -> `to`. Zusatzeigenschaften werden abgewiesen. Bestehende v44-Update-Bloecke ohne `operation` bleiben lesbar (mit bisher obligatorischer `description`). JSON Groessenlimit 4 MB und maximal 500 auswaehlbare Schritte bleiben bestehen.
+- **Virtuelles Dateisystem (`planWorkspacePatch`):** Ausgehend von den Dokumenten des aktuellen Projekts wird jeder angehakte Schritt in Patch-Reihenfolge simuliert. Case-insensitive Pfadkollisionen, Ordnerkonflikte, nicht vorhandene Dateien, unpassende exakte Suchtexte und Versuche, Binaerdaten als Text zu behandeln, werden vorab erkannt. `create` und `rename` koennen erforderliche Elternordner anlegen. `delete` und `rename` duerfen auch Binaerdateien betreffen. Keine Quelldaten werden waehrend der Vorschau mutiert.
+- **Speichern (`patchToolSelectedPatch` / `patchToolSaveRecord`):** Checkbox **Patch speichern** erzeugt eine JSON-Textdatei im Root mit lokalem Zeitstempel `YYYY-MM-DD-HHmmss.patch.json`. Die Datei enthaelt nur die tatsaechlich ausgewaehlten Operationen und bei `update` ausschliesslich gewaehlte Hunks. Namenskollisionen erzeugen nie ein Ueberschreiben. Die Datei wird zum selben Batch hinzugefuegt wie die eigentlichen Aenderungen.
+- **Transaktion / Undo (`workspace/io.js`, unveraendert):** `workspaceCommitChanges(afterFiles,deletedIds,foldersAfter,selectedId)` speichert Erstellungen, Umbenennungen, Inhaltsaenderungen, Loeschungen, Zielordner und eine optionale Patch-Datei **atomar**. Der bestehende `workspace-batch`-Verlauf behandelt das gesamte Ergebnis als **eine** Undo-/Redo-Aktion, ohne Datenbankmigration.
+- **UI (`workspace/patch-tool.css`):** Checkbox vor dem Anwenden-Button; die Vorschau zeigt alle Operationstypen und ihren Status. Die KI-Phrase beschreibt alle fuenf Formate. Bestehende JSON-Einspielwege bleiben unveraendert.
+- **Offline und Tests:** `sw.js` und `module-manifest.json` auf v45, statische Regressionstests an neue Version angepasst; neue Tests `tests/v45-patch.mjs` und `tests/v45-browser.py`. Das Auslieferungspaket ist ein Delta zur vollstaendigen v44-Installation.
+
+---
+
+## Versionshistorie: v44
+
+## v44: Selektiver, atomarer JSON-Patch-Workflow
+
+- `workspace/patch-tool.js`: Striktes Schema `patches[]` mit `file`, `description` und `hunks[]` (`search`, `replace`, `occurrence`). Literal-Suchtext, occurrence ist 1-basiert und nicht ueberlappend. Dateibloecke/Hunks laufen der Reihenfolge nach auf dem jeweils aktuellen Zwischenstand. Unveraenderte, fehlende oder binaere Dateien werden nicht stillschweigend angepasst. Kein `eval`, keine Regulare-Ausdruck-Interpretation aus JSON.
+- `workspace/patch-tool.css`: Eigenstaendiges responsives Modal-Styling mit JSON-Eingabe, Datei-Dropzone, Projektauswahl, Preview und Prompt-Kopiervorlage.
+- `workspace/io.js`: Fuegt **Patch-Tool** im `+`-Dropdown hinzu und startet die bestehende Modal-Infrastruktur. Die gesamte ausgewertete Auswahl wird mit `workspaceCommitChanges()` als **ein** `workspace-batch` in IndexedDB gespeichert. `core/persistence.js` / `core/history.js` und `workspaceApplyBatch()` stellen damit alle geaenderten Dateien in einem Undo/Redo wieder her.
+- `index.html`: Neue CSS-/JS-Referenzen; das Collapse-All-Icon ist ein gestricheltes Rechteck mit Minus. `ui/dialogs.js` entfernt beim Oeffnen anderer Dialoge die `patch-modal`-Klasse.
+- `module-manifest.json` und `sw.js`: v44 und Precache beider neuer Module. IndexedDB- und ZIP-Schemas sind unveraendert. Die neue Version ist ein **Delta zu v43**, nicht das gesamte Laufzeitpaket.
+- `tests/v44-patch.mjs`: Striktes Schema, Path Traversal, Nth-Occurrence, Reihenfolge und Fehlermarkierung. `tests/v44-browser.py`: Benutzerinteraktion, Importquellen, Projektauswahl, Preview, selektives Anwenden und transaktionales Undo/Redo.
+
+---
+
+## Versionshistorie: v43
 
 ## v43: Syntax-Minimap, modal-sichere Pointer, persistente Ordner und Clipboard
 
@@ -66,7 +129,7 @@ v32 baut auf der v30-Strukturrefaktorierung auf. Der neue Import-/Export-Bereich
 ## Verzeichnisstruktur
 
 ```text
-mindfagg-v43/
+mindfagg-v44/
 ├── index.html                HTML-Grundgerüst und Ressourcenreferenzen
 ├── module-manifest.json     Registrierte lokale Scripts, Styles und Cache-Assets
 ├── manifest.webmanifest     PWA-Metadaten

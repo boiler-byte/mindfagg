@@ -19,7 +19,7 @@ const PATCH_TOOL_PROMPT=[
   '"search" ist ein nichtleerer, wortwörtlicher Text inkl. Einrückung/Zeilenumbrüchen; keine Regex. "replace" darf leer sein.',
   '"occurrence" ist der 1-basierte, nicht überlappende Treffer. Alle ausgewählten Vorgänge laufen in JSON-Reihenfolge auf dem jeweils aktuellen Dateistand.',
   '"content" ist immer ein String und darf leer sein. Nur Textdateien können erstellt oder inhaltlich geändert werden; Umbenennen/Löschen funktioniert auch für binäre Dateien.',
-  'Escape JSON-Zeichen korrekt (insbesondere Anführungszeichen, Backslashes und Zeilenumbrüche als \\n).',
+  String.raw`Escape JSON-Zeichen korrekt (insbesondere Anführungszeichen \", Backslashes \\ und Zeilenumbrüche als \n).`,
   'Niemals Quelltext erfinden: Falls Originalinhalt für ein exaktes update fehlt, zuerst die betreffende Datei anfordern.'
 ].join('\n');
 let patchToolState=null;
@@ -243,6 +243,16 @@ function patchToolMessage(message,kind='info'){
     link.type='button';link.className='patch-validate-link';link.textContent=message;
     link.addEventListener('click',patchToolParseInput);
     target.appendChild(link);
+  }else if(kind==='error'&&String(message).startsWith('Patch abgelehnt:')){
+    const copy=document.createElement('button');
+    copy.type='button';copy.className='patch-rejected-copy';
+    copy.textContent=message;copy.title='Fehlermeldung kopieren';
+    copy.addEventListener('click',async()=>{
+      try{
+        toast(await writeMapClipboard(message)?'Fehlermeldung kopiert':'Fehlermeldung konnte nicht kopiert werden');
+      }catch(error){console.error(error);toast('Fehlermeldung konnte nicht kopiert werden')}
+    });
+    target.appendChild(copy);
   }else target.textContent=message;
 }
 function patchToolProjectOptions(){

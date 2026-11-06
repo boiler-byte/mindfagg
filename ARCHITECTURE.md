@@ -1,3 +1,13 @@
+# mindfagg v49 - gezielte UI-Aenderungen
+
+- `index.html`: Die zwei vorhandenen `workspace-quick-button`s in `workspace-quick-actions` sind im DOM vertauscht; das responsiv zweispaltige Layout und die Event-IDs bleiben identisch.
+- `workspace/patch-tool.js`: Bei `patchToolMessage(message, 'error')` wird nur fuer Meldungen mit `Patch abgelehnt:` ein kopierbarer Button generiert. Er ruft die vorhandene gemeinsame Funktion `writeMapClipboard()` auf und zeigt das Ergebnis im Toast. Die unveraenderte Fehlerbeschreibung wird kopiert, ohne das Feld oder den Dialog zu schliessen. Der zentrale `PATCH_TOOL_PROMPT` verwendet `String.raw` fuer die drei unverfaelschten JSON-Escape-Sequenzen.
+- `workspace/patch-tool.css`: Button passt sich der bisherigen roten Fehlermeldung an, ist mit Fokus- und Hover-Styling erkennbar.
+- `sw.js`, `module-manifest.json`, versionsspezifische Test-Assertions: Cachewechsel auf v49. Keine weiteren Assets und keine Datenmigration.
+- `tests/v49-browser.py`: Regression fuer Sidebar-Reihenfolge, kopierbare Fehler (Maus, Tastatur, Fallback) und identische Escape-Phrase im Patch- und Teilen-Dialog.
+
+---
+
 # mindfagg v48 - Aenderungen an der UI
 
 - `index.html`: Zwei permanente Sidebar-Buttons (`workspacePatchQuick`, `workspaceShareQuick`) unter dem nur bei vorhandenem Token sichtbaren `githubSync`. Der `workspaceMore`-Tooltip lautet Download.

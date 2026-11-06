@@ -17,6 +17,9 @@
 .patch-project-controls button{flex:none}
 .patch-message{margin:12px 0;padding:9px 11px;border:1px solid #3e5369;background:#17283a;color:#c4d5e5;border-radius:8px;font-size:12px;overflow-wrap:anywhere}
 .patch-message[data-kind="error"]{border-color:#905065;background:#35212c;color:#ffd5dd}
+.patch-rejected-copy{display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;font:inherit;white-space:normal;overflow-wrap:anywhere;cursor:copy}
+.patch-rejected-copy:hover{text-decoration:underline;text-underline-offset:3px}
+.patch-rejected-copy:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .patch-preview{display:grid;gap:11px;margin:12px 0;min-width:0}
 .patch-preview h4{margin:0;display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:13px}
 .patch-preview h4 span{font-size:11px;color:#a8b6c9;font-weight:500}

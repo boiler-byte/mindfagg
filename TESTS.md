@@ -1,3 +1,17 @@
+# mindfagg v49 - Regressionen
+
+- [ ] Sidebar: **Teilen** steht links von **Patch-Tool**, Desktop und Mobil, Buttons funktionieren weiterhin.
+- [ ] Fehlerhaften JSON-Patch eingeben und pruefen: Anzeige `Patch abgelehnt: ...` ist vollstaendig anklickbar; Klick kopiert exakt diesen Text, meldet Erfolg und loescht die Meldung nicht.
+- [ ] Mit Tab zum Fehler navigieren, Enter und Leertaste kopieren ebenfalls. Bei verweigerter Clipboard-API funktioniert der vorhandene `execCommand('copy')`-Fallback. Misslingt auch dieser, erscheint keine falsche Erfolgsanzeige.
+- [ ] `Patch prüfen, um die Vorschau zu aktualisieren.` bleibt ein eigener roter, klickbarer Validierungs-Hinweis; normale Info- und Planungsfehler bleiben keine Kopierbuttons.
+- [ ] Prompt zeigt die drei literalen Escapes: Anfuehrungszeichen (`\"`), Backslashes (`\\`), Newline (`\n`). Die Phrase ist im Patch-Tool und beim Teilen inhaltlich gleich.
+- [ ] Keine Aenderung an Patch-Operationen, Vorschau, Batch-Undo/Redo, Dateifreigabe oder Projektstruktur.
+- [ ] Offline-Cache `mindfagg-v49` und Manifest `v49`; alte Cache-Version wird beim Aktivieren ersetzt.
+
+**Automatisiert:** `python tests/v49-browser.py`, `node tests/check-structure.mjs`, `node tests/v44-patch.mjs`, `node tests/v45-patch.mjs` und die vorhandenen Browserregressionen.
+
+---
+
 # mindfagg v48 - UI-Regressionspruefung
 
 1. Ohne gespeicherten Access Token erscheint kein Repository-Button. **Patch-Tool** und **Teilen** sind weiterhin nebeneinander sichtbar und oeffnen die bisherigen Dialoge.

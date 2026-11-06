@@ -1,3 +1,20 @@
+# mindfagg v49
+
+Delta-Update fuer eine vollstaendige v48-Installation. Das ZIP enthaelt ausschliesslich neue oder geaenderte Dateien, keine vollstaendige Anwendung.
+
+## Neu in v49
+
+- **Sidebar:** Unter der Repository-Zeile steht **Teilen** links und **Patch-Tool** rechts. Beide behalten ihre bisherigen Funktionen und Labels.
+- **Patch-Ablehnung:** Wenn die JSON-Pruefung einen Fehler meldet (`Patch abgelehnt: ...`), ist die gesamte Fehlermeldung als Button anklickbar. Ein Klick oder Enter/Leertaste kopiert den vollstaendigen Text mit dem bestehenden Clipboard-Fallback. Ein Toast bestaetigt Erfolg oder Fehlschlag; die Fehlermeldung bleibt sichtbar.
+- **Patch-Phrase:** Die JSON-Escape-Beispiele nennen nun ausdruecklich die Schreibweisen `\"` (Anfuehrungszeichen), `\\` (Backslash) und `\n` (Zeilenumbruch). Der gemeinsame `PATCH_TOOL_PROMPT` wird sowohl im Patch-Tool als auch ueber **Patch-Phrase kopieren** im Teilen-Dialog verwendet.
+- **Offline-PWA:** Cache-Name und Modulmanifest auf `v49` angepasst. Keine Datenmigration oder zusaetzlichen Produktivmodule.
+
+**Installation:** `mindfagg-v49.zip` in das vorhandene v48-App-Verzeichnis entpacken und Dateien ersetzen; die Verzeichnisstruktur beibehalten.
+
+**Tests:** `node tests/check-structure.mjs`, `python tests/v49-browser.py` und die vorhandenen Patch-, Sidebar- und Editor-Regressionstests.
+
+---
+
 # mindfagg v48
 
 Delta-Update fuer die vollstaendige Installation **mindfagg v47**. Das ZIP enthaelt ausschliesslich neue oder geaenderte Dateien; unveraenderte Module bleiben aus v47 bestehen.

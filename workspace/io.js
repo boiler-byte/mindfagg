@@ -113,6 +113,23 @@ function workspaceShareIndividualFiles(items){
     return new File([exportFileBytes(d)],candidate,{type:workspaceMimeFor(path)});
   });
 }
+// A self-contained patch is importable by the Patch Tool. Text files use the
+// editor contents, while binary files carry their exact bytes as Base64.
+function workspaceShareCreatePatch(items){
+  const patches=items.map(d=>{
+    const file=workspacePath(d);
+    if(docIsText(d)&&(isMarkdownPath(file)||knownTextPath(file)))return {operation:'create',file,content:String(d.content??'')};
+    // Unrecognized extensions cannot be created as text by the Patch Tool.
+    // Keep the actual file bytes instead of generating an unimportable patch.
+    return {operation:'create',file,encoding:'base64',content:patchToolEncodeBase64(exportFileBytes(d))};
+  });
+  const json=JSON.stringify({patches},null,2);
+  parseWorkspacePatch(json); // enforce the Patch Tool's 500-operation / 4-MB limits
+  return json;
+}
+function workspaceShareClipboardIcon(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4.5V3h6v1.5"/></svg>';
+}
 function openWorkspaceShareDialog(){
   if(!projectId)return toast('Kein Projekt ausgewählt');
   const originProject=projectId,files=workspaceCurrentFiles(),groups=workspaceShareGroups(files);
@@ -135,7 +152,7 @@ function openWorkspaceShareDialog(){
     <div class="workspace-share-list" aria-label="Dateien zum Teilen auswählen">${markup}</div>
     <div class="workspace-share-totals" role="status" aria-live="polite"><span id="workspaceShareCount"></span><span id="workspaceShareBytes"></span></div>
     <p class="workspace-share-info">Beim Einzelversand bleiben die Dateiinhalte erhalten, aber nicht die Verzeichnisstruktur. Gleichnamige Dateien erhalten einen Pfadpräfix. Ohne System-Teilen werden Downloads angeboten.</p>
-    <div class="modalactions workspace-share-actions"><button type="button" class="btn workspace-share-copy" id="workspaceShareCopyPatch">Patch-Phrase kopieren</button><button type="button" class="btn" id="workspaceShareCancel">Abbrechen</button><button type="button" class="btn primary" id="workspaceShareSubmit">Teilen</button></div>
+    <div class="modalactions workspace-share-actions"><span class="workspace-share-copy-group"><button type="button" class="btn workspace-share-copy" id="workspaceShareCopyPatch" title="Patch-Phrase kopieren">${workspaceShareClipboardIcon()}<span>Patch Phrase</span></button><button type="button" class="btn workspace-share-copy" id="workspaceShareExportPatch" title="Ausgewählte Dateien als Patch kopieren">${workspaceShareClipboardIcon()}<span>Patch Export</span></button></span><button type="button" class="btn" id="workspaceShareCancel">Abbrechen</button><button type="button" class="btn primary" id="workspaceShareSubmit">Teilen</button></div>
   </div>`);
   const root=$('#workspaceShareDialog');
   function update(){
@@ -153,6 +170,7 @@ function openWorkspaceShareDialog(){
     const totalBytes=files.reduce((sum,d)=>sum+(selected.has(d.id)?fileSizes.get(d.id):0),0);
     root.querySelector('#workspaceShareBytes').textContent='Gesamtgröße: '+workspaceShareSizeLabel(totalBytes);
     root.querySelector('#workspaceShareSubmit').disabled=selected.size===0;
+    root.querySelector('#workspaceShareExportPatch').disabled=selected.size===0;
   }
   root.addEventListener('change',event=>{
     const input=event.target;
@@ -174,6 +192,17 @@ function openWorkspaceShareDialog(){
       if(await writeMapClipboard(PATCH_TOOL_PROMPT))toast('Patch-Phrase kopiert');
       else toast('Patch-Phrase konnte nicht kopiert werden');
     }catch(error){console.error(error);toast('Patch-Phrase konnte nicht kopiert werden')}
+  };
+  root.querySelector('#workspaceShareExportPatch').onclick=async()=>{
+    if(projectId!==originProject){toast('Das Projekt wurde gewechselt. Bitte Teilen erneut öffnen.');return}
+    const latest=new Map(docs.filter(d=>d.projectId===originProject).map(d=>[d.id,d]));
+    const chosen=files.filter(d=>selected.has(d.id)).map(d=>latest.get(d.id)).filter(Boolean);
+    if(chosen.length!==selected.size){toast('Die Dateiauswahl ist nicht mehr aktuell. Bitte Teilen erneut öffnen.');return}
+    if(!chosen.length){toast('Keine Dateien ausgewählt');return}
+    try{
+      const patch=workspaceShareCreatePatch(chosen);
+      toast(await writeMapClipboard(patch)?'Patch Export kopiert ('+chosen.length+' Dateien)':'Patch Export konnte nicht kopiert werden');
+    }catch(error){console.error(error);toast('Patch Export fehlgeschlagen: '+error.message)}
   };
   root.querySelector('#workspaceShareSubmit').onclick=()=>{
     if(projectId!==originProject){toast('Das Projekt wurde gewechselt. Bitte Teilen erneut öffnen.');return}

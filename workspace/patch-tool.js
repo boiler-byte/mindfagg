@@ -14,6 +14,7 @@ const PATCH_TOOL_PROMPT=[
   'Jeder Eintrag benötigt "operation" und "file"; "description" ist ein optionaler, kurzer Text.',
   'Erlaubte Operationen und ihre Felder (keine anderen Schlüssel):',
   '- "create": {"operation":"create","file":"src/neu.js","content":"const x = 1;"} – neue Textdatei; darf nicht existieren.',
+  '- Binärdateien per "create": {"operation":"create","file":"assets/icon.png","encoding":"base64","content":"iVBORw0KGgo..."} – Base64 ohne Data-URL-Präfix.',
   '- "update": {"operation":"update","file":"index.html","description":"Titel","hunks":[{"search":"<h1>Alt</h1>","replace":"<h1>Neu</h1>","occurrence":1}]} – bestehende Textdatei gezielt ändern.',
   '- "replace": {"operation":"replace","file":"src/app.js","content":"vollständiger neuer Dateiinhalt"} – bestehende Textdatei komplett ersetzen.',
   '- "delete": {"operation":"delete","file":"src/alt.js"} – vorhandene Datei löschen.',
@@ -22,7 +23,7 @@ const PATCH_TOOL_PROMPT=[
   'Bei "update" muss "hunks" ein nichtleeres Array sein. Jeder Hunk hat exakt "search", "replace" und "occurrence".',
   '"search" ist ein nichtleerer, wortwörtlicher Text inkl. Einrückung/Zeilenumbrüchen; keine Regex. "replace" darf leer sein.',
   '"occurrence" ist der 1-basierte, nicht überlappende Treffer. Alle ausgewählten Vorgänge laufen in JSON-Reihenfolge auf dem jeweils aktuellen Dateistand.',
-  '"content" ist immer ein String und darf leer sein. Nur Textdateien können erstellt oder inhaltlich geändert werden; Umbenennen/Löschen funktioniert auch für binäre Dateien.',
+  '"content" ist immer ein String und darf leer sein. Für binäres "create" ist nur zusätzlich "encoding":"base64" erlaubt; "update"/"replace" ändern nur Textdateien.',
   String.raw`Escape JSON-Zeichen korrekt (insbesondere Anführungszeichen \", Backslashes \\ und Zeilenumbrüche als \n).`,
   'Niemals Quelltext erfinden: Falls Originalinhalt für ein exaktes update fehlt, zuerst die betreffende Datei anfordern.'
 ].join('\n');
@@ -44,6 +45,21 @@ function patchToolCheckPath(path,label){
   }
 }
 function patchToolOperation(entry){return Object.hasOwn(entry,'operation')?entry.operation:'update'}
+// Binary create patches store bytes losslessly. Encode in chunks divisible by
+// three so neither argument limits nor intermediate Base64 padding interfere.
+function patchToolEncodeBase64(bytes){
+  const data=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes),parts=[];
+  for(let i=0;i<data.length;i+=24576)parts.push(btoa(String.fromCharCode(...data.subarray(i,i+24576))));
+  return parts.join('');
+}
+function patchToolDecodeBase64(value){
+  const raw=atob(value),bytes=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+  return bytes;
+}
+function patchToolBase64ByteSize(value){
+  return value.length/4*3-(value.endsWith('==')?2:value.endsWith('=')?1:0);
+}
 function parseWorkspacePatch(source){
   if(typeof source!=='string'||!source.trim())throw Error('Bitte einen JSON-Patch einfügen.');
   if(new TextEncoder().encode(source).length>PATCH_TOOL_MAX_BYTES)throw Error('Der Patch ist zu groß (maximal 4 MB).');
@@ -65,7 +81,7 @@ function parseWorkspacePatch(source){
     if(op==='update'&&!legacy)required.push('hunks');
     if(op==='create'||op==='replace')required.push('content');
     if(op==='rename')required.push('to');
-    patchToolAllowedKeys(entry,required,legacy?[]:['description'],key);
+    patchToolAllowedKeys(entry,required,legacy?[]:op==='create'?['description','encoding']:['description'],key);
     patchToolCheckPath(entry.file,key+'.file');
     if(!legacy&&typeof entry.operation!=='string')throw Error(key+': operation muss ein Text sein.');
     if(Object.hasOwn(entry,'description')&&(typeof entry.description!=='string'||!entry.description.trim())){
@@ -84,6 +100,10 @@ function parseWorkspacePatch(source){
     }else{
       total++;
       if((op==='create'||op==='replace')&&typeof entry.content!=='string')throw Error(key+': content muss ein Text sein (darf leer sein).');
+      if(op==='create'&&Object.hasOwn(entry,'encoding')){
+        if(entry.encoding!=='base64')throw Error(key+': Nur encoding=base64 ist erlaubt.');
+        if(!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(entry.content))throw Error(key+': content ist kein gültiges Base64.');
+      }
       if(op==='rename')patchToolCheckPath(entry.to,key+'.to');
     }
     if(total>PATCH_TOOL_MAX_HUNKS)throw Error('Maximal 500 ausgewählbare Vorgänge erlaubt.');
@@ -199,17 +219,21 @@ function planWorkspacePatch(patch,selected,whichProject=projectId){
       }else if(op==='create'){
         const collision=canPlace(entry.file);
         if(collision)fail(row,collision);
-        else if(!isMarkdownPath(entry.file)&&!knownTextPath(entry.file))fail(row,'Nur Textdateien können per Patch erstellt werden.');
+        else if(entry.encoding!=='base64'&&!isMarkdownPath(entry.file)&&!knownTextPath(entry.file))fail(row,'Nur Textdateien können ohne Base64 erstellt werden.');
         else{
-          const md=isMarkdownPath(entry.file);
+          const md=isMarkdownPath(entry.file),binary=entry.encoding==='base64';
+          const bytes=binary?patchToolDecodeBase64(entry.content):null;
+          const ext=entry.file.slice(entry.file.lastIndexOf('.')+1).toLowerCase();
+          const binaryType=typeof WORKSPACE_IMAGE_MIME!=='undefined'&&WORKSPACE_IMAGE_MIME[ext]?'image':
+            typeof WORKSPACE_AUDIO_MIME!=='undefined'&&WORKSPACE_AUDIO_MIME[ext]?'audio':'binary';
           files.set(fromKey,{id:uid(),projectId:whichProject,path:entry.file,name:docNameForPath(entry.file),
-            fileType:md?'markdown':'script',content:entry.content,...(md?{preserveSource:true}:{} )});
+            ...(binary?{fileType:binaryType,data:bytes}:{fileType:md?'markdown':'script',content:entry.content,...(md?{preserveSource:true}:{})})});
           for(const parent of patchToolParents(entry.file)){
             const key=patchToolCanonical(parent);
             if(!folders.has(key)){folders.set(key,parent);additions.set(key,parent)}
           }
-          row.byteDelta=patchToolByteSize(entry.content);
-          row.message='Neue Textdatei wird angelegt.';
+          row.byteDelta=binary?bytes.byteLength:patchToolByteSize(entry.content);
+          row.message=binary?'Neue Binärdatei wird angelegt.':'Neue Textdatei wird angelegt.';
         }
       }else if(op==='delete'){
         if(!file)fail(row,'Datei ist im Projekt nicht vorhanden.');
@@ -507,7 +531,12 @@ function patchToolRenderPreview(){
         const delta=deltaOf(id)??0;
         detail=`<div class="patch-preview-diff"><div class="patch-preview-diff-search"><small>search (bisheriger Dateiinhalt) ${patchToolDeltaHtml(delta)}</small><pre>${before?diff.searchHtml:'<em>(leere Datei)</em>'}</pre></div><div class="patch-preview-diff-replace"><small>replace (neuer Dateiinhalt)</small><pre>${entry.content?diff.replaceHtml:'<em>(leere Datei)</em>'}</pre></div></div>`;
       }
-      else if(op==='create')detail=`<div class="patch-preview-diff patch-preview-single"><div><small>Inhalt der neuen Datei</small><pre>${entry.content?patchToolPreviewText(entry.content):'<em>(leere Datei)</em>'}</pre></div></div>`;
+      else if(op==='create'){
+        const binary=entry.encoding==='base64';
+        const preview=binary?`Binärdatei (${patchToolBase64ByteSize(entry.content)} B, Base64)`:
+          entry.content?patchToolPreviewText(entry.content):'<em>(leere Datei)</em>';
+        detail=`<div class="patch-preview-diff patch-preview-single"><div><small>${binary?'Neue Binärdatei':'Inhalt der neuen Datei'}</small><pre>${preview}</pre></div></div>`;
+      }
       else if(op==='delete')detail='<p class="patch-operation-hint">Die Datei wird vollständig gelöscht (einschließlich Inhalt).</p>';
       else if(op==='rename')detail=`<p class="patch-operation-hint">${escapeHtml(entry.file)} → <strong>${escapeHtml(entry.to)}</strong></p>`;
       // Never fall back to the all-selected plan for unchecked operations.

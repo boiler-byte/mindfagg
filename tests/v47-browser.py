@@ -83,7 +83,7 @@ with sync_playwright() as pw:
 
     # Copy is the *exact* string used by the Patch Tool, not a shortened copy.
     buttons = page.locator('#workspaceShareDialog .workspace-share-actions button')
-    assert buttons.all_text_contents() == ['Patch-Phrase kopieren', 'Abbrechen', 'Teilen']
+    assert buttons.all_text_contents() == ['Patch Phrase', 'Patch Export', 'Abbrechen', 'Teilen']
     page.locator('#workspaceShareCopyPatch').click()
     page.wait_for_function('window.copiedPhrase !== null')
     assert page.evaluate('window.copiedPhrase === PATCH_TOOL_PROMPT')

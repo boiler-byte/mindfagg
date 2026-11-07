@@ -1,3 +1,31 @@
+# mindfagg v63 – Abnahme
+
+- [ ] **Dateien teilen:** Der bisherige Kopieren-Button heißt mit
+  Clipboard-Icon „Patch Phrase“; ein neuer Button „Patch Export“ besitzt
+  ebenfalls ein Clipboard-Icon. Beide sind auf kleinen Displays bedienbar.
+- [ ] „Patch Phrase“ kopiert die gemeinsame Patch-Tool-Anweisung.
+- [ ] „Patch Export“ kopiert ein gültiges JSON mit Wurzelschlüssel `patches`.
+  Jeder ausgewählte Eintrag hat `operation:"create"`, seinen relativen
+  Pfad im Feld `file` und den vollständigen Dateiinhalt im Feld `content`.
+- [ ] Einzelne Dateien, komplette Verzeichnisgruppen und „Alle wählen“
+  ändern die Exportauswahl. Nicht ausgewählte Dateien dürfen nicht im Patch
+  erscheinen. Ohne Auswahl ist „Patch Export“ deaktiviert.
+- [ ] UTF-8/Unicode und Zeilenumbrüche werden im JSON korrekt maskiert.
+  JPEG/PNG/Audio/Binärdateien behalten ihre Originalbytes via
+  `encoding:"base64"` und sind mit dem Patch-Tool wiederherstellbar.
+- [ ] Das Erreichen der Patch-Grenzen (4 MB JSON/500 Operationen) erzeugt
+  eine verständliche Fehlermeldung, keinen abgeschnittenen Patch.
+- [ ] Ein zuvor geöffnetes Teilen-Fenster darf nach Projektwechsel nicht
+  in die Zwischenablage des anderen Projekts exportieren. Die bisherigen
+  ZIP-/Einzeldatei- und Patch-Phrase-Funktionen bleiben funktionsfähig.
+- [ ] Der Service Worker verwendet `mindfagg-v63`.
+
+**Automatisiert:** `python3 tests/v63-browser.py`,
+`node tests/v63-patch.mjs`, `python3 tests/v47-browser.py`,
+`node tests/v45-patch.mjs`, `node tests/check-structure.mjs`.
+
+---
+
 # mindfagg v62 – Abnahme
 
 - [ ] Markdown-HTML: Über eine Überschrift ohne Status/Datum hovern. Der

@@ -66,5 +66,8 @@
 .workspace-share-file .workspace-share-size{flex:none;color:#9eafc7;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:11px;text-align:right;margin-left:auto}
 .workspace-share-totals{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 5px 2px;color:#cbd9ed;font-size:12px;font-variant-numeric:tabular-nums}
 .workspace-share-totals #workspaceShareBytes{font-weight:700}
-.workspace-share-actions .workspace-share-copy{margin-right:auto}
-@media(max-width:480px){.workspace-share-actions .workspace-share-copy{flex-basis:auto;margin-right:auto;font-size:11px;padding:9px 10px}.workspace-share-actions #workspaceShareSubmit{flex-basis:100%;order:1}}
+/* v63: compact, icon-led clipboard actions; wrapping never hides either action. */
+.workspace-share-copy-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-right:auto}
+.workspace-share-actions .workspace-share-copy{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.workspace-share-actions .workspace-share-copy svg{width:16px;height:16px;flex:none}
+@media(max-width:480px){.workspace-share-copy-group{width:100%;margin-right:0}.workspace-share-actions .workspace-share-copy{font-size:11px;padding:9px 10px}.workspace-share-actions #workspaceShareSubmit{flex-basis:100%;order:1}}

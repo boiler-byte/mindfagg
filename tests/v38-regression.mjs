@@ -34,6 +34,6 @@ inspect.error="SecurityError: Failed to execute 'open' on 'IDBFactory': The docu
 assert.equal(vm.runInContext('htmlPreviewStorageBlockedError(error)',inspect),true);
 inspect.error='Uncaught ReferenceError: nothing is defined';
 assert.equal(vm.runInContext('htmlPreviewStorageBlockedError(error)',inspect),false);
-assert.equal(JSON.parse(read('module-manifest.json')).version,'v62');
-assert.match(read('sw.js'),/const VERSION='mindfagg-v62'/);
+assert.equal(JSON.parse(read('module-manifest.json')).version,'v63');
+assert.match(read('sw.js'),/const VERSION='mindfagg-v63'/);
 console.log('PASS: legacy v38 storage opt-in is revoked, preview stays sandboxed and storage errors are detected');

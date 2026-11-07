@@ -27,6 +27,6 @@ assert.match(html,/content-security-policy/i);
 const settings=fs.readFileSync(path.join(root,'ui/settings.js'),'utf8');
 assert.doesNotMatch(settings,/appPreviewStorageAccess|previewStorageAccess/);
 assert.match(settings,/Immer isoliert/);
-assert.equal(JSON.parse(fs.readFileSync(path.join(root,'module-manifest.json'),'utf8')).version,'v62');
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/const VERSION='mindfagg-v62'/);
+assert.equal(JSON.parse(fs.readFileSync(path.join(root,'module-manifest.json'),'utf8')).version,'v63');
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/const VERSION='mindfagg-v63'/);
 console.log('PASS: legacy preview origin permission is ignored, removed from persisted settings and never present in new sandbox');

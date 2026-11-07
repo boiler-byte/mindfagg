@@ -1,3 +1,32 @@
+# mindfagg v63 – Patch Export im Teilen-Dialog
+
+Dieses **Delta-Update** wird über v62 installiert; die Ordnerstruktur
+beim Kopieren beibehalten. Es enthält ausschließlich neue und geänderte
+Dateien. Der Offline-/Service-Worker-Cache verwendet `mindfagg-v63`.
+
+- **Patch Phrase:** Der Kopieren-Button im Dialog **Dateien teilen** zeigt
+  jetzt ein Clipboard-Icon und die Beschriftung „Patch Phrase“. Er kopiert
+  weiterhin die unveränderte gemeinsame Patch-Tool-Anweisung (mit Hinweis
+  auf die neue Binärdatei-Variante).
+- **Patch Export:** Ein zweiter Clipboard-Button exportiert exakt die
+  markierten Dateien und deren projekt-relative Pfade in die Zwischenablage:
+  `{"patches":[{"operation":"create","file":"...","content":"..."}]}`.
+  Nicht ausgewählte Dateien werden nicht exportiert; der Dialog bleibt offen.
+- **Binärdateien:** Ein `create`-Eintrag mit `"encoding":"base64"` legt
+  Bild-, Audio- und sonstige Binärdateien bytegenau an. Der Patch-Parser
+  akzeptiert diese optionale Kodierung nur für `create`. Textdateien behalten
+  das bisherige `content`-Format ohne zusätzliche Kodierung.
+- **Grenzen:** Die bisherigen Patch-Limits (4 MB JSON, höchstens 500
+  Operationen) werden bereits vor dem Kopieren geprüft; bei Überschreitung
+  erfolgt keine unvollständige Ausgabe. Ohne Auswahl ist „Patch Export“
+  deaktiviert.
+
+**Tests:** `python3 tests/v63-browser.py`, `node tests/v63-patch.mjs`,
+`python3 tests/v47-browser.py`, `node tests/v45-patch.mjs` und
+`node tests/check-structure.mjs` (bei vollständiger Installation).
+
+---
+
 # mindfagg v62 – Plus-Dropdown ohne Layoutverschiebung
 
 Dieses **Delta-Update** wird über v61 installiert und enthält ausschließlich

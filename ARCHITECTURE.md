@@ -1,3 +1,28 @@
+# mindfagg v63 – Clipboard-Patch-Export
+
+- `workspace/io.js`: Die Dateiauswahl im Teilen-Dialog steuert den neuen
+  Button `#workspaceShareExportPatch`. `workspaceShareCreatePatch` erstellt
+  für jede ausgewählte Datei einen `operation:create`-Eintrag mit dem
+  vollständigen relativen Workspace-Pfad. Text verwendet `content`; Binärdaten
+  und unbekannte Erweiterungen werden via Base64 ohne Byteverlust serialisiert.
+  Der Export validiert sein eigenes JSON vor dem Schreiben und respektiert
+  die Grenzen des bestehenden Patch-Parsers. Projektwechsel bzw. veraltete
+  Auswahlen werden abgewiesen.
+- `workspace/io.css`: Beide Clipboard-Buttons mit inline SVG und responsivem
+  Gruppenlayout. `#workspaceShareCopyPatch` behält seine Funktion und ID,
+  sein sichtbares Label lautet nun „Patch Phrase“.
+- `workspace/patch-tool.js`: Rückwärtskompatible, optionale Eigenschaft
+  `encoding:"base64"` **nur** für `create`. Strikte Base64-Validierung,
+  chunk-basierter Encoder, Byte-Decoder und korrekte Einordnung von Bildern,
+  Audio und sonstigen Binärdaten. Die Vorschau zeigt Dateityp und Byteanzahl
+  statt unlesbarem Base64-Quelltext. `update`/`replace` bleiben textbasiert.
+- Datenbankformat und Projekt-ZIP bleiben unverändert; exportierte Patches
+  eignen sich für ein anderes/leeres Zielprojekt, da `create` bestehende
+  Pfade weiterhin absichtlich nicht überschreibt.
+- `tests/v63-browser.py` und `tests/v63-patch.mjs`: Auswahlfilter, Kopieren,
+  Binär-Roundtrip, Unicode, Fehlervalidierung, Mobilansicht und Patch-Planung.
+- `sw.js` / `module-manifest.json`: Cache-/Anwendungsversion v63.
+
 # mindfagg v62 – Absolute Plus-Position ohne Layoutsprung
 
 - `views/html-markdown.js`: Bei Überschriften ohne Status und Datum liegt

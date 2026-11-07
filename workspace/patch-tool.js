@@ -23,6 +23,8 @@ const PATCH_TOOL_PROMPT=[
   '"occurrence" ist der 1-basierte, nicht überlappende Treffer. Alle ausgewählten Vorgänge laufen in JSON-Reihenfolge auf dem jeweils aktuellen Dateistand.',
   '"content" ist immer ein String und darf leer sein. Nur Textdateien können erstellt oder inhaltlich geändert werden; Umbenennen/Löschen funktioniert auch für binäre Dateien.',
   String.raw`Escape JSON-Zeichen korrekt (insbesondere Anführungszeichen \", Backslashes \\ und Zeilenumbrüche als \n).`,
+  '- Die gesamte Ausgabe muss ein syntaktisch gültiges JSON-Dokument gemäß RFC 8259 sein.',
+  '- Alle Werte von content, search und replace sind JSON-Strings. Ihr Inhalt muss so serialisiert werden, dass nach dem JSON-Parsing exakt der gewünschte Dateiinhalt entsteht.',
   'Niemals Quelltext erfinden: Falls Originalinhalt für ein exaktes update fehlt, zuerst die betreffende Datei anfordern.'
 ].join('\n');
 let patchToolState=null;

@@ -1,5 +1,5 @@
 'use strict';
-/* mindfagg v56: safe, offline Markdown-to-HTML view with editable node metadata.
+/* mindfagg v62: safe, offline Markdown-to-HTML view with editable node metadata.
  * Markdown remains the only document source. Never interpret raw Markdown as
  * trusted HTML or execute scripts from it. */
 let markdownHtmlAssetURLs=[];
@@ -86,7 +86,7 @@ function markdownHtmlNodeControls(node,line){
   const menu=available.length?`<div class="html-md-attr-menu"><button type="button" class="html-md-add-attr" data-html-menu-toggle="${line}" aria-label="Attribut für ${escapeHtml(node.title)} hinzufügen" aria-expanded="false" aria-controls="html-md-attr-options-${line}" title="Attribut hinzufügen">+</button><div class="html-md-attr-options" id="html-md-attr-options-${line}" hidden>${available.join('')}</div></div>`:'';
   const draftStatus=!hasStatus?`<div class="html-md-add-editor html-md-status" data-html-editor="status" hidden><select data-html-status-new="${line}" aria-label="Status für ${escapeHtml(node.title)} wählen"><option value="" selected>Status wählen</option>${statusOptions}</select><button type="button" data-html-attr-cancel>Abbrechen</button></div>`:'';
   const draftDate=!hasDate?`<div class="html-md-add-editor html-md-date-draft" data-html-editor="date" data-html-date-line="${line}" hidden>${markdownHtmlDateFields(line,null)}</div>`:'';
-  return `<div class="html-md-node-controls" aria-label="Knoten-Eigenschaften">${status}${date}${menu}${draftStatus}${draftDate}</div>`;
+  return `<div class="html-md-node-controls${!hasStatus&&!hasDate?' html-md-node-controls-plus-only':''}" aria-label="Knoten-Eigenschaften">${status}${date}${menu}${draftStatus}${draftDate}</div>`;
 }
 function markdownHtmlTableCells(row){
   return String(row).trim().replace(/^\||\|$/g,'').split('|').map(cell=>cell.trim());
@@ -109,7 +109,9 @@ function markdownHtmlRenderBody(scan){
       }
       if(item.kind!=='list'||item.indent!==base||ordered(item)!==(tag==='ol'))break;
       const node=byLine.get(item.line),text=node?node.title:item.title;
-      out+=`<li class="${node&&node.checked!==null?'html-md-list-node':''}"><div class="html-md-list-row">${markdownHtmlNodeCheckbox(node,item.line)}<span class="html-md-list-text">${markdownHtmlInline(text)}</span>${markdownHtmlNodeControls(node,item.line)}</div>`;
+      // Without status/date, the only visible control is the floating plus menu.
+      const floating=!!node&&(!node.status||node.status==='story')&&!node.date;
+      out+=`<li class="${node&&node.checked!==null?'html-md-list-node':''}"><div class="html-md-list-row${floating?' html-md-list-row-floating':''}" data-html-node tabindex="0" role="group">${markdownHtmlNodeCheckbox(node,item.line)}<span class="html-md-list-text">${markdownHtmlInline(text)}</span>${markdownHtmlNodeControls(node,item.line)}</div>`;
       i++;
       while(i<items.length){
         const next=items[i];
@@ -149,7 +151,10 @@ function markdownHtmlRenderBody(scan){
       const node=byLine.get(item.line),title=node?node.title:item.title,level=item.level;
       const id='html-md-heading-'+item.line;
       toc.push({line:item.line,level,title:plain(title)||title});
-      html+=`<div class="html-md-heading" id="${id}"><div class="html-md-heading-title">${markdownHtmlNodeCheckbox(node,item.line)}<h${level}>${markdownHtmlInline(title)}</h${level}></div>${markdownHtmlNodeControls(node,item.line)}</div>`;
+      const controls=markdownHtmlNodeControls(node,item.line);
+      const floating=!!node&&(!node.status||node.status==='story')&&!node.date;
+      // Anchor the plus-only toolbar to the heading text, not to a new line.
+      html+=`<div class="html-md-heading" id="${id}" data-html-node tabindex="0" role="group"><div class="html-md-heading-title${floating?' html-md-heading-title-floating':''}">${markdownHtmlNodeCheckbox(node,item.line)}<h${level}>${markdownHtmlInline(title)}</h${level}>${floating?controls:''}</div>${floating?'':controls}</div>`;
       i++;continue;
     }
     if(item.kind==='list'){
@@ -207,6 +212,13 @@ function renderMarkdownHtml(){
   </div>`;
   const viewElement=$('#markdownHtmlView');
   viewElement.addEventListener('click',async event=>{
+    // A node stays selected after a tap/click; hover and keyboard focus are
+    // handled in CSS. Keep the add-attribute button scoped to that node.
+    const selected=event.target.closest('[data-html-node]');
+    viewElement.querySelectorAll('.html-md-node-selected').forEach(node=>{
+      if(node!==selected)node.classList.remove('html-md-node-selected');
+    });
+    if(selected)selected.classList.add('html-md-node-selected');
     const jump=event.target.closest('[data-html-jump]');
     if(jump){$('#html-md-heading-'+jump.dataset.htmlJump)?.scrollIntoView({behavior:'smooth',block:'start'});return}
     const wiki=event.target.closest('[data-html-wiki]');
@@ -223,7 +235,18 @@ function renderMarkdownHtml(){
       const opening=options.hidden;
       viewElement.querySelectorAll('.html-md-attr-options').forEach(menu=>menu.hidden=true);
       viewElement.querySelectorAll('[data-html-menu-toggle]').forEach(button=>button.setAttribute('aria-expanded','false'));
+      // A floating plus can be near the right edge, especially on mobile.
+      // Flip the dropdown in that case so all options remain reachable.
+      options.style.left='';
+      options.style.right='';
       options.hidden=!opening;
+      if(opening){
+        const viewport=viewElement.querySelector('.html-md-scroll').getBoundingClientRect();
+        if(options.getBoundingClientRect().right>viewport.right-8){
+          options.style.left='auto';
+          options.style.right='0';
+        }
+      }
       toggle.setAttribute('aria-expanded',String(opening));
       return;
     }

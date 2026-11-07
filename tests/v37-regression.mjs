@@ -45,6 +45,6 @@ assert.ok(!nodeEditor.includes('isKanbanTicket'),'Editor must not special-case K
 assert.match(nodeEditor,/<label for="nodeTitle">Knoten bearbeiten<\/label>/);
 assert.match(nodeEditor,/id="nodeStatus"/);
 assert.match(nodeEditor,/status:\$\('#nodeStatus'\)\.value\|\|null/);
-assert.equal(JSON.parse(read('module-manifest.json')).version,'v60');
-assert.match(read('sw.js'),/const VERSION='mindfagg-v60'/);
+assert.equal(JSON.parse(read('module-manifest.json')).version,'v62');
+assert.match(read('sw.js'),/const VERSION='mindfagg-v62'/);
 console.log('PASS: current sibling spacing 24/12px, shared node editor and v53 PWA version');

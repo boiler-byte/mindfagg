@@ -33,3 +33,26 @@
 .html-md-heading .html-md-node-controls{margin-top:7px}
 /* On narrow screens the HTML view is represented only by its icon. */
 @media(max-width:850px){#markdownTabs{grid-template-columns:minmax(80px,1.3fr) minmax(77px,1.25fr) repeat(3,minmax(34px,.55fr))}#markdownTabs .tab[data-view="html"] .tab-label{display:none}}
+
+/* v61/v62: Show add-attribute controls only on the hovered, focused or
+ * selected node. For nodes without status/date the control floats outside the
+ * text box, so entering/leaving it never changes line heights or wrapping. */
+.html-md-heading-title > .html-md-node-controls-plus-only,
+.html-md-list-row > .html-md-node-controls-plus-only{display:none}
+.html-md-heading:is(:hover,:focus-within,.html-md-node-selected) .html-md-heading-title > .html-md-node-controls-plus-only{display:flex}
+.html-md-list-row:is(:hover,:focus-within,.html-md-node-selected) > .html-md-node-controls-plus-only{display:inline-flex}
+.html-md-heading .html-md-node-controls .html-md-add-attr,
+.html-md-list-row > .html-md-node-controls .html-md-add-attr{visibility:hidden;opacity:0;pointer-events:none}
+.html-md-heading:is(:hover,:focus-within,.html-md-node-selected) .html-md-node-controls .html-md-add-attr,
+.html-md-list-row:is(:hover,:focus-within,.html-md-node-selected) > .html-md-node-controls .html-md-add-attr{visibility:visible;opacity:1;pointer-events:auto}
+.html-md-heading:focus-visible,.html-md-list-row:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
+
+/* v62: Put the plus button directly beside the heading/list text without
+ * reserving or adding a toolbar row. Reserve just its width for long labels. */
+.html-md-heading-title-floating{position:relative;width:fit-content;max-width:calc(100% - 34px)}
+.html-md-list-row-floating{position:relative;display:inline-flex;max-width:calc(100% - 34px);vertical-align:baseline}
+.html-md-heading-title-floating > .html-md-node-controls-plus-only,
+.html-md-list-row-floating > .html-md-node-controls-plus-only{
+  position:absolute;top:50%;left:100%;transform:translateY(-50%);
+  margin:0;padding-left:7px;z-index:5;white-space:nowrap
+}

@@ -1,3 +1,38 @@
+# mindfagg v62 – Absolute Plus-Position ohne Layoutsprung
+
+- `views/html-markdown.js`: Bei Überschriften ohne Status und Datum liegt
+  die Plus-Attributleiste direkt im Titelcontainer; bei entsprechenden
+  Listenknoten erhält die Zeile die Klasse `html-md-list-row-floating`.
+  Überschriften/Listen mit Status oder Datum behalten ihre regulären
+  Eigenschaftenzeilen. Öffnende Dropdowns werden bei Bedarf nach links
+  ausgerichtet, damit sie am rechten Rand sichtbar bleiben.
+- `views/html-markdown.css`: Die nur aus dem Plus-Menü bestehende
+  Eigenschaftenzeile ist absolut neben dem Titel platziert. Durch
+  `position:absolute` verursacht ihr Ein- und Ausblenden weder Zeilenumbruch
+  noch Höhenänderungen. Die Hover-/Klick-/Fokusregel aus v61 bleibt bestehen.
+- `tests/v62-browser.py`: Testet feste Knotenabmessungen vor und nach
+  Hover/Dropdown auf Desktop/Mobilgeräten, Position und Erreichbarkeit der
+  Schaltfläche, Status-/Datumsknoten und den rechten Bildschirmrand.
+- `module-manifest.json` / `sw.js`: Cache-Version v62; Datenformate unverändert.
+
+# mindfagg v61 – Kontextabhängiges Plus-Menü in der Markdown-HTML-Ansicht
+
+- `views/html-markdown.js`: Überschriften und Listenknoten bekommen
+  `data-html-node` und einen Tastaturfokus. Die delegierte Klickbehandlung
+  wählt exklusiv den geklickten Knoten über `.html-md-node-selected`, ein
+  Klick außerhalb hebt die Wahl auf. Andere Attribut-/Speicheraktionen nutzen
+  unverändert die bereits vorhandenen Handler.
+- `views/html-markdown.css`: Der Plus-Button ist außerhalb von `:hover`,
+  `:focus-within` oder der expliziten Knotenauswahl verborgen. Ein
+  `.html-md-node-controls-plus-only`-Container wird im inaktiven Zustand
+  komplett aus dem Layout entfernt; verschachtelte Listenknoten verwenden
+  ihren jeweiligen `.html-md-list-row` als Hover-Grenze.
+- `module-manifest.json` und `sw.js`: Neuer Cache-Schlüssel v61. An
+  Datenbank-, Markdown- und Projekt-Formaten gibt es keine Änderungen.
+- `tests/v61-browser.py`: Chromium-Prüfungen für Ausgangszustand, Hover,
+  Knotenwahl, verschachtelte Listen, Tastatur, Touch und die vorhandenen
+  Attributmenüs. Versionsprüfungen älterer Tests sind auf v61 gesetzt.
+
 # mindfagg v60 – CSV-Dropdowns und Einstellungen
 
 - `ui/settings.js` und `ui/settings.css`: Den gesamten Bereich für CSV-Defaults

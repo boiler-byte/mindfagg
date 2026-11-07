@@ -98,6 +98,7 @@ def main():
         assert page.locator('#html-md-heading-0 [data-html-menu-toggle]').count()==1
         assert page.locator('#html-md-heading-0 [data-html-attr-add]').count()==3
         assert not page.locator('#html-md-heading-0 [data-html-attr-add]').first.is_visible()
+        page.locator('#html-md-heading-0 .html-md-heading-title').click()
         page.locator('#html-md-heading-0 [data-html-menu-toggle]').click()
         assert page.locator('#html-md-heading-0 [data-html-attr-add="task"]').is_visible()
         page.locator('#html-md-heading-0 [data-html-attr-add="task"]').click()
@@ -106,6 +107,7 @@ def main():
         assert page.locator('#html-md-heading-0 .html-md-heading-title > input').count()==1
         page.locator('[data-html-task="0"]').check()
         page.wait_for_function('docs[0].content.startsWith("# [x] Titel")')
+        page.locator('#html-md-heading-0 .html-md-heading-title').click()
         page.locator('#html-md-heading-0 [data-html-menu-toggle]').click()
         assert page.locator('#html-md-heading-0 [data-html-attr-add="task"]').count()==0
         page.locator('#html-md-heading-0 [data-html-attr-add="status"]').click()
@@ -113,6 +115,7 @@ def main():
         page.locator('#html-md-heading-0 [data-html-status-new]').select_option('review')
         page.wait_for_function('docs[0].content.startsWith("# [x] [status:review]")')
         assert page.locator('#html-md-heading-0 [data-html-status]').input_value()=='review'
+        page.locator('#html-md-heading-0 .html-md-heading-title').click()
         page.locator('#html-md-heading-0 [data-html-menu-toggle]').click()
         assert page.locator('#html-md-heading-0 [data-html-attr-add="status"]').count()==0
         page.locator('#html-md-heading-0 [data-html-attr-add="date"]').click()

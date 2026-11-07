@@ -79,7 +79,8 @@ def run():
         page.locator('[data-html-status="0"]').select_option('review')
         page.wait_for_function('docs[0].content.includes("[status:review]")')
         assert '[status:doing]' not in page.evaluate('docs[0].content.split("\\n")[0]')
-        page.locator('[data-html-menu-toggle="6"]').click() # use the v56 add-attribute menu
+        page.locator('[data-html-menu-toggle="6"]').locator('xpath=ancestor::div[contains(@class,"html-md-list-row")]').locator('.html-md-list-text').click()
+        page.locator('[data-html-menu-toggle="6"]').click() # use the v61 context-only add-attribute menu
         page.locator('[data-html-attr-add="task"][data-html-line="6"]').click()
         page.wait_for_function('docs[0].content.includes("- [ ] [status:todo] Offene Aufgabe")')
         page.locator('[data-html-task="6"]').check()

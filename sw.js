@@ -4,7 +4,7 @@
  * navigation to a preview URL without an iframe sandbox attribute. */
 'use strict';
 
-const VERSION='mindfagg-v60';
+const VERSION='mindfagg-v62';
 const CORE_CACHE=`${VERSION}-core`;
 const RUNTIME_CACHE=`${VERSION}-runtime`;
 const VFS_ROUTE='__mindfagg_preview__/';

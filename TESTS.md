@@ -1,3 +1,48 @@
+# mindfagg v62 – Abnahme
+
+- [ ] Markdown-HTML: Über eine Überschrift ohne Status/Datum hovern. Der
+  Plus-Button erscheint neben dem Titel, ohne Titel oder folgende Knoten
+  zu verschieben oder eine Eigenschaftenzeile einzufügen.
+- [ ] Dasselbe für Listen- und Aufgaben-Knoten prüfen, auch bei langen
+  Titeln und auf kleinen Bildschirmen. Zeilenumbrüche dürfen sich beim
+  Hover nicht ändern.
+- [ ] Bei vorhandenen Status- und Datumsattributen bleibt die bisherige
+  Darstellung erhalten. Status/Datum über das Plus-Menü hinzufügen und
+  entfernen; Dropdowns und Bearbeitungsfelder bleiben bedienbar.
+- [ ] Plus-Button per Klick, Hover, Touch und Tastatur anzeigen; bei
+  langen Titeln nahe dem rechten Rand muss das Dropdown sichtbar bleiben.
+- [ ] Nach dem Update Version `mindfagg-v62` im Offline-Cache prüfen.
+
+**Automatisiert:** `python3 tests/v62-browser.py`,
+`python3 tests/v61-browser.py`, `python3 tests/v56-browser.py`,
+`node tests/check-structure.mjs` (bei vollständiger Installation).
+
+---
+
+# mindfagg v61 – Abnahme
+
+- [ ] Markdown-Datei in der HTML-Ansicht öffnen: Ohne Maus-Hover, Knotenwahl
+  oder Fokus ist kein `+` zu sehen. Eine leere Eigenschaftenzeile belegt auch
+  keinen Platz unter einer Überschrift.
+- [ ] Über Überschrift oder Listeneintrag hovern: Nur dessen `+` erscheint.
+  Beim Verlassen ohne Auswahl verschwindet er; verschachtelte Listeneinträge
+  beeinflussen die übrigen Knoten nicht.
+- [ ] Knoten anklicken: `+` bleibt sichtbar, wenn der Mauszeiger weggezogen
+  wird. Einen anderen Knoten anklicken: Nur dessen Button bleibt sichtbar.
+  Außerhalb klicken: Beide wieder verborgen.
+- [ ] Touch/kleiner Bildschirm: Antippen des Knotens macht `+` bedienbar.
+  Tastatur: Fokus auf Knoten macht `+` sichtbar.
+- [ ] Plus-Menü öffnen und Checkbox, Status und Datum ergänzen. Schon gesetzte
+  Attribute werden weiterhin angezeigt; vollständig belegte Knoten haben
+  kein `+`. Bearbeiten, Entfernen und Markdown-Speicherung prüfen.
+- [ ] Installation aktualisieren und Cache-Version `mindfagg-v61` prüfen.
+
+**Automatisiert:** `python3 tests/v61-browser.py`,
+`python3 tests/v56-browser.py`, `node tests/check-structure.mjs`
+(mit Icons aus der vollständigen Installation).
+
+---
+
 # mindfagg v60 – Abnahme
 
 - [ ] App-Einstellungen öffnen: „Neue CSV-Dateien“ und die vier zugehörigen

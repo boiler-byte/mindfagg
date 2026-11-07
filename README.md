@@ -1,3 +1,47 @@
+# mindfagg v62 – Plus-Dropdown ohne Layoutverschiebung
+
+Dieses **Delta-Update** wird über v61 installiert und enthält ausschließlich
+  neue und geänderte Dateien. Ordnerstruktur beim Kopieren beibehalten.
+  Der Offline-/Service-Worker-Cache verwendet `mindfagg-v62`.
+
+- **Markdown-HTML:** Für Überschriften und Listen ohne Status und Datum wird
+  der Plus-Button absolut neben dem Knotentitel platziert. Beim Hover oder
+  bei der Auswahl bleibt das Layout unverändert – auch bei langen Texten.
+- **Mit Status/Datum:** Die bereits vorhandenen Attribute bleiben normal
+  angeordnet. Der Plus-Button erscheint weiterhin nur auf Hover, Fokus oder
+  Knotenauswahl. Am rechten Bildschirmrand öffnet das Menü nach links.
+- **Keine Datenmigration:** Markdown-Dokumente und Attribute bleiben unverändert.
+
+**Tests:** `python3 tests/v62-browser.py`, `python3 tests/v61-browser.py`,
+`python3 tests/v56-browser.py`, `node tests/check-structure.mjs` (mit
+Icons der vollständigen Installation).
+
+---
+
+# mindfagg v61 – Plus-Button nur für aktiven oder gehoverten HTML-Knoten
+
+Dieses **Delta-Update** wird über v60 installiert; Unterordner beim Kopieren
+beibehalten. Es enthält ausschließlich neue und geänderte Dateien. Der
+Offline-/Service-Worker-Cache verwendet `mindfagg-v61`.
+
+- **Markdown-HTML:** Der Plus-Button für zusätzliche Knotenattribute ist
+  zunächst unsichtbar. Er erscheint nur, wenn man den zugehörigen Überschrifts-
+  oder Listenknoten mit der Maus berührt, anklickt/antippt oder per Tastatur
+  fokussiert. Ein angeklickter Knoten bleibt ausgewählt, bis ein anderer Knoten
+  oder eine Stelle außerhalb angeklickt wird.
+- **Keine leeren Bedienzeilen:** Sind noch keine Status- oder Datumsattribute
+  gesetzt, wird die nur für den Plus-Button vorgesehene Zeile vollständig
+  ausgeblendet, solange der Knoten inaktiv ist. Bestehende Attribute und das
+  Plus-Dropdown für fehlende Attribute bleiben unverändert funktionsfähig.
+- **Bedienbarkeit:** Mouse-Hover, Touch-Klick und Tastaturfokus sind möglich;
+  bei verschachtelten Listen wird nur der jeweils berührte Knoten aktiviert.
+  Das Markdown-Format und die gespeicherten Dokumente ändern sich nicht.
+
+**Tests:** `python3 tests/v61-browser.py`, `python3 tests/v56-browser.py`,
+`node tests/check-structure.mjs` (mit Icons der vollständigen Installation).
+
+---
+
 # mindfagg v60 – CSV-Grid-Dropdowns und reduzierte App-Einstellungen
 
 Dieses **Delta-Update** wird auf v59 angewendet. Die Unterordner beim Kopieren

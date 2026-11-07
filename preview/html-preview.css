@@ -52,12 +52,5 @@
   .html-preview-console-heading strong{margin-right:auto}
 }
 
-/* v38: actionable sandbox storage error and visible privileged state. */
-.html-preview-state.is-privileged{color:#ffbdab;font-weight:700}
-.html-preview-storage-action{margin:8px 0 2px;padding:9px 11px;background:#38282c;border:1px solid #995e60;border-radius:8px;font:12px/1.5 ui-sans-serif,system-ui,sans-serif;color:#f4d4d1}
-.html-preview-storage-action p{margin:0 0 8px}
-.html-preview-storage-action strong{color:#ffe2d9}
-.html-preview-storage-action .html-preview-storage-grant{border-color:#c0776d;color:#ffe6dd;background:#623c42;font-size:11px;padding:7px 10px}
-.html-preview-storage-action .html-preview-storage-grant:hover,.html-preview-storage-action .html-preview-storage-grant:focus-visible{background:#80454a;border-color:#e99c8b}
-
-.html-preview-storage-browser-note{padding:8px 10px;margin:7px 0 0;background:#3a2d22;border:1px solid #886944;border-radius:7px;color:#efcf9c;font:11px/1.5 ui-sans-serif,system-ui,sans-serif}
+/* v59: storage errors explain the permanent sandbox boundary. */
+.html-preview-storage-note{margin:8px 0 2px;padding:9px 11px;background:#263448;border:1px solid #586e89;border-radius:8px;color:#d7e2f2;font:11px/1.55 ui-sans-serif,system-ui,sans-serif}

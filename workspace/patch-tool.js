@@ -1,4 +1,5 @@
 'use strict';
+// v59: selection-aware replace size and full-file before/after comparisons.
 // v58: per-Hunk delta follows selection and matches file/overall totals.
 // v57: side-specific diff styling; only changed text is highlighted.
 // v55: character-level search/replace highlighting with selection-aware colors.
@@ -23,8 +24,6 @@ const PATCH_TOOL_PROMPT=[
   '"occurrence" ist der 1-basierte, nicht überlappende Treffer. Alle ausgewählten Vorgänge laufen in JSON-Reihenfolge auf dem jeweils aktuellen Dateistand.',
   '"content" ist immer ein String und darf leer sein. Nur Textdateien können erstellt oder inhaltlich geändert werden; Umbenennen/Löschen funktioniert auch für binäre Dateien.',
   String.raw`Escape JSON-Zeichen korrekt (insbesondere Anführungszeichen \", Backslashes \\ und Zeilenumbrüche als \n).`,
-  '- Die gesamte Ausgabe muss ein syntaktisch gültiges JSON-Dokument gemäß RFC 8259 sein.',
-  '- Alle Werte von content, search und replace sind JSON-Strings. Ihr Inhalt muss so serialisiert werden, dass nach dem JSON-Parsing exakt der gewünschte Dateiinhalt entsteht.',
   'Niemals Quelltext erfinden: Falls Originalinhalt für ein exaktes update fehlt, zuerst die betreffende Datei anfordern.'
 ].join('\n');
 let patchToolState=null;
@@ -166,7 +165,16 @@ function planWorkspacePatch(patch,selected,whichProject=projectId){
     const entry=patch.patches[i],op=patchToolOperation(entry),ids=patchToolSelectionIds(entry,i);
     for(let j=0;j<ids.length;j++){
       const id=ids[j],checked=selected.has(id),row={id,operation:op,file:entry.file,to:entry.to||'',description:entry.description||'',number:j+1,checked,ok:true,message:'',before:'',byteDelta:null};
-      if(!checked){row.message='Abgewählt';operations.push(row);continue}
+      if(!checked){
+        // Preserve the current virtual file for the full-file comparison even
+        // when the replace operation is disabled. Prior selected operations
+        // still contribute to this pre-replacement snapshot.
+        if(op==='replace'){
+          const existing=files.get(patchToolCanonical(entry.file));
+          if(existing&&docIsText(existing))row.before=String(existing.content??'');
+        }
+        row.message='Abgewählt';operations.push(row);continue
+      }
       count++;
       const fromKey=patchToolCanonical(entry.file),file=files.get(fromKey);
       if(op==='update'||op==='replace'){
@@ -439,17 +447,25 @@ function patchToolDiffFragments(before,after,wordLevel=false){
   return chunks;
 }
 function patchToolDiffPreview(search,replace){
-  const first=Array.from(search),second=Array.from(replace);
-  const fragments=patchToolDiffFragments(first.slice(0,PATCH_TOOL_DIFF_PREVIEW_CHARS).join(''),
-    second.slice(0,PATCH_TOOL_DIFF_PREVIEW_CHARS).join(''));
+  // Iterate instead of allocating a character array for an entire file.
+  const head=value=>{
+    let text='',length=0;
+    for(const char of String(value??'')){
+      if(length<PATCH_TOOL_DIFF_PREVIEW_CHARS)text+=char;
+      length++;
+    }
+    return {text,remaining:Math.max(0,length-PATCH_TOOL_DIFF_PREVIEW_CHARS)};
+  };
+  const first=head(search),second=head(replace);
+  const fragments=patchToolDiffFragments(first.text,second.text);
   let searchHtml='',replaceHtml='';
   for(const part of fragments){
     const html=`<span class="patch-diff-${part.kind}">${escapeHtml(part.text)}</span>`;
     if(part.kind!=='added')searchHtml+=html;
     if(part.kind!=='removed')replaceHtml+=html;
   }
-  if(first.length>PATCH_TOOL_DIFF_PREVIEW_CHARS)searchHtml+=`<span class="patch-diff-cutoff">\n… (weitere ${first.length-PATCH_TOOL_DIFF_PREVIEW_CHARS} Zeichen)</span>`;
-  if(second.length>PATCH_TOOL_DIFF_PREVIEW_CHARS)replaceHtml+=`<span class="patch-diff-cutoff">\n… (weitere ${second.length-PATCH_TOOL_DIFF_PREVIEW_CHARS} Zeichen)</span>`;
+  if(first.remaining)searchHtml+=`<span class="patch-diff-cutoff">\n… (weitere ${first.remaining} Zeichen)</span>`;
+  if(second.remaining)replaceHtml+=`<span class="patch-diff-cutoff">\n… (weitere ${second.remaining} Zeichen)</span>`;
   return {searchHtml,replaceHtml};
 }
 function patchToolRenderPreview(){
@@ -483,10 +499,20 @@ function patchToolRenderPreview(){
         const diff=state.diffCache.get(id);
         detail=`<div class="patch-preview-diff"><div class="patch-preview-diff-search"><small>search (Treffer ${h.occurrence}) ${patchToolDeltaHtml(delta)}</small><pre>${diff.searchHtml}</pre></div><div class="patch-preview-diff-replace"><small>replace</small><pre>${h.replace?diff.replaceHtml:'<em>(leerer Text)</em>'}</pre></div></div>`;
       }
-      else if(op==='create'||op==='replace')detail=`<div class="patch-preview-diff patch-preview-single"><div><small>${op==='create'?'Inhalt der neuen Datei':'Neuer vollständiger Inhalt'}</small><pre>${entry.content?patchToolPreviewText(entry.content):'<em>(leere Datei)</em>'}</pre></div></div>`;
+      else if(op==='replace'){
+        // The virtual planner records the file exactly as it exists before
+        // this operation, including any preceding selected patch operations.
+        const before=row.before||'';
+        const diff=patchToolDiffPreview(before,entry.content);
+        const delta=deltaOf(id)??0;
+        detail=`<div class="patch-preview-diff"><div class="patch-preview-diff-search"><small>search (bisheriger Dateiinhalt) ${patchToolDeltaHtml(delta)}</small><pre>${before?diff.searchHtml:'<em>(leere Datei)</em>'}</pre></div><div class="patch-preview-diff-replace"><small>replace (neuer Dateiinhalt)</small><pre>${entry.content?diff.replaceHtml:'<em>(leere Datei)</em>'}</pre></div></div>`;
+      }
+      else if(op==='create')detail=`<div class="patch-preview-diff patch-preview-single"><div><small>Inhalt der neuen Datei</small><pre>${entry.content?patchToolPreviewText(entry.content):'<em>(leere Datei)</em>'}</pre></div></div>`;
       else if(op==='delete')detail='<p class="patch-operation-hint">Die Datei wird vollständig gelöscht (einschließlich Inhalt).</p>';
       else if(op==='rename')detail=`<p class="patch-operation-hint">${escapeHtml(entry.file)} → <strong>${escapeHtml(entry.to)}</strong></p>`;
-      const actual=deltaOf(id),preview=actual??detected.get(id)?.byteDelta;
+      // Never fall back to the all-selected plan for unchecked operations.
+      // It describes a *hypothetical* change, not the current selection.
+      const preview=row.checked?deltaOf(id):0;
       return `<div class="patch-preview-operation${row.checked?' patch-active':' patch-inactive'}${row.ok?'':' patch-invalid'}">
         <label class="patch-operation-title"><input type="checkbox" data-patch-operation="${id}" ${row.checked?'checked':''}>
           <strong>${escapeHtml(operationLabel[op])}${h?' · Hunk '+(j+1):''}</strong>${!h&&Number.isFinite(preview)?patchToolDeltaHtml(preview):''}<span class="patch-operation-status${row.ok?'':' is-error'}">${escapeHtml(row.message)}</span></label>${detail}</div>`;

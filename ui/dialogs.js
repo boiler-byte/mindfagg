@@ -218,7 +218,7 @@ function createDocument(){
     if(!workspaceUniquePath(path))return toast('Dateiname in diesem Ordner bereits vergeben');
     if(!isMarkdownPath(path)&&!knownTextPath(path))return toast('Neue Dateien müssen ein Textformat haben; Binärdateien per ZIP importieren');
     const markdown=isMarkdownPath(path);
-    const csv=pathExtension(path)==='csv',csvSettings=csv?csvNormalizeOptions(appCsvSettings):null;
+    const csv=pathExtension(path)==='csv',csvSettings=csv?csvNormalizeOptions(CSV_DEFAULT_SETTINGS):null;
     const d={id:uid(),projectId,path,name:docNameForPath(path),fileType:markdown?'markdown':'script',content:markdown?'# '+docNameForPath(path)+'\n':csv?csvNewFileContent(csvSettings):(['mmd','mermaid'].includes(pathExtension(path))?'flowchart TD\n  A[Start] --> B[Ende]\n':''),...(csv?{csvSettings}:{})};
     try{await recordWorkspaceFileCreation(d);selectDocument(d.id);closeModal();toast('Datei erstellt · Rückgängig möglich')}
     catch(error){console.error(error);toast('Datei konnte nicht erstellt werden')}

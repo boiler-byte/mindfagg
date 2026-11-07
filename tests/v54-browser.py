@@ -61,24 +61,17 @@ def main():
         print('PASS: JSON Pretty Code formats valid JSON; invalid source remains unchanged')
 
         page.evaluate('''() => {appSettingsOpen=true;render()}''')
-        assert page.locator('#appCsvSettingsTitle').inner_text()=='Neue CSV-Dateien'
-        page.locator('#appCsvDelimiter').select_option(';')
-        page.locator('#appCsvEncoding').select_option('utf-8-bom')
-        page.locator('#appCsvNewline').select_option('lf')
-        page.locator('#appCsvQuote').select_option('single')
-        settings=page.evaluate('''() => ({...appCsvSettings, stored:JSON.parse(localStorage.getItem(APP_EDITOR_PREFERENCES_KEY)).csv})''')
-        assert settings['delimiter']==';' and settings['encoding']=='utf-8-bom'
-        assert settings['newline']=='\n' and settings['quoteChar']=="'",settings
-        assert settings['stored']['quoteChar']=="'"
-        print('PASS: CSV app defaults are editable and persist in localStorage')
+        assert page.locator('#appCsvSettingsTitle,#appCsvDelimiter,#appCsvEncoding,#appCsvNewline,#appCsvQuote').count()==0
+        assert page.evaluate('typeof appCsvSettings')=='undefined'
+        print('PASS: CSV defaults section removed from app settings')
 
         page.evaluate('''() => {appSettingsOpen=false;recordWorkspaceFileCreation=async doc=>{docs.push(doc)};
           saveSource=async(id,text)=>{window.savedCsv=[id,text];};render();createDocument()}''')
         page.locator('#newDocName').fill('Daten.csv')
         page.locator('#docForm button[type="submit"]').click()
         page.wait_for_function('documentNow()?.path==="Daten.csv"')
-        assert page.evaluate('documentNow().csvSettings.encoding')=='utf-8-bom'
-        assert page.evaluate('documentNow().content')=='Spalte 1;Spalte 2\n;\n'
+        assert page.evaluate('documentNow().csvSettings.encoding')=='utf-8'
+        assert page.evaluate('documentNow().content')=='Spalte 1,Spalte 2\r\n,\r\n'
         assert page.locator('[data-file-panel="grid"]').count()==1
         assert 'file-type-csv' in page.locator('[data-doc]:has-text("Daten.csv")').inner_html()
         page.locator('[data-file-panel="grid"]').click()
@@ -87,23 +80,23 @@ def main():
         assert page.locator('[data-csv-row="0"][data-csv-col="0"]').input_value()=='Spalte 1'
         page.locator('[data-csv-row="1"][data-csv-col="0"]').fill('Berlin; Köln\n"Zitat"')
         text=page.evaluate('documentNow().content')
-        assert text=="Spalte 1;Spalte 2\n'Berlin; Köln\n\"Zitat\"';\n",repr(text)
+        assert text=='Spalte 1,Spalte 2\r\n"Berlin; Köln\n""Zitat""",\r\n',repr(text)
         result=page.evaluate('''() => {
           const bytes=exportFileBytes(documentNow());
           return {prefix:Array.from(bytes.slice(0,3)),text:new TextDecoder('utf-8').decode(bytes)};
         }''')
-        assert result['prefix']==[239,187,191],result
+        assert result['prefix']==[83,112,97],result
         assert result['text']==text
         page.locator('[data-file-panel="script"]').click()
-        assert page.locator('#scriptSource').input_value()==text
+        assert page.locator('#scriptSource').input_value()==text.replace('\r\n','\n')
         assert page.evaluate('window.savedCsv?.[0]')==page.evaluate('docId')
         page.locator('[data-file-panel="grid"]').click()
         assert page.locator('[data-csv-row="1"][data-csv-col="0"]').input_value()=='Berlin; Köln\n"Zitat"'
-        print('PASS: new CSV uses saved defaults, icon and Grid tab; quoted editing and save round trip')
+        print('PASS: new CSV uses built-in defaults, icon and Grid tab; quoted editing and save round trip')
 
-        page.locator('#csvAddRow').click()
+        page.locator('#csvAddRow').select_option('below')
         assert page.locator('#csvGridTable tbody tr').count()==3
-        page.locator('#csvAddColumn').click()
+        page.locator('#csvAddColumn').select_option('right')
         assert page.locator('#csvGridTable thead th').count()==4
         page.locator('[data-csv-row="2"][data-csv-col="2"]').fill('€')
         page.locator('#csvDeleteColumn').click()

@@ -1,3 +1,65 @@
+# mindfagg v60 – CSV-Grid-Dropdowns und reduzierte App-Einstellungen
+
+Dieses **Delta-Update** wird auf v59 angewendet. Die Unterordner beim Kopieren
+beibehalten; es enthält ausschließlich geänderte oder neue Dateien. Der
+Service-Worker verwendet den neuen Cache `mindfagg-v60`.
+
+- **App-Einstellungen:** Der Abschnitt **„Neue CSV-Dateien“** einschließlich
+  Trennzeichen, Zeichencodierung, Zeilenende und Textbegrenzung entfällt.
+  Bestehende CSV-Dateien behalten ihre erkannten bzw. im Dokument gespeicherten
+  Einstellungen. Neu erstellte CSV-Dateien nutzen feste Standardwerte:
+  Komma, UTF-8, CRLF und doppelte Anführungszeichen. Bereits gespeicherte
+  App-weite CSV-Defaults werden ignoriert und beim nächsten Speichern der
+  Editor-Einstellungen nicht übernommen.
+- **CSV-Grid:** `+ Zeile` und `+ Spalte` sind jetzt Auswahlmenüs mit
+  **„Zeile darüber“ / „Zeile darunter“** bzw.
+  **„Spalte links“ / „Spalte rechts“**. Die Einfügung erfolgt relativ zur
+  ausgewählten Tabellenzeile oder -spalte (auch bei Auswahl eines Tabellenkopfs).
+  Ohne passende Auswahl hängt jede Option am Ende an. Nach dem Einfügen ist
+  die neue Position ausgewählt; das Menü kehrt zu seiner Beschriftung zurück.
+  Zeileneinfügung über Seitengrenzen und Auffüllen ungleich langer CSV-Zeilen
+  funktionieren wie bisher.
+
+**Tests:** `python3 tests/v60-browser.py`, `python3 tests/v56-browser.py`,
+`python3 tests/v54-browser.py`, `node tests/v39-preferences.mjs`,
+`node tests/check-structure.mjs` (vollständige Installation mit Icons).
+
+---
+
+# mindfagg v59 – Patch-Vorschau und dauerhaft isolierte HTML-Vorschau
+
+Dieses **Delta-Update** wird auf v58 angewendet (Ordnerstruktur erhalten).
+Der PWA-/Service-Worker-Cache verwendet `mindfagg-v59`.
+
+- **Patch-Tool / `replace`:** Die Vorschau zeigt den bisherigen und den neuen
+  vollständigen Dateiinhalt nebeneinander, mit denselben rot/grünen
+  Änderungsmarkierungen wie bei Update-Hunks. Vorherige ausgewählte Änderungen
+  an derselben Datei werden im Vorher-Zustand berücksichtigt; die Anzeige ist
+  auf die ersten 2.000 Unicode-Zeichen je Seite begrenzt.
+- **Patch-Größe:** Nach Deaktivieren einer `replace`-Operation wechseln sowohl
+  die Größenangabe am Vorgang als auch die am `search`-Vergleich auf `0 B`.
+  Die Patch- und Gesamtsummen folgen ebenfalls dem ausgewählten Plan. Beim
+  Wiederanwählen wird die tatsächliche UTF-8-Größendifferenz neu berechnet.
+- **HTML-Vorschau:** Der iframe ist jetzt **immer** isoliert mit
+  `sandbox="allow-scripts"` (ohne `allow-same-origin`) und restriktiver CSP.
+  Der frühere Opt-in-Schalter für den gemeinsamen App-Ursprung wurde entfernt;
+  alte gespeicherte Freigaben werden ignoriert und beim nächsten Speichern der
+  Einstellungen nicht übernommen. Preview-Skripte können das Parent-DOM,
+  App-Storage oder GitHub-Zugangsdaten nicht lesen. Bei Browser-Speicherfehlern
+  erklärt die Konsole die dauerhafte Sicherheitsgrenze; es gibt keinen
+  Freigabe-Button mehr.
+- Die Vorschau kann lokale Projektressourcen weiterhin **lesend** über ihre
+  bestehende VFS-Schnittstelle laden; externe Netzwerkzugriffe und
+  eigenständige Popup-/Formularaktionen bleiben gesperrt. Die Isolation
+  verhindert nicht jede Schwachstelle im Browser selbst und ersetzt keine
+  Sicherheitsprüfung unbekannter HTML-Dateien.
+
+**Tests:** `python3 tests/v59-browser.py`, `node tests/v59-security.mjs`,
+`python3 tests/v58-browser.py`, `python3 tests/v57-browser.py`,
+`node tests/v55-patch.mjs`, `node tests/check-structure.mjs`.
+
+---
+
 # mindfagg v58 – Größenanzeige pro Hunk
 
 Dieses Delta-Update auf v57 enthält nur geänderte und neue Dateien. Dateien
@@ -468,7 +530,7 @@ Offline-fähiger Workspace mit Markdown, Mindmap, Kanban, Kalender, Scripteditor
 
 **Prüfen:** `node tests/check-structure.mjs`, `node tests/v39-preferences.mjs`, `python tests/v39-browser.py`, `python tests/v39-advanced.py`. Browser-Smoke-Tests liefen mit temporär inline eingebetteten lokalen Ressourcen; das echte PWA-Service-Worker-Update sollte zusätzlich auf localhost/HTTPS geprüft werden.
 
-## Neu in v38: Speicherzugriff in der HTML-Vorschau (opt-in)
+## Historisch – v38: Speicherzugriff in der HTML-Vorschau (in v59 entfernt)
 
 - **Standard:** `iframe sandbox="allow-scripts"` bleibt unverändert; Vorschau-Skripte haben keine Speicherrechte.
 - **App-Einstellungen → HTML-Vorschau · Sicherheit:** Der neue Schalter **localStorage und IndexedDB erlauben** ist anfänglich ausgeschaltet. Bei Aktivierung verwendet das Vorschau-iframe `sandbox="allow-scripts allow-same-origin"`. Dadurch funktionieren die nativen Browser-APIs, sofern der Browser den Speicherzugriff für den App-Ursprung zulässt. Die Entscheidung wird lokal und appweit unter den Editor-/App-Einstellungen gespeichert.

@@ -1,8 +1,7 @@
 'use strict';
 // mindfagg v28: app-wide editor preferences and a dedicated settings page.
 const APP_EDITOR_PREFERENCES_KEY='mfEditorPreferencesV28';
-const appEditorSettings={fontSize:null,wordWrap:false,lineNumbers:true,minimap:true,codeFolding:false,previewStorageAccess:false};
-const appCsvSettings={...CSV_DEFAULT_SETTINGS};
+const appEditorSettings={fontSize:null,wordWrap:false,lineNumbers:true,minimap:true,codeFolding:false};
 let appSettingsOpen=false;
 function appEditorDefaultFontSize(){return window.matchMedia('(max-width:850px)').matches?16:13}
 function readAppEditorPreferences(){
@@ -11,12 +10,11 @@ function readAppEditorPreferences(){
     if(!stored||typeof stored!=='object')return;
     const size=Number(stored.fontSize);
     if(stored.fontSize!==null&&Number.isInteger(size)&&size>=8&&size<=16)appEditorSettings.fontSize=size;
-    for(const key of ['wordWrap','lineNumbers','minimap','codeFolding','previewStorageAccess'])if(typeof stored[key]==='boolean')appEditorSettings[key]=stored[key];
-    Object.assign(appCsvSettings,csvNormalizeOptions(stored.csv));
+    for(const key of ['wordWrap','lineNumbers','minimap','codeFolding'])if(typeof stored[key]==='boolean')appEditorSettings[key]=stored[key];
   }catch(error){console.warn('Editor-Einstellungen konnten nicht geladen werden:',error)}
 }
 function saveAppEditorPreferences(){
-  try{localStorage.setItem(APP_EDITOR_PREFERENCES_KEY,JSON.stringify({...appEditorSettings,csv:appCsvSettings}))}
+  try{localStorage.setItem(APP_EDITOR_PREFERENCES_KEY,JSON.stringify(appEditorSettings))}
   catch(error){console.warn('Editor-Einstellungen konnten nicht gespeichert werden:',error);toast('Einstellungen konnten nicht gespeichert werden')}
 }
 function applyAppEditorPreferences(){
@@ -79,43 +77,9 @@ function renderAppSettingsPage(){
         <label class="app-setting-row"><span><strong>Code Folding aktivieren</strong><small>HTML, CSS, JavaScript, SVG, XML und Markdown über die Pfeile neben den Zeilennummern ein- und ausklappen. Standardmäßig deaktiviert.</small></span><input id="appCodeFolding" type="checkbox" ${appEditorSettings.codeFolding?'checked':''}></label>
         <label class="app-setting-row"><span><strong>Scroll Minimap anzeigen</strong><small>Navigierbare Dokumentübersicht rechts neben dem Quelltext.</small></span><input id="appMinimap" type="checkbox" ${appEditorSettings.minimap?'checked':''}></label>
       </div>
-      <section class="app-settings-csv" aria-labelledby="appCsvSettingsTitle">
-        <h2 id="appCsvSettingsTitle">Neue CSV-Dateien</h2>
-        <p>Standardwerte für neu erstellte CSV-Dateien. Bereits vorhandene Dateien behalten ihre eigenen Einstellungen.</p>
-        <div class="app-csv-settings-fields">
-          <label for="appCsvDelimiter"><strong>Trennzeichen</strong><select id="appCsvDelimiter">
-            <option value="," ${appCsvSettings.delimiter===','?'selected':''}>Komma (,)</option>
-            <option value=";" ${appCsvSettings.delimiter===';'?'selected':''}>Semikolon (;)</option>
-            <option value="\t" ${appCsvSettings.delimiter==='\t'?'selected':''}>Tabulator</option>
-            <option value="|" ${appCsvSettings.delimiter==='|'?'selected':''}>Pipe (|)</option>
-          </select></label>
-          <label for="appCsvEncoding"><strong>Zeichencodierung</strong><select id="appCsvEncoding">
-            <option value="utf-8" ${appCsvSettings.encoding==='utf-8'?'selected':''}>UTF-8</option>
-            <option value="utf-8-bom" ${appCsvSettings.encoding==='utf-8-bom'?'selected':''}>UTF-8 mit BOM</option>
-            <option value="utf-16le" ${appCsvSettings.encoding==='utf-16le'?'selected':''}>UTF-16 LE mit BOM</option>
-            <option value="utf-16be" ${appCsvSettings.encoding==='utf-16be'?'selected':''}>UTF-16 BE mit BOM</option>
-            <option value="windows-1252" ${appCsvSettings.encoding==='windows-1252'?'selected':''}>Windows-1252</option>
-          </select></label>
-          <label for="appCsvNewline"><strong>Zeilenende</strong><select id="appCsvNewline">
-            <option value="crlf" ${appCsvSettings.newline==='\r\n'?'selected':''}>CRLF (Windows)</option>
-            <option value="lf" ${appCsvSettings.newline==='\n'?'selected':''}>LF (Unix / macOS)</option>
-            <option value="cr" ${appCsvSettings.newline==='\r'?'selected':''}>CR (klassisch Mac)</option>
-          </select></label>
-          <label for="appCsvQuote"><strong>Textbegrenzung</strong><select id="appCsvQuote">
-            <option value="double" ${appCsvSettings.quoteChar==='"'?'selected':''}>Doppelte Anführungszeichen (")</option>
-            <option value="single" ${appCsvSettings.quoteChar==="'"?'selected':''}>Einfache Anführungszeichen (')</option>
-          </select></label>
-        </div>
-      </section>
       <section class="app-settings-preview-security" aria-labelledby="appPreviewSecurityTitle">
         <h2 id="appPreviewSecurityTitle">HTML-Vorschau · Sicherheit</h2>
-        <label class="app-setting-row app-preview-storage-toggle" for="appPreviewStorageAccess">
-          <span><strong>localStorage und IndexedDB erlauben</strong>
-            <small>HTML-Vorschauen dürfen den Browserspeicher verwenden. Standardmäßig deaktiviert.</small></span>
-          <input id="appPreviewStorageAccess" type="checkbox" ${appEditorSettings.previewStorageAccess?'checked':''}>
-        </label>
-        <p class="app-preview-storage-warning" id="appPreviewStorageWarning"><strong>Sicherheitsrisiko:</strong> Bei Freigabe wird die HTML-Vorschau mit demselben Ursprung wie mindfagg ausgeführt. Skripte in der Vorschau können auf <strong>alle lokalen Projekte, gespeicherte Zugangsdaten (auch GitHub) und die Hauptanwendung</strong> zugreifen. Nur für vollständig vertrauenswürdige HTML-Dateien aktivieren. Die Freigabe gilt für alle Projekte und bleibt bis zum Ausschalten gespeichert.</p>
-        <p class="app-preview-storage-availability">Browser können den Speicherzugriff bei <code>file://</code>, privaten Fenstern oder durch eigene Sicherheitsregeln weiterhin verhindern. Für die Vorschau möglichst HTTPS oder localhost verwenden.</p>
+        <p class="app-preview-isolation-note"><strong>Immer isoliert:</strong> HTML-Dateien werden in einem Sandbox-iframe mit eigenem, undurchsichtigem Ursprung ausgeführt. Skripte erhalten keinen Zugriff auf die Hauptanwendung, deren <code>localStorage</code>, <code>IndexedDB</code> oder GitHub-Zugangsdaten. Der bisherige Schalter zur Freigabe des App-Ursprungs wurde entfernt. Projektressourcen werden ausschließlich lesend über die Vorschau-Schnittstelle bereitgestellt.</p>
       </section>
       <section class="app-settings-github" aria-labelledby="appGithubTitle">
         <div class="app-settings-github-heading"><div><h2 id="appGithubTitle">GitHub-Zugangsdaten</h2><p>Einmal anmelden und für alle zugeordneten Projekte wiederverwenden.</p></div><span class="app-settings-credential-state${githubLoggedIn?' is-connected':''}" id="appGithubConnectionState">${escapeHtml(githubCredentialLabel())}</span></div>
@@ -173,14 +137,8 @@ function renderAppSettingsPage(){
   $('#appLineNumbers').onchange=e=>{appEditorSettings.lineNumbers=e.target.checked;changed()};
   $('#appMinimap').onchange=e=>{appEditorSettings.minimap=e.target.checked;changed()};
   $('#appCodeFolding').onchange=e=>{appEditorSettings.codeFolding=e.target.checked;changed()};
-  $('#appCsvDelimiter').onchange=e=>{appCsvSettings.delimiter=e.target.value==='\\t'?'\t':e.target.value;changed()};
-  $('#appCsvEncoding').onchange=e=>{appCsvSettings.encoding=e.target.value;changed()};
-  $('#appCsvNewline').onchange=e=>{appCsvSettings.newline={crlf:'\r\n',lf:'\n',cr:'\r'}[e.target.value];changed()};
-  $('#appCsvQuote').onchange=e=>{appCsvSettings.quoteChar=e.target.value==='single'?"'":'"';changed()};
-  $('#appPreviewStorageAccess').onchange=e=>{appEditorSettings.previewStorageAccess=e.target.checked;changed();$('#appSettingsStatus').textContent=e.target.checked?'HTML-Vorschau: Speicherzugriff freigegeben. Sicherheitswarnung beachten.':'HTML-Vorschau: Speicherzugriff gesperrt.'};
   $('#resetAppSettings').onclick=()=>{
     Object.assign(appEditorSettings,{fontSize:null,wordWrap:false,lineNumbers:true,minimap:true,codeFolding:false});
-    Object.assign(appCsvSettings,CSV_DEFAULT_SETTINGS);
     changed();renderAppSettingsPage();$('#appSettingsStatus').textContent='Standardwerte wiederhergestellt.';
   };
 }

@@ -1,3 +1,61 @@
+# mindfagg v60 – Abnahme
+
+- [ ] App-Einstellungen öffnen: „Neue CSV-Dateien“ und die vier zugehörigen
+  Auswahlfelder sind nicht mehr sichtbar. Editor-Einstellungen bleiben aktiv.
+- [ ] Aus einer v54–v59-Installation aktualisieren: Vorher gespeicherte
+  CSV-Defaults dürfen neue Dateien nicht mehr beeinflussen; vorhandene CSV-
+  Dateien behalten ihren bisherigen Dialekt und ihre Zeichencodierung.
+- [ ] Neue CSV-Datei erstellen: Standard Komma, UTF-8, CRLF, `"`.
+- [ ] CSV-Grid: Beide Einfügeaktionen sind Dropdowns. Eine Tabellenzelle
+  auswählen und „Zeile darüber“ / „Zeile darunter“ ausführen; Einfügeposition
+  und Fokus prüfen. Über einen Zeilenkopf dieselbe Auswahl prüfen.
+- [ ] „Spalte links“ / „Spalte rechts“ bei fokussierter Zelle sowie per
+  Spaltenkopf testen. Ungleich lange Datensätze müssen ausgerichtet bleiben.
+- [ ] Ohne passende Auswahl müssen beide Menürichtungen am Ende einfügen.
+  Nach jeder Einfügung muss die Auswahl erneut möglich sein; Plus-Beschriftung
+  erscheint wieder. Maximalzahl der Spalten weiterhin beachten.
+- [ ] Mehr als 100 Zeilen: „Zeile darunter“ hinter Zeile 100 springt zur
+  richtigen Folgeseite. Löschen, Bearbeiten und Speicherung testen.
+- [ ] PWA aktualisieren: Cache-Version `mindfagg-v60` nutzen.
+
+**Automatisiert:** `python3 tests/v60-browser.py`,
+`python3 tests/v56-browser.py`, `python3 tests/v54-browser.py`,
+`node tests/v39-preferences.mjs`, `node tests/check-structure.mjs`
+(mit vollständigem Installationsverzeichnis).
+
+---
+
+# mindfagg v59 – Abnahme
+
+- [ ] Einen `replace`-Patch für eine vorhandene Textdatei öffnen: Vorher- und
+  Nachher-Inhalt erscheinen als zwei Vergleichsspalten, entfallende Zeichen
+  rot, hinzukommende grün, unveränderte neutral.
+- [ ] `replace` abwählen: Der Größenwert am Vorgang, hinter `search` sowie
+  im Dateikopf und in der Gesamtsumme wechselt auf `0 B` (bzw. berücksichtigt
+  nur übrige aktive Patches). Markierungen wechseln ihre Farben.
+- [ ] `replace` erneut anwählen: der korrekte UTF-8-Wert erscheint wieder.
+- [ ] Erst einen `update`-Hunk, dann `replace` für dieselbe Datei eintragen;
+  durch Abwählen des ersten Hunks muss sich der **Vorher**-Text der
+  Replace-Vorschau ändern und der Größenwert neu berechnet werden.
+- [ ] Bei HTML-Vorschau `iframe[sandbox]` prüfen: ausschließlich
+  `allow-scripts`, niemals `allow-same-origin` – auch nach Update von einer
+  Installation, die vorher den Speicherzugriff aktiviert hatte.
+- [ ] HTML-Vorschau mit JavaScript, das auf `parent.document`, `localStorage`
+  oder `indexedDB` zugreifen will: Zugriff wird verweigert, Fehlermeldung ist
+  in der Vorschau-Konsole sichtbar. Keine Freigabe in Vorschau/Einstellungen.
+- [ ] HTML-Dateien mit relativen CSS/JS/Bild-/`fetch`-Ressourcen verwenden:
+  Die read-only-VFS-Dateien funktionieren weiterhin, externe Netzwerkzugriffe
+  bleiben durch Sandbox/CSP blockiert.
+- [ ] Neuen Offline-Cache `mindfagg-v59` sowie die bisherigen Patch-, Markdown-,
+  CSV-, Mermaid- und Exportregressionen prüfen.
+
+**Automatisiert:** `python3 tests/v59-browser.py`,
+`node tests/v59-security.mjs`, `python3 tests/v58-browser.py`,
+`python3 tests/v57-browser.py`, `node tests/v55-patch.mjs`,
+`node tests/check-structure.mjs`.
+
+---
+
 # mindfagg v58 – Abnahme
 
 - [ ] Patch mit mehreren Hunks und unterschiedlichen positiven/negativen
@@ -518,7 +576,9 @@ Die Offline-Prüfungen sind lokale Syntaxhilfen, **keine formalen Standard-Valid
 
 Automatisiert: `node tests/v37-regression.mjs`, `python tests/v37-browser.py`, sowie alle bisherigen Node-Regressionen.
 
-## v38 – HTML-Vorschau mit optionalem localStorage/IndexedDB
+## Historisch – v38: optionaler Browser-Speicherzugriff (in v59 entfernt)
+
+> Diese Testschritte beschreiben v38; für v59 gelten die Sicherheitsprüfungen am Anfang dieser Datei.
 
 - [ ] **Standardzustand:** In App-Einstellungen ist „localStorage und IndexedDB erlauben“ nach der erstmaligen Installation ausgeschaltet; eine HTML-Vorschau hat `sandbox="allow-scripts"`.
 - [ ] In der Vorschau folgende HTML-Seite ausführen; bei deaktivierter Freigabe erscheint ein `SecurityError` für `localStorage` und/oder IndexedDB. Die Vorschau-Konsole öffnet automatisch, und **innerhalb der Fehlermeldung** steht „Speicherzugriff jetzt freigeben“.

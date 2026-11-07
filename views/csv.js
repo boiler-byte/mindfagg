@@ -205,8 +205,16 @@ function renderCsvGridView(){
   csvGridState=state;
   $('#surface').innerHTML=`<section class="csv-grid" aria-label="CSV-Grid-Ansicht">
     <div class="csv-grid-tools" role="toolbar" aria-label="CSV-Tabelle bearbeiten">
-      <button type="button" class="btn" id="csvAddRow">+ Zeile</button>
-      <button type="button" class="btn" id="csvAddColumn">+ Spalte</button>
+      <select class="btn csv-grid-insert-menu" id="csvAddRow" aria-label="Zeile hinzufügen">
+        <option value="" selected disabled hidden>+ Zeile</option>
+        <option value="above">Zeile darüber</option>
+        <option value="below">Zeile darunter</option>
+      </select>
+      <select class="btn csv-grid-insert-menu" id="csvAddColumn" aria-label="Spalte hinzufügen">
+        <option value="" selected disabled hidden>+ Spalte</option>
+        <option value="left">Spalte links</option>
+        <option value="right">Spalte rechts</option>
+      </select>
       <button type="button" class="btn" id="csvDeleteRow" disabled>Zeile löschen</button>
       <button type="button" class="btn" id="csvDeleteColumn" disabled>Spalte löschen</button>
       <span id="csvGridMeta" class="csv-grid-meta" aria-live="polite"></span>
@@ -233,20 +241,26 @@ function renderCsvGridView(){
     state.rows[row][column]=target.value;
     csvGridCommit(state);
   });
-  $('#csvAddRow').onclick=()=>{
-    // Insert above the selected row, otherwise append to the end.
-    const at=state.focusRow>=0&&state.focusRow<state.rows.length?state.focusRow:state.rows.length;
+  $('#csvAddRow').onchange=event=>{
+    const placement=event.target.value;
+    // Without a selected row, both insertion modes append to the end.
+    const selected=state.focusRow>=0&&state.focusRow<state.rows.length;
+    const at=selected?state.focusRow+(placement==='below'?1:0):state.rows.length;
     const col=state.focusCol>=0?Math.min(state.focusCol,state.columns-1):0;
+    event.target.value='';
     state.rows.splice(at,0,Array.from({length:state.columns},()=>''));
     csvGridCommit(state);
     state.page=Math.floor(at/CSV_GRID_PAGE_SIZE);csvGridPaint(state);
     table.querySelector(`[data-csv-row="${at}"][data-csv-col="${col}"]`)?.focus();
   };
-  $('#csvAddColumn').onclick=()=>{
+  $('#csvAddColumn').onchange=event=>{
     if(state.columns>=CSV_GRID_MAX_COLUMNS)return;
-    // Insert to the left of the selected column, otherwise append.
-    const at=state.focusCol>=0&&state.focusCol<state.columns?state.focusCol:state.columns;
+    const placement=event.target.value;
+    // Without a selected column, both insertion modes append to the end.
+    const selected=state.focusCol>=0&&state.focusCol<state.columns;
+    const at=selected?state.focusCol+(placement==='right'?1:0):state.columns;
     const rowIndex=state.focusRow;
+    event.target.value='';
     for(const row of state.rows){
       // Pad ragged CSV rows before splicing so inserted cells line up.
       while(row.length<state.columns)row.push('');

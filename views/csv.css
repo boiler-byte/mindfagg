@@ -25,3 +25,8 @@
 .csv-grid-header-button{display:block;width:100%;min-width:0;padding:0;border:0;background:transparent;color:inherit;font:inherit;font-weight:inherit;text-align:inherit;cursor:pointer}
 .csv-grid-header-button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
 .csv-grid-table th:has(>.csv-grid-header-selected){background:#3c557d;color:#fff}
+
+/* v60: native accessible row/column insert menus, sized like existing toolbar buttons. */
+.csv-grid-tools .csv-grid-insert-menu{appearance:auto;cursor:pointer;color:#e5ebfa;background-color:#202a3a;max-width:160px}
+.csv-grid-tools .csv-grid-insert-menu:hover{background-color:#2b364b}
+.csv-grid-tools .csv-grid-insert-menu option{background:#202a3a;color:#e5ebfa}

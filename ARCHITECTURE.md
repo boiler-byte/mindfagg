@@ -1,3 +1,50 @@
+# mindfagg v60 – CSV-Dropdowns und Einstellungen
+
+- `ui/settings.js` und `ui/settings.css`: Den gesamten Bereich für CSV-Defaults
+  sowie Event-Handler und den globalen `appCsvSettings`-Zustand entfernt.
+  Der vorhandene `mfEditorPreferencesV28`-Key speichert nur noch Editoroptionen;
+  alte CSV-Defaults werden nicht mehr eingelesen oder zurückgeschrieben.
+- `ui/dialogs.js`: Bei neuen CSV-Dateien wird `CSV_DEFAULT_SETTINGS` aus
+  `views/csv.js` verwendet. Dateispezifisches `csvSettings`, die CSV-Encoding-
+  Erkennung und der unveränderte Import/Export bleiben bestehen.
+- `views/csv.js` und `views/csv.css`: Zwei native, über Tastatur/Touch
+  bedienbare `select`-Menüs lösen die Buttons ab. Die Richtungswahl bestimmt
+  den Index für `splice`: Zeile `focusRow` oder `focusRow + 1`; Spalte
+  `focusCol` oder `focusCol + 1`. Ohne gültige Auswahl wird angehängt.
+  Anschließend laufen die vorhandenen Commit-, Seitenauswahl- und
+  Fokusmechanismen; ein leerer Placeholder setzt die Menüs zurück.
+- `module-manifest.json`, `sw.js`: Offline-Cache-Version v60. Keine neuen
+  Runtime-Bibliotheken und keine Änderung an der Assetliste.
+- `tests/v60-browser.py`: Automatische Prüfungen für beide Einfügerichtungen,
+  Spalten-/Zeilenköpfe, unterschiedlich lange Zeilen, Einfügen ohne Auswahl,
+  Seitenwechsel und alte gespeicherte CSV-Defaults. Frühere CSV-Tests und
+  Versionsprüfungen wurden an v60 angepasst.
+
+# mindfagg v59 – Sicherheitsgrenze der HTML-Vorschau / Replace-Diff
+
+- `preview/html-preview.js`: Jedes HTML-`srcdoc` läuft unabhängig von
+  gespeicherten alten Einstellungen in einem `sandbox="allow-scripts"`-Frame
+  mit **opaque origin**. `allow-same-origin` ist nicht mehr konfigurierbar.
+  Die restriktive CSP (u. a. `connect-src`, `frame-src`, `form-action`,
+  `object-src`, `base-uri` = `none`) bleibt aktiv; der VFS-PostMessage-Broker
+  liest nur Dateien aus dem aktuellen Projekt, mit Sitzungs-Token und
+  Quellframe-Prüfung. Konsolenmeldungen werden weiterhin übertragen, ohne
+  dem Frame App-Daten oder DOM-Zugriff zu geben.
+- `ui/settings.js`, `ui/settings.css`, `preview/html-preview.css`: Entfernen
+  den globalen Opt-in für Browser-Speicherzugriff und den Freigabe-Button.
+  Alte `previewStorageAccess`-Werte werden weder geladen noch erneut gespeichert.
+  Die Einstellungen informieren stattdessen über die unveränderliche Sandbox.
+- `workspace/patch-tool.js`: Der virtuelle Patch-Plan bewahrt auch für
+  deaktivierte `replace`-Einträge den Dateitext vor dem Ersetzen auf.
+  `patchToolRenderPreview()` stellt bisherige/neu vorgeschlagene Datei als
+  Unicode-sicher maskierte Diff-Spalten dar. Deaktivierte Einträge liefern
+  `0 B`, nicht den Größenwert aus dem hypothetisch vollständig aktiven Plan.
+  Der 2.000-Zeichen-Ausschnitt vermeidet Speicherallokation proportional zur
+  Dateigröße; der Patch selbst wird vollständig angewendet.
+- Die vorher in v38 eingeführte Speicherfreigabe wurde in v59 ersatzlos
+  zurückgenommen. Die v38-Beschreibung weiter unten ist historisch und gilt
+  **nicht** für den aktuellen Stand.
+
 # mindfagg v56 – Änderungen
 
 ## v58: Größenwert eines Hunks folgt dem Auswahlzustand
@@ -467,7 +514,7 @@ Aus dem App-Verzeichnis: `node tests/check-structure.mjs`. Der Test benötigt nu
 - `ui/dialogs.js`: `editNode(path)` unterscheidet nicht mehr nach `view==='kanban'`, sondern stellt stets `nodeStatus` bereit und übernimmt den Wert beim Speichern über `lineEdit()`. Kanban-Karten können so auch ohne Drag & Drop in eine andere Statusspalte wechseln.
 - Service Worker und Manifest erhalten v37 als Cache-/Paketversion.
 
-## v38: Optionale Freigabe des Browser-Speichers für HTML-Vorschauen
+## Historisch – v38: Optionale Speicherfreigabe (in v59 entfernt)
 
 - `ui/settings.js`: `appEditorSettings.previewStorageAccess=false` wird wie die übrigen appweiten Präferenzen über `mfEditorPreferencesV28` lokal gespeichert. Es gibt eine eigene App-Einstellungen-Sektion mit Schalter und deutlicher Sicherheitswarnung. Der Reset-Button für **Editor**-Einstellungen verändert die Vorschau-Berechtigung nicht.
 - `preview/html-preview.js`: Das iframe erhält standardmäßig nur `allow-scripts`; erst nach Opt-in kommt `allow-same-origin` hinzu. `htmlPreviewStorageBlockedError()` erkennt Sandboxing-Fehlermeldungen für Storage-APIs. `htmlPreviewLog()` öffnet die Konsole automatisch, `htmlPreviewRenderLogs()` zeigt den Freigabe-Button, `htmlPreviewGrantStorage()` speichert die Einstellung und ruft `htmlPreviewLoad()` für einen sofortigen Neustart auf.

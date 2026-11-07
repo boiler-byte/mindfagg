@@ -38,7 +38,7 @@ def main():
         # Selecting a cell inserts the new row above that row, even though toolbar takes focus.
         page.locator('[data-csv-row="1"][data-csv-col="0"]').focus()
         assert 'Zeile 2' in page.locator('#csvGridSelection').inner_text()
-        page.locator('#csvAddRow').click()
+        page.locator('#csvAddRow').select_option('above')
         assert page.locator('[data-csv-row="1"][data-csv-col="0"]').input_value()==''
         assert page.locator('[data-csv-row="2"][data-csv-col="0"]').input_value()=='x'
         assert page.evaluate('csvGridState.focusRow')==1
@@ -46,22 +46,22 @@ def main():
         # Selecting a column by its header inserts immediately before it.
         page.locator('[data-csv-col-header="1"]').click()
         assert page.locator('#csvGridSelection').inner_text()=='Spalte B'
-        page.locator('#csvAddColumn').click()
+        page.locator('#csvAddColumn').select_option('left')
         assert page.evaluate('csvGridState.rows')==[['A','','B'],['','',''],['x','','y'],['p','','q']]
         assert page.evaluate('csvGridState.focusCol')==1
         # Both buttons append when neither row nor column is selected.
         page.evaluate('csvGridSelect(csvGridState,-1,-1)')
-        page.locator('#csvAddRow').click()
+        page.locator('#csvAddRow').select_option('below')
         assert page.evaluate('csvGridState.rows.at(-1)')==['','','']
         page.evaluate('csvGridSelect(csvGridState,-1,-1)')
-        page.locator('#csvAddColumn').click()
+        page.locator('#csvAddColumn').select_option('right')
         assert page.evaluate('csvGridState.rows[0]')==['A','','B','']
         # Ragged records are padded before inserting a column in the middle.
         page.evaluate('''() => {
           docs[0].content='A,B,C\\nshort\\nx,y';activeFilePanel='grid';render();
         }''')
         page.locator('[data-csv-row="0"][data-csv-col="1"]').focus()
-        page.locator('#csvAddColumn').click()
+        page.locator('#csvAddColumn').select_option('left')
         assert page.evaluate('csvGridState.rows')==[['A','','B','C'],['short','','',''],['x','','y','']]
         print('PASS: CSV row/column insertion before selected position, append, header selection, ragged records',flush=True)
         # Page boundaries: insertion above row 110 must remain on the right page.
@@ -71,7 +71,7 @@ def main():
         }''')
         page.locator('#csvNextPage').click()
         page.locator('[data-csv-row-header="110"]').click()
-        page.locator('#csvAddRow').click()
+        page.locator('#csvAddRow').select_option('above')
         assert page.evaluate('csvGridState.rows[110]')==['','']
         assert page.evaluate('csvGridState.rows[111]')==['109','val']
         assert page.evaluate('csvGridState.page')==1

@@ -20,6 +20,6 @@ assert.ok(description!==-1&&date!==-1&&description<date,'Description must preced
 assert.match(edit,/id="nodeDescription" autocomplete="off"/,'Node description autocomplete must be off');
 const add=dialogs.split('function addNode(){',2)[1]?.split('function findHeadingEnd',1)[0];
 assert.match(add,/\$\{nodeDateFieldsHtml\(\)\}/,'Node creation dialog must retain date field');
-assert.equal(JSON.parse(read('module-manifest.json')).version,'v53');
-assert.match(read('sw.js'),/const VERSION='mindfagg-v53'/);
+assert.equal(JSON.parse(read('module-manifest.json')).version,'v60');
+assert.match(read('sw.js'),/const VERSION='mindfagg-v60'/);
 console.log('PASS: v35 editor regression under v44, node-edit field order, node creation and offline cache version');

@@ -45,6 +45,11 @@ const mapIcons={
   fit:'<path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/>'
 };
 function mapSvg(icon){return `<svg viewBox="0 0 24 24" aria-hidden="true">${mapIcons[icon]}</svg>`}
+// Truncate only the presentation; keep the original title for editing, ARIA and export.
+function mapVisibleNodeTitle(title){
+  const chars=Array.from(plain(String(title??'')));
+  return chars.length<=120?chars.join(''):chars.slice(0,119).join('')+'\u2026';
+}
 function mapNodeHtml(row,root){
   const n=row.node,hasChildren=n.children.length>0,collapsed=mapCollapsed(documentNow().id).has(n.path);
   const deep=row.depth>=3;
@@ -57,7 +62,7 @@ function mapNodeHtml(row,root){
     style="left:${row.x}px;top:${row.y}px;--node-accent:${mapStatusColor(n)}"
     aria-label="${escapeHtml(nodeTypeLabel(n)+' '+plain(n.title))}; auswählen oder ziehen"
     aria-selected="false" ${hasChildren?`aria-expanded="${!collapsed}"`:''} title="Auswählen · Ziehen zum Sortieren oder Umhängen · Doppelklick zum Bearbeiten">
-    <span class="nodeinner"><span class="nodetitle">${labeledNodeTitle(n)}</span>${progress}</span>${fold}</div>`;
+    <span class="nodeinner"><span class="nodetitle">${labeledNodeTitle({...n,title:mapVisibleNodeTitle(n.title)})}</span>${progress}</span>${fold}</div>`;
 }
 function positionMapRows(state){
   // v37: Double the space between direct siblings compared with v36.

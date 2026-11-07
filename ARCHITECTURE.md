@@ -1,3 +1,129 @@
+# mindfagg v56 – Änderungen
+
+## v58: Größenwert eines Hunks folgt dem Auswahlzustand
+
+- `workspace/patch-tool.js`: `patchToolRenderPreview()` verwendet für die
+  Größenangabe hinter `search (Treffer N)` den vorhandenen `deltaOf(id)`-Wert
+  aus `planWorkspacePatch()` statt einer immer aktiven statischen Differenz
+  `byteSize(replace)-byteSize(search)`. Ungewählte oder nicht anwendbare
+  Hunks zeigen `0 B`, gewählte/anwendbare Hunks ihren tatsächlichen UTF-8-
+  Größenunterschied. Datei- und Gesamtsumme verwenden denselben Plan.
+- Checkbox-Änderungen rendern die Vorschau ohnehin vollständig neu; keine
+  zusätzlichen Ereignis-Handler nötig. Patch-Schema und Anwendung unverändert.
+- `sw.js`: Cache-Version `mindfagg-v58`; `module-manifest.json` und
+  Strukturtest verwenden denselben Versionsstand.
+
+## v57: Zustandsabhängige Markierung in der Patch-Vorschau
+
+- `workspace/patch-tool.js` markiert die Vergleichsspalten als
+  `.patch-preview-diff-search` / `.patch-preview-diff-replace`; die bisherigen,
+  HTML-maskierten LCS-Diff-Fragmente und das Auswahl-/Render-Verhalten bleiben
+  unverändert.
+- `workspace/patch-tool.css`: die Farbe von geänderten Zeichen wird durch die
+  Kombination aus **Spalte**, **Fragmenttyp** und `patch-active` / `patch-inactive`
+  festgelegt. Ohne Auswahltausch werden keine Diff-Inhalte geändert.
+  `patch-diff-unchanged` übernimmt die neutrale Grundfarbe ohne Hintergrund.
+- `sw.js` wechselt zu `mindfagg-v57`, um CSS und JS im Offline-Cache zu erneuern.
+  Keine Änderung an Patch-Schema, Workspace-Dateien oder Datenbank.
+
+- `views/csv.js`, `views/csv.css`: Zeilen-/Spaltenköpfe sind auswählbar;
+  `csvGridSelect()` verwaltet eine Zeilen-, Spalten- oder Zellenauswahl.
+  `+ Zeile` fügt per `splice` über der Auswahl ein, `+ Spalte` vor der
+  ausgewählten Spalte. Bei fehlender Auswahl wird angehängt. Ragged Rows
+  werden vor dem Einfügen auf die sichtbare Breite aufgefüllt. Einfügen
+  respektiert die 100-Zeilen-Paginierung und setzt den Fokus auf die
+  eingefügte Position; Grid-Speicherung bleibt unverändert.
+- `views/html-markdown.js`: `markdownHtmlNodeCheckbox()` rendert die
+  vorhandene Checkbox direkt vor dem Knotentitel (Überschrift oder Liste).
+  `markdownHtmlNodeControls()` rendert nur gesetzte Metadatenfelder sowie
+  ein Plus-Dropdown für noch fehlende Attribute. Status-/Datums-Entwürfe
+  sind bis zur Auswahl verborgen; die Speicherung nutzt unverändert
+  `markdownHtmlChangeNode()` und dessen Undo/Persistenz.
+- `views/html-markdown.css`: Titel-/Checkbox-Layout, Plus-Menü und
+  Entwurf-Editoren; die HTML-Tab-Beschriftung wird bis 850 px ausgeblendet.
+- `sw.js`, `module-manifest.json`, `tests/check-structure.mjs`: Cache/
+  Paketversion v56. Keine neuen Produktionsdateien und keine Änderung der
+  Cache-Assetliste.
+- `tests/v56-browser.py`: CSV-Positions-/Paginierungsprüfungen und HTML-
+  Attribut-, Checkbox-, Status-/Datum- und Mobilprüfungen.
+- `tests/v51-browser.py`: Bestehende HTML-Regression auf die neue
+  Plus-Menü-Bedienung und ausgeblendete Mobilbeschriftung angepasst.
+
+---
+
+# mindfagg v55 - Änderungen
+
+- `workspace/patch-tool.js`: `patchToolDiffFragments()` berechnet eine
+  zeichenbasierte LCS-Differenz nach gemeinsamem Präfix/Suffix; höchstens
+  240.000 Matrixzellen je Teilvergleich. Größere Differenzen werden anhand von
+  Wort-/Leerraum-Tokens verglichen oder vollständig als entfernt/eingefügt
+  angezeigt. `patchToolDiffPreview()` erzeugt für `search`/`replace` getrennte,
+  HTML-escapte Spans (`unchanged`, `removed`, `added`). Bis zu 2.000 Unicode-
+  Zeichen pro Seite, unabhängig vom unveränderten Patchinhalt. Eine Hunk-ID-
+  Map im Modalzustand cached das Diff bis zum Laden eines anderen Patches.
+  Die bereits vorhandene Checkbox-Logik rendert mit `patch-active` bzw.
+  `patch-inactive` neu. Datenmodell, Anwendbarkeit, Byte-Deltas, Speicherung
+  und atomare Einspielung bleiben unverändert.
+- `workspace/patch-tool.css`: Unverändertes sowie übernommenes Material grün;
+  aktiv entfernte und deaktiviert verworfene Teile rot und durchgestrichen.
+  Die sichtbaren Textzeichen, inklusive Unicode, stehen in normalen
+  Text-Spans innerhalb des bestehenden `<pre>`.
+- `index.html`: Die in v54 fehlerhafte Position von `views/csv.js` korrigiert:
+  vor `ui/settings.js`, wie bereits im `module-manifest.json` vorgesehen.
+- `sw.js`, `module-manifest.json`, `tests/check-structure.mjs`: neuer
+  Offline-Cache-/Versionswert v55, unveränderte Assetliste.
+- `tests/v55-patch.mjs`, `tests/v55-browser.py`: Diff-Rekonstruktion,
+  HTML-Escaping, Unicode, große Hunks, Auswahlwechsel, berechnete CSS-Farben,
+  Durchstreichung und geöffneten Dateiblock geprüft.
+
+---
+
+# mindfagg v54 - Aenderungen
+
+- `views/mermaid.js`, `views/mermaid.css`: Unterer rechter Fit-Button ruft die
+  schon vorhandene `mermaidFitView()`-Transformation auf; vorhandenes
+  Pointer-/Wheel-Navigieren und gesichertes Blob-Image-Rendering bleiben.
+- `script/pretty-code.js`: `.json` ist eine neue Parser-basierte Pretty-Option,
+  die nur nach erfolgreichem Parse schreibt.
+- **Neu `views/csv.js`, `views/csv.css`:** CSV-Vorschau mit editierbarem Grid,
+  paginierter Tabelle, Text-only-Zellen und Dokument-Autosave; Parser/Unparser
+  durch Papa Parse 5.7.0 (CDN bei Verfuegbarkeit), lokaler RFC-4180-Fallback
+  ohne Netz. CSV-Encoding ueber `TextEncoder`/`TextDecoder` und gezielte
+  Konvertierung fuer UTF-16, BOM und Windows-1252.
+- `workspace/files.js`: CSV-Symbol, Grid-Dateitab, Import-/Export-Metadaten.
+  Bestehende `originalContent`/`raw`-Regeln erhalten unveraenderte Importbytes.
+- `ui/settings.js`/`.css`: Persistente CSV-Defaults im bestehenden
+  Settings-Key; `ui/dialogs.js` nutzt sie fuer neue CSV-Dateien.
+- `ui/router.js`, `workspace/io.js`, `markdown/editor.js`: Grid-Routing,
+  CSV-MIME und Flush der Grid-Speicherung beim Ansichtswechsel.
+- `index.html`, `module-manifest.json`, `sw.js`: Modulreihenfolge und
+  Offline-Cache v54, beide lokalen CSV-Module enthalten.
+- `tests/v54-browser.py`: End-to-End-Tests fuer Fit, Pretty JSON, CSV-Defaults,
+  Import/Export und CSV-Grid-Bearbeitung, Kodierung und Sicherheit.
+
+---
+
+# mindfagg v53 - Aenderungen
+
+- `views/mermaid.js`/`views/mermaid.css`: Canvas-aehnlicher Zoom/Pan per
+  Pointer-Events und Wheel statt statischem Scrollcontainer; berechnete
+  SVG-viewBox-Groesse und initiales Fit-to-Viewport; per-Datei Sessionzustand;
+  die Preview-Toolbar ist entfernt. Die sichere SVG-als-Blob-IMG-Grenze bleibt.
+- `workspace/io.js`: Mermaid-Quelltextdetektion vor JS/CSS-Detektion bei
+  Zwischenablage-Import; MIME/Text-Ausgabe des vorhandenen Importers unveraendert.
+- `mindmap/state-layout.js`/`mindmap/inline-edit.js`: Begrenzung nur der
+  sichtbaren Knotenlabels; vollstaendige Originaldaten und ARIA-Labels bleiben.
+- `index.html`: Position des HTML-Tabs vor Kanban verschoben.
+- `workspace/patch-tool.js`/`.css`: UTF-8-Delta aus aufeinanderfolgenden
+  virtuellen Dateioperationen; zusaetzlich theoretische Hunk-Differenzen im
+  Vergleich. Neues `patchSave`-Select: `none` / `full` / `selected`, bei
+  unveraenderter atomarer Commit- und Undo-Logik.
+- `sw.js`, `module-manifest.json`: Cache-Version v53, exakt dieselbe lokale
+  Modulliste. `.nojekyll` liegt zusaetzlich im Web-Root fuer GitHub Pages.
+- `tests/v53-*`: Browser- und Planner-Regressionen; alte Tests nachgezogen.
+
+---
+
 # mindfagg v52 – Mermaid-Diagramme
 
 - `workspace/files.js`: `.mmd`/`.mermaid` gelten als Text-Scripts, erhalten ein eigenes Sidebar-Symbol und einen zweiten Dateitab **Mermaid**; bestehende Script-/HTML-/SVG-Ansichten bleiben unverändert.

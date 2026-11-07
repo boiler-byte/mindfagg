@@ -57,8 +57,8 @@ with sync_playwright() as pw:
     page.locator('#workspacePatchQuick').click()
     assert page.locator('#patchTool').is_visible()
     assert page.locator('#patchSave').count()==1
-    assert page.locator('#patchSave').is_checked() is False
-    assert page.locator('#patchSave').evaluate('(el)=>!!(el.compareDocumentPosition(document.querySelector("#patchApply")) & Node.DOCUMENT_POSITION_FOLLOWING)'),'Save checkbox must be LEFT of apply button'
+    assert page.locator('#patchSave').input_value()=='none'
+    assert page.locator('#patchSave').evaluate('(el)=>!!(el.compareDocumentPosition(document.querySelector("#patchApply")) & Node.DOCUMENT_POSITION_FOLLOWING)'),'Save select must be LEFT of apply button'
     page.locator('#patchCopyPrompt').click()
     for op in ('"create"','"update"','"replace"','"delete"','"rename"'):
         assert op in page.evaluate('window.clipboardWritten'),op
@@ -81,7 +81,7 @@ with sync_playwright() as pw:
     page.locator('[data-patch-file="0"] summary').click()
     page.locator('[data-patch-operation="0:1"]').uncheck()
     assert page.locator('#patchApply').is_enabled()
-    page.locator('#patchSave').check()
+    page.locator('#patchSave').select_option('selected')
     page.locator('#patchApply').click()
     page.wait_for_function('document.querySelector("#modalBack").classList.contains("hidden")')
     assert page.evaluate('docs.find(d=>d.id==="html").content')=='<h1>New</h1>\nEnd'
@@ -132,10 +132,10 @@ with sync_playwright() as pw:
     page.locator('#patchJsonInput').fill(patch(p('create','test.txt',content='A')))
     page.locator('.patch-validate-link').click()
     assert page.locator('#patchApply').is_enabled()
-    assert page.locator('#patchSave').is_checked() is False
+    assert page.locator('#patchSave').input_value()=='none'
     page.locator('#patchApply').click()
     page.wait_for_function('docs.some(d=>d.path==="test.txt")')
-    assert page.evaluate('docs.filter(d=>/\\.patch\\.json$/.test(d.path)).length')==1,'Unchecked save must not create a new patch file'
+    assert page.evaluate('docs.filter(d=>/\\.patch\\.json$/.test(d.path)).length')==1,'No-save option must not create a new patch file'
     print('PASS: reloading saved patch, collision prevention, opt-out saving')
     if errors:raise AssertionError('Browser runtime exceptions: '+repr(errors))
     browser.close()

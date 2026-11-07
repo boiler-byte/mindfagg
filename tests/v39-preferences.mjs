@@ -30,5 +30,5 @@ assert.equal(vm.runInContext('appEditorSettings.codeFolding',create().ctx),true)
 preferences.set('mfEditorPreferencesV28',JSON.stringify({wordWrap:true,previewStorageAccess:false}));
 assert.equal(vm.runInContext('appEditorSettings.codeFolding',create().ctx),false,'old v38 preferences without a folding key default off');
 assert.match(fs.readFileSync(path.join(root,'ui/settings.js'),'utf8'),/appCodeFolding/);
-assert.equal(JSON.parse(fs.readFileSync(path.join(root,'module-manifest.json'),'utf8')).version,'v52');
+assert.equal(JSON.parse(fs.readFileSync(path.join(root,'module-manifest.json'),'utf8')).version,'v53');
 console.log('PASS: Code Folding defaults off, persists off/on, preserves v38 preferences and cache version');

@@ -62,7 +62,7 @@ def run():
         assert page.evaluate('Boolean(workspacePreviewURL?.startsWith("blob:"))')
         assert page.locator('#mermaidPreviewStage svg').count()==0,'SVG must stay an inert image'
         print('PASS: .mmd script editor, Prism highlighting, Mermaid image preview')
-        page.locator('#mermaidEditSource').click()
+        page.locator('[data-file-panel="script"]').click()
         page.locator('#scriptSource').fill('flowchart TD\n  A[Start --> B[Ende]')
         page.wait_for_function("document.querySelector('#scriptValidationBar')?.textContent.includes('Fehler')",timeout=10000)
         assert page.locator('.script-invalid-line').count()>0

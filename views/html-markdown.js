@@ -1,5 +1,5 @@
 'use strict';
-/* mindfagg v51: safe, offline Markdown-to-HTML view with editable node metadata.
+/* mindfagg v56: safe, offline Markdown-to-HTML view with editable node metadata.
  * Markdown remains the only document source. Never interpret raw Markdown as
  * trusted HTML or execute scripts from it. */
 let markdownHtmlAssetURLs=[];
@@ -64,18 +64,29 @@ function markdownHtmlInline(source){
   text=text.replace(/~~([^~\n]+)~~/g,'<del>$1</del>');
   return text.replace(/\uE100(\d+)\uE101/g,(_,number)=>saved[Number(number)]||'');
 }
+// The task checkbox belongs to the title, not to the metadata toolbar.
+function markdownHtmlNodeCheckbox(node,line){
+  if(!node||node.checked===null)return '';
+  return `<input class="html-md-task-checkbox" type="checkbox" data-html-task="${line}" aria-label="Aufgabe ${escapeHtml(node.title)} erledigt" ${node.checked?'checked':''}>`;
+}
+function markdownHtmlDateFields(line,date){
+  const number=(unit,label)=>`<label>${label}<input type="number" inputmode="numeric" min="0" max="9999" step="1" data-html-date-${unit} value="${Number(date?.duration?.[unit]||0)}" aria-label="${label}"></label>`;
+  return `<div class="html-md-date-fields"><label>Startdatum<input type="date" min="0001-01-01" max="9999-12-31" data-html-date-start value="${escapeHtml(date?.start||'')}"></label><div class="html-md-date-duration">${number('y','Jahre')}${number('m','Monate')}${number('d','Tage')}</div><div class="html-md-date-actions"><button type="button" data-html-date-save="${line}">Übernehmen</button>${date?`<button type="button" data-html-date-remove="${line}">Entfernen</button>`:`<button type="button" data-html-attr-cancel>Abbrechen</button>`}</div></div>`;
+}
 function markdownHtmlNodeControls(node,line){
   if(!node)return '';
-  const done=node.checked;
-  const task=done===null
-    ?`<button class="html-md-add-task" type="button" data-html-task-add="${line}" title="Checkbox hinzufügen">☐ Aufgabe</button>`
-    :`<label class="html-md-task"><input type="checkbox" data-html-task="${line}" aria-label="${escapeHtml(node.title)} erledigt" ${done?'checked':''}><span>${done?'Erledigt':'Offen'}</span></label><button class="html-md-remove-task" type="button" data-html-task-remove="${line}" title="Checkbox entfernen" aria-label="Checkbox entfernen">×</button>`;
-  const status=`<label class="html-md-status"><span class="sr-only">Status für ${escapeHtml(node.title)}</span><select data-html-status="${line}" aria-label="Status für ${escapeHtml(node.title)}"><option value="" ${!node.status?'selected':''}>Status</option>${STATUS.filter(s=>s!=='story').map(s=>`<option value="${s}" ${node.status===s?'selected':''}>${escapeHtml(statusLabel(s))}</option>`).join('')}</select></label>`;
-  const d=node.date;
-  const formatDuration=d?['y','m','d'].filter(k=>d.duration?.[k]>0).map(k=>'+'+d.duration[k]+k).join(' '):'';
-  const number=(unit,label)=>`<label>${label}<input type="number" inputmode="numeric" min="0" max="9999" step="1" data-html-date-${unit} value="${Number(d?.duration?.[unit]||0)}" aria-label="${label}"></label>`;
-  const date=`<details class="html-md-date" data-html-date-line="${line}"><summary title="Datum und Dauer bearbeiten">${d?'Datum: '+escapeHtml(d.start+(formatDuration?' '+formatDuration:'')):'Datum +'}</summary><div class="html-md-date-fields"><label>Startdatum<input type="date" min="0001-01-01" max="9999-12-31" data-html-date-start value="${escapeHtml(d?.start||'')}"></label><div class="html-md-date-duration">${number('y','Jahre')}${number('m','Monate')}${number('d','Tage')}</div><div class="html-md-date-actions"><button type="button" data-html-date-save="${line}">Übernehmen</button>${d?`<button type="button" data-html-date-remove="${line}">Entfernen</button>`:''}</div></div></details>`;
-  return `<div class="html-md-node-controls" aria-label="Knoten-Eigenschaften">${task}${status}${date}</div>`;
+  const hasTask=node.checked!==null,hasStatus=!!node.status&&node.status!=='story',hasDate=!!node.date;
+  const statusOptions=STATUS.filter(s=>s!=='story').map(s=>`<option value="${s}" ${node.status===s?'selected':''}>${escapeHtml(statusLabel(s))}</option>`).join('');
+  const status=hasStatus?`<label class="html-md-status"><span class="sr-only">Status für ${escapeHtml(node.title)}</span><select data-html-status="${line}" aria-label="Status für ${escapeHtml(node.title)}"><option value="">Status entfernen</option>${statusOptions}</select></label>`:'';
+  const duration=hasDate?['y','m','d'].filter(k=>node.date.duration?.[k]>0).map(k=>'+'+node.date.duration[k]+k).join(' '):'';
+  const date=hasDate?`<details class="html-md-date" data-html-date-line="${line}"><summary title="Datum und Dauer bearbeiten">Datum: ${escapeHtml(node.date.start+(duration?' '+duration:''))}</summary>${markdownHtmlDateFields(line,node.date)}</details>`:'';
+  const available=[!hasTask?`<button type="button" data-html-attr-add="task" data-html-line="${line}">Checkbox (Aufgabe)</button>`:'',
+    !hasStatus?`<button type="button" data-html-attr-add="status" data-html-line="${line}">Status</button>`:'',
+    !hasDate?`<button type="button" data-html-attr-add="date" data-html-line="${line}">Datum</button>`:''].filter(Boolean);
+  const menu=available.length?`<div class="html-md-attr-menu"><button type="button" class="html-md-add-attr" data-html-menu-toggle="${line}" aria-label="Attribut für ${escapeHtml(node.title)} hinzufügen" aria-expanded="false" aria-controls="html-md-attr-options-${line}" title="Attribut hinzufügen">+</button><div class="html-md-attr-options" id="html-md-attr-options-${line}" hidden>${available.join('')}</div></div>`:'';
+  const draftStatus=!hasStatus?`<div class="html-md-add-editor html-md-status" data-html-editor="status" hidden><select data-html-status-new="${line}" aria-label="Status für ${escapeHtml(node.title)} wählen"><option value="" selected>Status wählen</option>${statusOptions}</select><button type="button" data-html-attr-cancel>Abbrechen</button></div>`:'';
+  const draftDate=!hasDate?`<div class="html-md-add-editor html-md-date-draft" data-html-editor="date" data-html-date-line="${line}" hidden>${markdownHtmlDateFields(line,null)}</div>`:'';
+  return `<div class="html-md-node-controls" aria-label="Knoten-Eigenschaften">${status}${date}${menu}${draftStatus}${draftDate}</div>`;
 }
 function markdownHtmlTableCells(row){
   return String(row).trim().replace(/^\||\|$/g,'').split('|').map(cell=>cell.trim());
@@ -98,7 +109,7 @@ function markdownHtmlRenderBody(scan){
       }
       if(item.kind!=='list'||item.indent!==base||ordered(item)!==(tag==='ol'))break;
       const node=byLine.get(item.line),text=node?node.title:item.title;
-      out+=`<li class="${node?.checked!==null?'html-md-list-node':''}"><div class="html-md-list-row"><span class="html-md-list-text">${markdownHtmlInline(text)}</span>${markdownHtmlNodeControls(node,item.line)}</div>`;
+      out+=`<li class="${node&&node.checked!==null?'html-md-list-node':''}"><div class="html-md-list-row">${markdownHtmlNodeCheckbox(node,item.line)}<span class="html-md-list-text">${markdownHtmlInline(text)}</span>${markdownHtmlNodeControls(node,item.line)}</div>`;
       i++;
       while(i<items.length){
         const next=items[i];
@@ -138,7 +149,7 @@ function markdownHtmlRenderBody(scan){
       const node=byLine.get(item.line),title=node?node.title:item.title,level=item.level;
       const id='html-md-heading-'+item.line;
       toc.push({line:item.line,level,title:plain(title)||title});
-      html+=`<div class="html-md-heading" id="${id}"><h${level}>${markdownHtmlInline(title)}</h${level}>${markdownHtmlNodeControls(node,item.line)}</div>`;
+      html+=`<div class="html-md-heading" id="${id}"><div class="html-md-heading-title">${markdownHtmlNodeCheckbox(node,item.line)}<h${level}>${markdownHtmlInline(title)}</h${level}></div>${markdownHtmlNodeControls(node,item.line)}</div>`;
       i++;continue;
     }
     if(item.kind==='list'){
@@ -206,10 +217,37 @@ function renderMarkdownHtml(){
       else toast('Verknüpftes Dokument nicht gefunden: '+name);
       return;
     }
-    const add=event.target.closest('[data-html-task-add]');
-    if(add){await markdownHtmlChangeNode(Number(add.dataset.htmlTaskAdd),{checked:false});return}
-    const remove=event.target.closest('[data-html-task-remove]');
-    if(remove){await markdownHtmlChangeNode(Number(remove.dataset.htmlTaskRemove),{checked:null});return}
+    const toggle=event.target.closest('[data-html-menu-toggle]');
+    if(toggle){
+      const options=toggle.parentElement.querySelector('.html-md-attr-options');
+      const opening=options.hidden;
+      viewElement.querySelectorAll('.html-md-attr-options').forEach(menu=>menu.hidden=true);
+      viewElement.querySelectorAll('[data-html-menu-toggle]').forEach(button=>button.setAttribute('aria-expanded','false'));
+      options.hidden=!opening;
+      toggle.setAttribute('aria-expanded',String(opening));
+      return;
+    }
+    const add=event.target.closest('[data-html-attr-add]');
+    if(add){
+      const kind=add.dataset.htmlAttrAdd,line=Number(add.dataset.htmlLine);
+      if(kind==='task'){await markdownHtmlChangeNode(line,{checked:false});return}
+      const controls=add.closest('.html-md-node-controls');
+      const editor=controls.querySelector(`[data-html-editor="${kind}"]`);
+      if(editor){
+        controls.querySelector('.html-md-attr-options').hidden=true;
+        controls.querySelector('[data-html-menu-toggle]').setAttribute('aria-expanded','false');
+        controls.querySelectorAll('[data-html-editor]').forEach(item=>item.hidden=true);
+        editor.hidden=false;
+        editor.querySelector('select,input')?.focus();
+      }
+      return;
+    }
+    const cancel=event.target.closest('[data-html-attr-cancel]');
+    if(cancel){cancel.closest('[data-html-editor]').hidden=true;return}
+    if(!event.target.closest('.html-md-attr-menu')){
+      viewElement.querySelectorAll('.html-md-attr-options').forEach(menu=>menu.hidden=true);
+      viewElement.querySelectorAll('[data-html-menu-toggle]').forEach(button=>button.setAttribute('aria-expanded','false'));
+    }
     const save=event.target.closest('[data-html-date-save]');
     if(save){
       const row=save.closest('[data-html-date-line]');
@@ -235,7 +273,15 @@ function renderMarkdownHtml(){
       await markdownHtmlChangeNode(Number(event.target.dataset.htmlTask),{checked:event.target.checked});
     }else if(event.target.matches('[data-html-status]')){
       await markdownHtmlChangeNode(Number(event.target.dataset.htmlStatus),{status:event.target.value||null});
+    }else if(event.target.matches('[data-html-status-new]')){
+      if(event.target.value)await markdownHtmlChangeNode(Number(event.target.dataset.htmlStatusNew),{status:event.target.value});
     }
+  });
+  viewElement.addEventListener('keydown',event=>{
+    if(event.key!=='Escape')return;
+    for(const menu of viewElement.querySelectorAll('.html-md-attr-options'))menu.hidden=true;
+    for(const button of viewElement.querySelectorAll('[data-html-menu-toggle]'))button.setAttribute('aria-expanded','false');
+    for(const editor of viewElement.querySelectorAll('[data-html-editor]'))editor.hidden=true;
   });
 }
 // Modify only the prefix metadata of a heading or list item, preserving the

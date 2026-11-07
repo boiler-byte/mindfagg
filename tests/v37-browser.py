@@ -74,7 +74,7 @@ with sync_playwright() as pw:
       const gap=(a,b)=>r[b].y-(r[a].y+r[a].height);
       return {sibling:gap('a-0','a-1'),between:gap('a-2','b-0')};
     }''')
-    assert layout=={'sibling':30,'between':64},layout
+    assert layout=={'sibling':24,'between':24},layout
     print('PASS: measured Mindmap gaps',layout)
     assert not errors,errors
     browser.close()

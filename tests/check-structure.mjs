@@ -30,7 +30,7 @@ assert(missingAssets.length===0,'Missing cache assets: '+missingAssets.join(', '
 for(const name of catalog.cacheAssets){
   assert(sw.includes("'"+name+"'"),'Service-worker pre-cache misses '+name);
 }
-assert(sw.includes("const VERSION='mindfagg-v52'"),'Service-worker cache version incorrect');
+assert(sw.includes("const VERSION='mindfagg-v58'"),'Service-worker cache version incorrect');
 const runtimeAssets=new Set([...css,...js,'./index.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-maskable.svg'].map(x=>x.replace(/^\.\//,'')));
 for(const name of runtimeAssets)assert(catalog.cacheAssets.some(x=>x.replace(/^\.\//,'')===name),'Runtime file not cached: '+name);
 let passed=0;

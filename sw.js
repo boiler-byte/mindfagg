@@ -4,7 +4,7 @@
  * navigation to a preview URL without an iframe sandbox attribute. */
 'use strict';
 
-const VERSION='mindfagg-v52';
+const VERSION='mindfagg-v58';
 const CORE_CACHE=`${VERSION}-core`;
 const RUNTIME_CACHE=`${VERSION}-runtime`;
 const VFS_ROUTE='__mindfagg_preview__/';
@@ -55,6 +55,7 @@ const CORE_ASSETS=[
   './markdown/editor.js',
   './views/html-markdown.js',
   './workspace/files.js',
+  './views/csv.js',
   './preview/html-preview.js',
   './ui/settings.js',
   './vendor/prism.min.js',
@@ -76,6 +77,7 @@ const CORE_ASSETS=[
   './icons/icon.svg',
   './icons/icon-maskable.svg',
   './views/mermaid.css',
+  './views/csv.css',
   './vendor/prism-mermaid.min.js',
   './views/mermaid.js',
   './vendor/mermaid/_baseUniq-Y4WFS72s.js',

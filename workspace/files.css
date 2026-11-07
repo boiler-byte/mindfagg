@@ -29,3 +29,6 @@
 
 /* v52: distinguish Mermaid diagram files in the workspace tree. */
 .file-navitem .file-type-mermaid{color:#ba9cff;stroke-width:1.8}
+
+/* v54: CSV files in the workspace tree. */
+.file-navitem .file-type-csv{color:#5ac7a5;stroke-width:1.75}

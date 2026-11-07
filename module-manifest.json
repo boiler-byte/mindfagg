@@ -1,5 +1,5 @@
 {
-  "version": "v52",
+  "version": "v58",
   "runtime": "classic-scripts",
   "stylesheets": [
     "css/foundation.css",
@@ -24,7 +24,8 @@
     "css/code-folding.css",
     "preview/html-preview.css",
     "workspace/patch-tool.css",
-    "views/mermaid.css"
+    "views/mermaid.css",
+    "views/csv.css"
   ],
   "scripts": [
     "core/state.js",
@@ -47,6 +48,7 @@
     "markdown/editor.js",
     "views/html-markdown.js",
     "workspace/files.js",
+    "views/csv.js",
     "preview/html-preview.js",
     "ui/settings.js",
     "vendor/prism.min.js",
@@ -201,6 +203,8 @@
     "./vendor/mermaid/time-BeeRGM3E.js",
     "./vendor/mermaid/timeline-definition-IT6M3QCI-DGC3eVRT.js",
     "./vendor/mermaid/treemap-KMMF4GRG-BrVflxTa.js",
-    "./vendor/mermaid/xychartDiagram-PRI3JC2R-qrUHXmDM.js"
+    "./vendor/mermaid/xychartDiagram-PRI3JC2R-qrUHXmDM.js",
+    "./views/csv.css",
+    "./views/csv.js"
   ]
 }

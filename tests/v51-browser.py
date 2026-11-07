@@ -79,7 +79,8 @@ def run():
         page.locator('[data-html-status="0"]').select_option('review')
         page.wait_for_function('docs[0].content.includes("[status:review]")')
         assert '[status:doing]' not in page.evaluate('docs[0].content.split("\\n")[0]')
-        page.locator('[data-html-task-add="6"]').click() # on list item with status but no checkbox
+        page.locator('[data-html-menu-toggle="6"]').click() # use the v56 add-attribute menu
+        page.locator('[data-html-attr-add="task"][data-html-line="6"]').click()
         page.wait_for_function('docs[0].content.includes("- [ ] [status:todo] Offene Aufgabe")')
         page.locator('[data-html-task="6"]').check()
         page.wait_for_function('docs[0].content.includes("- [x] [status:todo] Offene Aufgabe")')
@@ -116,9 +117,9 @@ def run():
         assert page.locator('.html-md-toc details').get_attribute('open') is None
         page.locator('.html-md-toc summary').click()
         assert page.locator('.html-md-toc-entry').first.is_visible()
-        for tab in ['markdown','mindmap','html']:
+        for tab in ['markdown','mindmap']:
             assert page.locator(f'#markdownTabs [data-view="{tab}"] .tab-label').is_visible(),tab
-        for tab in ['kanban','calendar']:
+        for tab in ['html','kanban','calendar']:
             assert not page.locator(f'#markdownTabs [data-view="{tab}"] .tab-label').is_visible(),tab
             assert page.locator(f'#markdownTabs [data-view="{tab}"] .tab-icon svg').is_visible()
         for tab in ['mindmap','kanban','calendar','html']:

@@ -38,7 +38,8 @@ function render(){
   if(fileKind(d)!=='markdown'){
     currentModel=null;activeMap=null;
     if(fileKind(d)==='script'){
-      if(activeFilePanel==='preview'&&isHtmlScriptFile(d))renderHtmlPreview();
+      if(activeFilePanel==='grid'&&isCsvFile(d))renderCsvGridView();
+      else if(activeFilePanel==='preview'&&isHtmlScriptFile(d))renderHtmlPreview();
       else if(activeFilePanel==='preview'&&isSvgScriptFile(d))renderSvgPreview();
       else if(activeFilePanel==='preview'&&isMermaidFile(d))void renderMermaidPreview();
       else if(activeFilePanel==='functions'&&isJavascriptFile(d))renderFunctionsView();

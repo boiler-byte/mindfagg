@@ -1,8 +1,8 @@
 'use strict';
-/* mindfagg v41: offline source pretty-printing for HTML, JS, CSS, XML and SVG.
+/* mindfagg v41: offline source pretty-printing for HTML, JS, CSS, XML, SVG and JSON.
  * Formatters never execute source code. Invalid or semantically changed JavaScript
  * is rejected before the canonical document is modified. */
-const SCRIPT_PRETTY_EXTENSIONS=new Set(['html','htm','js','mjs','cjs','css','xml','svg','xhtml']);
+const SCRIPT_PRETTY_EXTENSIONS=new Set(['html','htm','js','mjs','cjs','css','xml','svg','xhtml','json']);
 const SCRIPT_PRETTY_LIMIT=2*1024*1024;
 
 function scriptPrettyKind(extension){
@@ -10,6 +10,7 @@ function scriptPrettyKind(extension){
   if(['html','htm'].includes(ext))return 'html';
   if(['js','mjs','cjs'].includes(ext))return 'js';
   if(ext==='css')return 'css';
+  if(ext==='json')return 'json';
   if(['xml','svg','xhtml'].includes(ext))return 'xml';
   return null;
 }
@@ -261,10 +262,16 @@ function scriptPrettyMarkup(source,xml){
   };
   return render(root,0).trimEnd()+'\n';
 }
+function scriptPrettyJson(source){
+  // Parse before changing the editor, so invalid JSON is never overwritten.
+  const value=JSON.parse(String(source));
+  return JSON.stringify(value,null,2)+'\n';
+}
 function scriptPrettyFormat(source,extension){
   if(source.length>SCRIPT_PRETTY_LIMIT)throw Error('Datei ist f\u00fcr Pretty Code zu gro\u00df (maximal 2 MB).');
   const kind=scriptPrettyKind(extension);
   if(!kind)throw Error('Pretty Code ist f\u00fcr diesen Dateityp nicht verf\u00fcgbar.');
+  if(kind==='json')return scriptPrettyJson(source);
   if(kind==='js')return scriptPrettyJavascript(source);
   if(kind==='css')return scriptPrettyCss(source);
   return scriptPrettyMarkup(source,kind==='xml');

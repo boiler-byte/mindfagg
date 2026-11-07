@@ -3,7 +3,7 @@
 // All incoming paths are validated; an entire multi-file import is committed atomically.
 const WORKSPACE_IMPORT_LIMIT=ZIP_MAX_TOTAL;
 let workspaceActionMenu=null,workspaceDropFolder=null;
-const workspaceMime={...WORKSPACE_IMAGE_MIME,md:'text/markdown',markdown:'text/markdown',txt:'text/plain',js:'text/javascript',mjs:'text/javascript',cjs:'text/javascript',css:'text/css',json:'application/json',mmd:'text/plain',mermaid:'text/plain',xml:'application/xml',html:'text/html',htm:'text/html',xhtml:'application/xhtml+xml',mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',mp4:'video/mp4',webm:'video/webm',pdf:'application/pdf'};
+const workspaceMime={...WORKSPACE_IMAGE_MIME,md:'text/markdown',markdown:'text/markdown',txt:'text/plain',js:'text/javascript',mjs:'text/javascript',cjs:'text/javascript',css:'text/css',json:'application/json',csv:'text/csv',mmd:'text/plain',mermaid:'text/plain',xml:'application/xml',html:'text/html',htm:'text/html',xhtml:'application/xhtml+xml',mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',mp4:'video/mp4',webm:'video/webm',pdf:'application/pdf'};
 function workspaceMimeFor(path){return workspaceMime[pathExtension(path)]||(knownTextPath(path)?'text/plain':'application/octet-stream')}
 function workspaceZipFilename(p){return (p.name||'Workspace').replace(/[\\/:*?"<>|]/g,'_')+'.zip'}
 function workspaceResetActionButton(){for(const id of ['#addDocument','#workspaceMore']){const el=$(id);if(el)el.setAttribute('aria-expanded','false')}}
@@ -527,8 +527,18 @@ async function openZipImportDialog(file,options={}){
   }catch(error){console.error(error);toast('ZIP konnte nicht gelesen werden: '+error.message)}
 }
 
+// Mermaid diagrams copied as text should keep the dedicated .mmd extension.
+function workspaceLooksLikeMermaidText(value){
+  let text=String(value??'').replace(/^\uFEFF/,'').trimStart();
+  if(!text||text.length>500000)return false;
+  // Optional Mermaid YAML front matter and directives/comments may precede a diagram.
+  text=text.replace(/^---[ \t]*\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/,'').trimStart();
+  text=text.replace(/^(?:[ \t]*%%[^\r\n]*(?:\r?\n|$)[ \t]*)*/,'').trimStart();
+  return /^(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|journey|gantt|pie|gitGraph|mindmap|timeline|quadrantChart|requirementDiagram|C4(?:Context|Container|Component|Dynamic|Deployment)|sankey-beta|xychart-beta|block-beta|packet-beta|architecture-beta|kanban|radar-beta|treemap-beta|zenuml)\b(?:\s|;|$)/i.test(text);
+}
 function workspaceSuggestTextName(value){
   const t=String(value).trim();
+  if(workspaceLooksLikeMermaidText(t))return 'clipboard.mmd';
   if(/^<svg(?:\s|>)/i.test(t)||/^<\?xml[^>]*\?>[\s\S]*<svg(?:\s|>)/i.test(t))return 'clipboard.svg';
   if(/^<!doctype\s+html/i.test(t)||/^<html(?:\s|>)/i.test(t))return 'clipboard.html';
   if(/^<\?xml\b/i.test(t))return 'clipboard.xml';

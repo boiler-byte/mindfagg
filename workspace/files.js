@@ -132,6 +132,7 @@ function workspaceFileIcon(doc){
   const path=workspacePath(doc),ext=pathExtension(path);
   if(['js','mjs','cjs','jsx'].includes(ext))return '<svg class="file-type-mark file-type-js" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="3" fill="#f7df1e"/><text x="12" y="16.8" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11.8" font-weight="800" fill="#242112">JS</text></svg>';
   if(ext==='css')return '<svg class="file-type-mark file-type-css" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 6 21M17 3l-3 18M4 9h17M3 15h17"/></svg>';
+  if(ext==='csv')return '<svg class="file-type-mark file-type-csv" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="2" width="18" height="20" rx="2"/><path d="M3 8h18M3 14h18M10 8v14M16 8v14"/></svg>';
   if(['mmd','mermaid'].includes(ext))return '<svg class="file-type-mark file-type-mermaid" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="7" height="6" rx="1.1"/><rect x="15" y="15" width="7" height="6" rx="1.1"/><path d="M9 6h5a4 4 0 0 1 4 4v5M14 12l4 3 4-3"/></svg>';
   if(['htm','html','xhtml'].includes(ext))return '<svg class="file-type-mark file-type-html" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5-6 7 6 7m6-14 6 7-6 7"/></svg>';
   if(isMarkdownPath(path)||fileKind(doc)==='markdown')return '<svg class="file-type-mark file-type-markdown" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v17m-7-7 7 7 7-7"/></svg>';
@@ -269,6 +270,7 @@ function filePanelOptions(doc){
   if(!doc)return [];
   if(fileKind(doc)==='script'){
     const tabs=[{id:'script',label:'⌘  Script'}];
+    if(isCsvFile(doc))tabs.push({id:'grid',label:'▦  Grid'});
     if(isSvgScriptFile(doc)||isHtmlScriptFile(doc)||isMermaidFile(doc))tabs.push({id:'preview',label:isMermaidFile(doc)?'◇  Mermaid':'▧  Vorschau'});
     if(isJavascriptFile(doc))tabs.push({id:'functions',label:'ƒ  Functions'});
     return tabs;
@@ -359,6 +361,7 @@ function importedFileRecord(path,bytes,metadata={}){
   if(fileType==='markdown')content=markdownWithRoot(path,content);
   const result={id:uid(),projectId:null,name,path,fileType,
     ...(fileType==='markdown'||fileType==='script'?{content,originalContent,raw:bytes}:{data:bytes})};
+  if(fileType==='script'&&ext==='csv')result.csvSettings=csvDetectOptions(content,csvGuessEncoding(bytes));
   if(fileType==='markdown'){
     result.mapCollapsedPaths=Array.isArray(metadata.mapCollapsedPaths)?metadata.mapCollapsedPaths:[];
     result.mapPositions=metadata.mapPositions||{};
@@ -368,6 +371,7 @@ function importedFileRecord(path,bytes,metadata={}){
 function exportFileBytes(doc){
   if(!docIsText(doc))return workspaceBytes(doc.data);
   if(doc.raw&&doc.content===doc.originalContent)return workspaceBytes(doc.raw);
+  if(isCsvFile(doc))return csvEncodeText(doc.content||'',csvFileOptions(doc).encoding);
   return new TextEncoder().encode(doc.content||'');
 }
 // ZIP format: standard non-encrypted ZIP (stored/deflate), with safe paths and CRC validation.

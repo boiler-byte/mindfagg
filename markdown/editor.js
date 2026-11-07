@@ -137,6 +137,7 @@ async function saveSource(id=editorDocId,text){
 async function flushSource(){
   clearTimeout(saveTimer);
   const d=docs.find(x=>x.id===editorDocId),source=d&&fileKind(d)==='script'?$('#scriptSource'):$('#source');
+  if(d&&d.id===docId&&isCsvFile(d)&&activeFilePanel==='grid'&&csvGridState?.docId===d.id){await saveSource(d.id,d.content);return}
   if(!source||!editorDocId||!d||d.id!==docId||!docIsText(d))return;
   if(fileKind(d)==='markdown'&&view!=='markdown')return;
   const value=codeFoldFull(source);d.content=value;await saveSource(editorDocId,value);

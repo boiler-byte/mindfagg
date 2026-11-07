@@ -113,3 +113,14 @@
 .app-preview-storage-availability{margin:0 20px 18px;color:#9eafc6;font-size:11px;line-height:1.55}
 .app-preview-storage-availability code{color:#d5baff}
 @media(max-width:850px){.app-settings-preview-security h2{padding:14px 12px 0}.app-preview-storage-warning{margin:0 12px 10px}.app-preview-storage-availability{margin:0 12px 14px}}
+
+/* v54: configurable defaults for newly created CSV files. */
+.app-settings-csv{border:1px solid #34425b;border-radius:12px;background:#141d2c;margin-top:19px;padding:17px 20px}
+.app-settings-csv h2{margin:0 0 6px;font-size:17px;color:#e2eafa}
+.app-settings-csv p{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.5}
+.app-csv-settings-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 17px}
+.app-csv-settings-fields label{display:flex;flex-direction:column;gap:7px;min-width:0}
+.app-csv-settings-fields strong{font-size:12px;color:#dce5f4}
+.app-csv-settings-fields select{background:#0d1420;color:var(--text);border:1px solid #455471;border-radius:8px;padding:10px 11px;min-width:0;width:100%;font:inherit;font-size:12px;cursor:pointer}
+.app-csv-settings-fields select:focus-visible{outline:2px solid var(--accent)}
+@media(max-width:650px){.app-settings-csv{padding:14px 12px}.app-csv-settings-fields{grid-template-columns:1fr}}

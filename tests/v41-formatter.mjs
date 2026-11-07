@@ -19,7 +19,8 @@ const examples=[
   ['css','a:hover{content:"a;{b}";color:blue;}@media (max-width:500px){a{padding:1px}}'],
   ['html','<!doctype html><html><head><title>App</title></head><body><main><p>Hi</p></main></body></html>'],
   ['xml','<?xml version="1.0"?><root><item>text</item><empty/></root>'],
-  ['svg','<svg><g><rect width="5" height="5"/></g><text>A B</text></svg>']
+  ['svg','<svg><g><rect width="5" height="5"/></g><text>A B</text></svg>'],
+  ['json','{"title":"Daten","rows":[1,2,3],"flag":true}']
 ];
 let checks=0;
 for(const [extension,source] of examples){
@@ -34,5 +35,6 @@ assert.equal(call(inline,'html'),inline+'\n','Inline text must not gain spacing'
 for(const invalid of ['const = 1;','let text = "unterminated']){
   assert.throws(()=>call(invalid,'js'));checks++;
 }
-for(const extension of ['json','txt','md']){assert.throws(()=>call('{}',extension));checks++}
+for(const invalid of ['{invalid}', '{"missing": 1,}']){assert.throws(()=>call(invalid,'json'));checks++}
+for(const extension of ['txt','md']){assert.throws(()=>call('{}',extension));checks++}
 console.log('PASS: '+checks+' Pretty Code cases (AST preservation, idempotence, comments, markup and unsupported formats)');

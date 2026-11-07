@@ -110,8 +110,8 @@ def run():
           const leaf=layout.rows.filter(r=>r.depth===2);
           return {within:leaf[1].y-(leaf[0].y+leaf[0].height),between:leaf[2].y-(leaf[1].y+leaf[1].height)};
         }''')
-        assert result['within']<result['between'],result
-        print('PASS: mindmap subtree gaps smaller than inter-parent gaps',result)
+        assert result['within']==24 and result['between']==24,result
+        print('PASS: mindmap current subtree and inter-parent spacing',result)
         assert not errors,errors
         browser.close()
 

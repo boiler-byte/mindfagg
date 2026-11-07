@@ -1,3 +1,144 @@
+# mindfagg v58 – Abnahme
+
+- [ ] Patch mit mehreren Hunks und unterschiedlichen positiven/negativen
+  Byte-Deltas öffnen und den Dateiblock aufklappen.
+- [ ] Aktive Hunks: Wert hinter `search (Treffer N)` stimmt mit der
+  tatsächlichen UTF-8-Größenänderung überein.
+- [ ] Hunk abwählen: Sein Wert wechselt sofort auf `0 B`; Datei- und
+  Gesamtsumme sinken um genau seinen ursprünglichen Beitrag.
+- [ ] Hunk erneut wählen: Originalwert erscheint wieder; summierte Werte
+  und Diff-Farben stimmen; andere Hunks bleiben unverändert.
+- [ ] Auch reine Löschung, neue Zeichen und Umlaute/Unicode prüfen.
+- [ ] Seite nach PWA-Update neu laden: neuer Cache `mindfagg-v58` aktiv.
+
+**Automatisiert:** `python3 tests/v58-browser.py`,
+`python3 tests/v57-browser.py`, `python3 tests/v53-browser.py`,
+`node tests/v53-patch.mjs`, `node tests/check-structure.mjs`.
+
+---
+
+# mindfagg v57 – Abnahme
+
+- [ ] Hunk mit teilweise unverändertem Text: Gemeinsamkeiten in `search`
+  und `replace` haben keine rote/grüne Hinterlegung.
+- [ ] Aktiver Hunk: ausschließlich entfallender Text in `search` rot und
+  neue Zeichen in `replace` grün; andere Inhalte neutral.
+- [ ] Hunk abwählen: entfallender Text in `search` grün, neue Zeichen
+  in `replace` rot. Hunk erneut wählen: exakt ursprüngliche Farben.
+- [ ] Mehrere Hunks unabhängig umschalten; Dateiblöcke bleiben aufgeklappt.
+  Löschungen, reine Einfügungen, Sonderzeichen und Unicode prüfen.
+- [ ] Eingespielter Patch und Größenänderungsanzeige bleiben korrekt.
+- [ ] Offline/HTTPS: Service-Worker-Cache `mindfagg-v57` aktiviert.
+
+**Automatisiert:** `python3 tests/v57-browser.py`,
+`python3 tests/v55-browser.py`, `node tests/v55-patch.mjs`,
+`node tests/check-structure.mjs`.
+
+---
+
+# mindfagg v56 – Abnahme
+
+- [ ] CSV öffnen, eine Zelle in der Mitte fokussieren: `+ Zeile` erstellt
+  einen leeren Datensatz direkt darüber; der bisherige Datensatz rückt nach
+  unten. Eine Spalte fokussieren: `+ Spalte` erstellt eine leere Spalte links.
+- [ ] Zeilen-/Spaltenköpfe anklicken und dieselben Einfügepositionen prüfen.
+  Ohne Auswahl (nach dem Öffnen) werden Zeilen und Spalten angehängt.
+- [ ] CSV mit mehr als 100 Datensätzen, ohne führende Kopfzeile und mit
+  unterschiedlich langen Zeilen testen. Löschen, Zellenbearbeitung und
+  Script-Ansicht müssen weiter funktionieren.
+- [ ] Markdown-HTML öffnen: Die Checkbox steht ohne sichtbaren Text links
+  neben der Überschrift bzw. dem Listeneintrag; kein Entfernen-Button.
+- [ ] Knoten ohne Metadaten: Nur ein `+` statt leerer Checkbox-/Status-/
+  Datumsfelder. Menü zeigt „Checkbox (Aufgabe)“, „Status“, „Datum“.
+- [ ] Metadaten schrittweise hinzufügen: Nach Übernahme verschwindet die
+  jeweilige Option aus dem Menü. Bei vollständig gesetzten Metadaten gibt es
+  kein Plus. Status/Datum entfernen und wieder hinzufügen.
+- [ ] Auf 390/320 px Breite: HTML-Text der Ansichts-Toolbar ist verborgen,
+  Icon und Tastatur-/Screenreader-Beschriftung bleiben verfügbar.
+- [ ] PWA aktualisieren, danach neue Offline-Cache-Version `mindfagg-v56`
+  und vorhandene lokale Dokumente kontrollieren.
+
+**Automatisiert:** `python3 tests/v56-browser.py`,
+`python3 tests/v51-browser.py`, `python3 tests/v54-browser.py` und
+`node tests/check-structure.mjs` (mit Icons aus der Vollinstallation).
+
+---
+
+# mindfagg v55 - Abnahme
+
+- [ ] Patch mit mehreren `update`-Hunks öffnen, Dateiblock aufklappen.
+  `search` und `replace` zeigen unveränderte/erhaltene Zeichen in Grün.
+  Entfernte Textstücke im aktiven Hunk sind rot und durchgestrichen; neue
+  Textstücke sind grün.
+- [ ] Ein Hunk abwählen: Text, der sonst entfernt würde, wird grün; verworfene
+  Ergänzungen werden rot und durchgestrichen. Weitere Hunks behalten ihren
+  Status, der Dateiblock bleibt offen, Patch-/Gesamt-Byte-Deltas passen sich an.
+- [ ] Hunk erneut anwählen: Ursprüngliche Farben wiederhergestellt.
+  Löschungen (leerer `replace`), reine Ergänzungen, Unicode, Sonderzeichen
+  (`<`, `&`) und mehrere Textänderungen innerhalb eines Hunks prüfen.
+- [ ] Patch einspielen und ggf. rückgängig machen: identisch zu v54.
+- [ ] Seite neu laden: CSV und App-Einstellungen öffnen ohne Script-Fehler;
+  auch nach Aktualisierung auf den Cache `mindfagg-v55`.
+
+**Automatisiert:** `node tests/v55-patch.mjs`, `python tests/v55-browser.py`,
+`node tests/v53-patch.mjs`, `python tests/v54-browser.py`,
+`node tests/check-structure.mjs` (benötigt Icons aus Vollinstallation).
+
+---
+
+# mindfagg v54 - Abnahme
+
+- [ ] `.mmd` laden: Rechts unten ueber dem Diagnosebereich erscheint ein
+  Einpassen-/Zentrieren-Button. Ziehen und Zoomen, danach Button: Diagramm
+  wird optimal eingepasst, ohne die vorher entfernte Preview-Toolbar.
+- [ ] `.json` im Script-Editor: Pretty Code wird angezeigt, JSON wird mit
+  zwei Leerzeichen formatiert. Ungueltige JSON-Eingaben aendern die Datei nicht.
+- [ ] `.csv` neu erstellen und importieren: CSV-Icon, Tabs **Script** und **Grid**;
+  Bearbeiten, Hinzufuegen, Loeschen und Seitenwechsel im Grid funktionieren.
+- [ ] App-Einstellungen > Neue CSV-Dateien: Trennzeichen, Zeichencodierung,
+  Zeilenende und Textbegrenzung sind speicherbar und werden fuer neue CSV
+  uebernommen. Bereits importierte Dateien behalten ihre erkannten Werte.
+- [ ] CSV mit Kommas im Feld, escaped Quotes, Zeilenumbruechen in Feldern und
+  leerer Endzeile rundtrippen; Umlaute/Euro-Zeichen in CP1252 und UTF-16.
+- [ ] CSV offline ohne CDN: Grid arbeitet weiter; bei verfuegbarem CDN wird
+  Papa Parse 5.7.0 verwendet. Inhalt wird niemals als HTML gerendert.
+- [ ] ZIP-Export/-Import und GitHub-Sync bleiben bei CSV-Dateien kompatibel;
+  unmodifizierte Originalbytes werden erhalten.
+- [ ] Browser unter HTTPS/localhost: Neuen Service-Worker-Cache `mindfagg-v54`
+  nach dem Update aktivieren; JS- und CSS-Dateien lokal geladen.
+
+**Automatisch:** `python tests/v54-browser.py`, `node tests/check-structure.mjs`,
+`node tests/v53-patch.mjs`, `python tests/v53-browser.py` und vorhandene
+Regressionen. Der Strukturtest setzt die zwei Icon-SVG-Dateien aus der
+vollstaendigen Basisinstallation voraus.
+
+---
+
+# mindfagg v53 - Abnahme
+
+- [ ] Mermaid-Vorschau besitzt keine `.mermaid-preview-toolbar`; Bild wird im
+  Viewport eingefittet und laesst sich durch Ziehen, Wheel sowie Touch-Pinch
+  verschieben/zoomen. `0` passt die Ansicht wieder ein. Fehlernavigation bleibt.
+- [ ] Nach Wechsel Script -> Mermaid bleiben Zoom/Pan unveraendert, solange
+  der Quelltext gleich ist; nach Textaenderung wird neu eingepasst.
+- [ ] Mermaid-Quelltext aus der Zwischenablage wird als `.mmd` vorgeschlagen,
+  nicht als `.js` oder `.txt`. Andere Codearten bleiben unveraendert.
+- [ ] Mindmap: sichtbarer `.node-text` umfasst hoechstens 120 Zeichen inklusive
+  Ellipse; Inline-Editor und Markdown enthalten weiterhin den kompletten Text.
+- [ ] Markdown-Tabs: Markdown / Mindmap / HTML / Kanban / Kalender.
+- [ ] Patch-Vorschau: UTF-8-Deltas (auch Unicode) je Hunk, Patch und Summe;
+  Abwaehlen eines Hunks aktualisiert Patch- und Gesamtsumme.
+- [ ] Patch-Speichermodus: `none` erzeugt keine Patch-Datei; `full` speichert
+  alles inklusive abgewaehlter Hunks, `selected` nur die Auswahl. Einspielen und
+  Undo/Redo wirken in allen drei Faellen wie zuvor.
+- [ ] GitHub Pages: `.nojekyll` ist neben `index.html` ausgerollt; Module mit
+  einem fuehrenden `_` sind ueber HTTP erreichbar.
+
+**Automatisiert:** `node tests/v53-patch.mjs`, `python tests/v53-browser.py`,
+`node tests/check-structure.mjs` und bisherige Regressionen.
+
+---
+
 # mindfagg v52 – Mermaid `.mmd`
 
 ## Abnahme

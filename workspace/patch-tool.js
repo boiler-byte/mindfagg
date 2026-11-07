@@ -1,5 +1,8 @@
 'use strict';
-// v46: validated ordered operations, collapsible patch summary, contextual validation.
+// v58: per-Hunk delta follows selection and matches file/overall totals.
+// v57: side-specific diff styling; only changed text is highlighted.
+// v55: character-level search/replace highlighting with selection-aware colors.
+// v53: validated operations, UTF-8 delta preview and configurable save scope.
 // Patches are data only; changes and the optional .patch.json log form ONE undoable batch.
 const PATCH_TOOL_MAX_BYTES=4*1024*1024;
 const PATCH_TOOL_MAX_HUNKS=500;
@@ -86,6 +89,26 @@ function parseWorkspacePatch(source){
   }
   return value;
 }
+const patchToolUtf8Encoder=new TextEncoder();
+function patchToolByteSize(value){return patchToolUtf8Encoder.encode(String(value??'')).length}
+function patchToolStoredByteSize(file){
+  if(docIsText(file))return patchToolByteSize(file.content);
+  const data=file.data;
+  if(data instanceof ArrayBuffer||ArrayBuffer.isView(data))return data.byteLength;
+  return 0;
+}
+function patchToolByteDeltaLabel(value){
+  if(!Number.isFinite(value))return 'n/v';
+  if(value===0)return '0 B';
+  const absolute=Math.abs(value),sign=value>0?'+':'-';
+  if(absolute<1024)return sign+absolute+' B';
+  const number=(absolute/1024).toFixed(1).replace(/\.0$/,'');
+  return sign+number+' KB';
+}
+function patchToolDeltaHtml(value){
+  const kind=value>0?' is-positive':value<0?' is-negative':'';
+  return `<span class="patch-size-delta${kind}" title="${value>=0?'+':''}${value} Byte (UTF-8)">${patchToolByteDeltaLabel(value)}</span>`;
+}
 function patchToolNthOffset(content,search,n){
   let start=0;
   for(let i=0;i<n;i++){
@@ -140,7 +163,7 @@ function planWorkspacePatch(patch,selected,whichProject=projectId){
   for(let i=0;i<patch.patches.length;i++){
     const entry=patch.patches[i],op=patchToolOperation(entry),ids=patchToolSelectionIds(entry,i);
     for(let j=0;j<ids.length;j++){
-      const id=ids[j],checked=selected.has(id),row={id,operation:op,file:entry.file,to:entry.to||'',description:entry.description||'',number:j+1,checked,ok:true,message:'',before:''};
+      const id=ids[j],checked=selected.has(id),row={id,operation:op,file:entry.file,to:entry.to||'',description:entry.description||'',number:j+1,checked,ok:true,message:'',before:'',byteDelta:null};
       if(!checked){row.message='Abgewählt';operations.push(row);continue}
       count++;
       const fromKey=patchToolCanonical(entry.file),file=files.get(fromKey);
@@ -154,10 +177,12 @@ function planWorkspacePatch(patch,selected,whichProject=projectId){
             if(at<0)fail(row,'Suchtext / Treffer '+hunk.occurrence+' nicht gefunden.');
             else{
               files.set(fromKey,{...file,content:before.slice(0,at)+hunk.replace+before.slice(at+hunk.search.length)});
+              row.byteDelta=patchToolByteSize(hunk.replace)-patchToolByteSize(hunk.search);
               row.message='Treffer '+hunk.occurrence+' gefunden';
             }
           }else{
             files.set(fromKey,{...file,content:entry.content,...(fileKind(file)==='markdown'?{preserveSource:true}:{})});
+            row.byteDelta=patchToolByteSize(entry.content)-patchToolByteSize(before);
             row.message='Gesamter Inhalt wird ersetzt.';
           }
         }
@@ -173,11 +198,12 @@ function planWorkspacePatch(patch,selected,whichProject=projectId){
             const key=patchToolCanonical(parent);
             if(!folders.has(key)){folders.set(key,parent);additions.set(key,parent)}
           }
+          row.byteDelta=patchToolByteSize(entry.content);
           row.message='Neue Textdatei wird angelegt.';
         }
       }else if(op==='delete'){
         if(!file)fail(row,'Datei ist im Projekt nicht vorhanden.');
-        else{row.before=docIsText(file)?String(file.content??''):'';files.delete(fromKey);row.message='Datei wird gelöscht.'}
+        else{row.before=docIsText(file)?String(file.content??''):'';row.byteDelta=-patchToolStoredByteSize(file);files.delete(fromKey);row.message='Datei wird gelöscht.'}
       }else if(op==='rename'){
         if(!file)fail(row,'Datei ist im Projekt nicht vorhanden.');
         else{
@@ -192,6 +218,7 @@ function planWorkspacePatch(patch,selected,whichProject=projectId){
               const key=patchToolCanonical(parent);
               if(!folders.has(key)){folders.set(key,parent);additions.set(key,parent)}
             }
+            row.byteDelta=0;
             row.message=entry.file===entry.to?'Unveränderter Pfad.':'Zieldateiname verfügbar.';
           }
         }
@@ -215,8 +242,9 @@ function patchToolTimestamp(now=new Date()){
   return pad(now.getFullYear(),4)+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+'-'+
     pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds())+'.patch.json';
 }
-function patchToolSaveRecord(patch,selected,plan,whichProject=projectId,now=new Date()){
-  const applied=patchToolSelectedPatch(patch,selected);
+function patchToolSaveRecord(patch,selected,plan,whichProject=projectId,now=new Date(),mode='selected'){
+  if(!['full','selected'].includes(mode))throw Error('Unbekannter Patch-Speichermodus.');
+  const applied=mode==='full'?patch:patchToolSelectedPatch(patch,selected);
   const reserved=new Set(plan.finalFiles.map(doc=>patchToolCanonical(workspacePath(doc))));
   const folderNames=new Set(plan.folders.map(patchToolCanonical));
   for(const doc of plan.finalFiles)for(const parent of patchToolParents(workspacePath(doc)))folderNames.add(patchToolCanonical(parent));
@@ -262,7 +290,7 @@ function patchToolProjectOptions(){
 }
 function openPatchTool(){
   if(!projectId){toast('Bitte zuerst ein Projekt auswählen');return}
-  patchToolState={projectId,patch:null,selected:new Set(),expanded:new Set(),applying:false};
+  patchToolState={projectId,patch:null,selected:new Set(),expanded:new Set(),diffCache:new Map(),applying:false};
   openModal(`<div id="patchTool" class="patch-tool">
     <h2>Patch-Tool</h2><p>Dateien erstellen, ändern, ersetzen, umbenennen und löschen. Alle ausgewählten Vorgänge vor dem Einspielen prüfen.</p>
     <section class="patch-section" aria-labelledby="patchApplyTitle">
@@ -278,9 +306,10 @@ function openPatchTool(){
         <button type="button" class="btn" id="patchLoadProject">Laden</button></div></div>
       <div id="patchToolMessage" class="patch-message" data-kind="info" role="status" aria-live="polite">Noch kein Patch geladen.</div>
       <div id="patchPreview" class="patch-preview hidden" aria-label="Patch-Vorschau"></div>
-      <div class="patch-action-row"><label class="patch-save-option" for="patchSave"><input type="checkbox" id="patchSave">Patch speichern</label>
+      <div class="patch-action-row"><label class="patch-save-option" for="patchSave"><span>Patch speichern</span>
+        <select id="patchSave" aria-label="Speichermodus für Patch"><option value="none">Patch nicht speichern</option><option value="full">Patch vollständig speichern</option><option value="selected">Patch-Auswahl speichern</option></select></label>
         <button type="button" class="btn primary" id="patchApply" disabled>Ausgewählte Vorgänge einspielen</button></div>
-      <small class="patch-save-note">Optional: Nach erfolgreicher Ausfuehrung im Projekt-Root unter YYYY-MM-DD-HHmmss.patch.json speichern. Gespeichert werden nur ausgewählte Vorgänge; ein Rückgängig stellt auch die Patch-Datei zurueck.</small>
+      <small class="patch-save-note">Optional: Nach dem Einspielen im Projekt-Root als YYYY-MM-DD-HHmmss.patch.json sichern. Vollständig = alle Patch-Vorgänge (auch abgewählte); Auswahl = nur eingespielte Vorgänge. Rückgängig entfernt auch die gespeicherte Patch-Datei.</small>
     </section>
     <section class="patch-section patch-create" aria-labelledby="patchCreateTitle">
       <h3 id="patchCreateTitle">Erstellen</h3><p>Hänge diese Phrase an einen KI-Prompt an. Stelle der KI auch die betroffenen Originaldateien zur Verfuegung.</p>
@@ -346,7 +375,7 @@ function patchToolParseInput(){
   if(!patchToolState||!$('#patchJsonInput'))return;
   try{
     const value=parseWorkspacePatch($('#patchJsonInput').value);
-    patchToolState.patch=value;patchToolState.selected=new Set();patchToolState.expanded=new Set();
+    patchToolState.patch=value;patchToolState.selected=new Set();patchToolState.expanded=new Set();patchToolState.diffCache=new Map();
     value.patches.forEach((entry,i)=>patchToolSelectionIds(entry,i).forEach(id=>patchToolState.selected.add(id)));
     patchToolRenderPreview();
   }catch(error){
@@ -357,6 +386,69 @@ function patchToolParseInput(){
 }
 function patchToolPreviewText(value){
   const text=String(value??'');return escapeHtml(text.slice(0,2000))+(text.length>2000?'\n… (weitere '+(text.length-2000)+' Zeichen)':'');
+}
+// Only the visible first 2000 Unicode characters are compared. Preserve the
+// original search/replace strings for the actual patch application.
+const PATCH_TOOL_DIFF_PREVIEW_CHARS=2000;
+const PATCH_TOOL_DIFF_MAX_CELLS=240000;
+function patchToolDiffFragments(before,after,wordLevel=false){
+  // A bounded LCS keeps identical sections intact even when there are several
+  // edits in a hunk. For large completely different sections, compare tokens
+  // instead of allocating a quadratic character-level matrix.
+  const tokenize=text=>wordLevel?(text.match(/\s+|[\p{L}\p{N}_$]+|[^\s\p{L}\p{N}_$]+/gu)||[]):Array.from(text);
+  const left=tokenize(before),right=tokenize(after);
+  let prefix=0,suffix=0;
+  while(prefix<left.length&&prefix<right.length&&left[prefix]===right[prefix])prefix++;
+  while(suffix<left.length-prefix&&suffix<right.length-prefix&&
+    left[left.length-1-suffix]===right[right.length-1-suffix])suffix++;
+  const a=left.slice(prefix,left.length-suffix),b=right.slice(prefix,right.length-suffix);
+  const chunks=[];
+  const push=(kind,value)=>{
+    if(!value)return;
+    const last=chunks[chunks.length-1];
+    if(last?.kind===kind)last.text+=value;
+    else chunks.push({kind,text:value});
+  };
+  push('unchanged',left.slice(0,prefix).join(''));
+  if(!a.length)push('added',b.join(''));
+  else if(!b.length)push('removed',a.join(''));
+  else if(a.length*b.length>PATCH_TOOL_DIFF_MAX_CELLS){
+    if(wordLevel){push('removed',a.join(''));push('added',b.join(''))}
+    else for(const part of patchToolDiffFragments(a.join(''),b.join(''),true))push(part.kind,part.text);
+  }else{
+    const stride=b.length+1;
+    const lcs=new Uint16Array((a.length+1)*stride);
+    for(let i=a.length-1;i>=0;i--){
+      const row=i*stride,next=(i+1)*stride;
+      for(let j=b.length-1;j>=0;j--){
+        lcs[row+j]=a[i]===b[j]?lcs[next+j+1]+1:Math.max(lcs[next+j],lcs[row+j+1]);
+      }
+    }
+    let i=0,j=0;
+    while(i<a.length&&j<b.length){
+      if(a[i]===b[j]){push('unchanged',a[i]);i++;j++}
+      else if(lcs[(i+1)*stride+j]>=lcs[i*stride+j+1])push('removed',a[i++]);
+      else push('added',b[j++]);
+    }
+    while(i<a.length)push('removed',a[i++]);
+    while(j<b.length)push('added',b[j++]);
+  }
+  push('unchanged',left.slice(left.length-suffix).join(''));
+  return chunks;
+}
+function patchToolDiffPreview(search,replace){
+  const first=Array.from(search),second=Array.from(replace);
+  const fragments=patchToolDiffFragments(first.slice(0,PATCH_TOOL_DIFF_PREVIEW_CHARS).join(''),
+    second.slice(0,PATCH_TOOL_DIFF_PREVIEW_CHARS).join(''));
+  let searchHtml='',replaceHtml='';
+  for(const part of fragments){
+    const html=`<span class="patch-diff-${part.kind}">${escapeHtml(part.text)}</span>`;
+    if(part.kind!=='added')searchHtml+=html;
+    if(part.kind!=='removed')replaceHtml+=html;
+  }
+  if(first.length>PATCH_TOOL_DIFF_PREVIEW_CHARS)searchHtml+=`<span class="patch-diff-cutoff">\n… (weitere ${first.length-PATCH_TOOL_DIFF_PREVIEW_CHARS} Zeichen)</span>`;
+  if(second.length>PATCH_TOOL_DIFF_PREVIEW_CHARS)replaceHtml+=`<span class="patch-diff-cutoff">\n… (weitere ${second.length-PATCH_TOOL_DIFF_PREVIEW_CHARS} Zeichen)</span>`;
+  return {searchHtml,replaceHtml};
 }
 function patchToolRenderPreview(){
   const state=patchToolState;
@@ -369,30 +461,42 @@ function patchToolRenderPreview(){
   const status=new Map(plan.operations.map(row=>[row.id,row]));
   const detected=new Map(complete.operations.map(row=>[row.id,row]));
   const operationLabel={create:'Erstellen',update:'Aktualisieren',replace:'Ersetzen',delete:'Löschen',rename:'Umbenennen'};
+  const deltaOf=id=>{const row=status.get(id);return row?.ok&&Number.isFinite(row.byteDelta)?row.byteDelta:null};
+  const totalDelta=plan.operations.reduce((sum,row)=>sum+(row.checked&&row.ok&&Number.isFinite(row.byteDelta)?row.byteDelta:0),0);
   const markup=state.patch.patches.map((entry,i)=>{
     const op=patchToolOperation(entry),ids=patchToolSelectionIds(entry,i);
     const chosen=ids.filter(id=>state.selected.has(id)).length;
     const found=ids.filter(id=>detected.get(id)?.ok).length;
     const total=ids.length;
+    const patchDelta=ids.reduce((sum,id)=>sum+(deltaOf(id)||0),0);
     const lines=ids.map((id,j)=>{
       const row=status.get(id),h=op==='update'?entry.hunks[j]:null;
       let detail='';
-      if(h)detail=`<div class="patch-preview-diff"><div><small>search (Treffer ${h.occurrence})</small><pre>${patchToolPreviewText(h.search)}</pre></div><div><small>replace</small><pre>${h.replace?patchToolPreviewText(h.replace):'<em>(leerer Text)</em>'}</pre></div></div>`;
+      if(h){
+        // The Hunk label shows its *applied* byte delta, just like the file
+        // and overall totals. An unchecked or invalid Hunk changes 0 bytes.
+        const delta=deltaOf(id)??0;
+        if(!state.diffCache)state.diffCache=new Map();
+        if(!state.diffCache.has(id))state.diffCache.set(id,patchToolDiffPreview(h.search,h.replace));
+        const diff=state.diffCache.get(id);
+        detail=`<div class="patch-preview-diff"><div class="patch-preview-diff-search"><small>search (Treffer ${h.occurrence}) ${patchToolDeltaHtml(delta)}</small><pre>${diff.searchHtml}</pre></div><div class="patch-preview-diff-replace"><small>replace</small><pre>${h.replace?diff.replaceHtml:'<em>(leerer Text)</em>'}</pre></div></div>`;
+      }
       else if(op==='create'||op==='replace')detail=`<div class="patch-preview-diff patch-preview-single"><div><small>${op==='create'?'Inhalt der neuen Datei':'Neuer vollständiger Inhalt'}</small><pre>${entry.content?patchToolPreviewText(entry.content):'<em>(leere Datei)</em>'}</pre></div></div>`;
       else if(op==='delete')detail='<p class="patch-operation-hint">Die Datei wird vollständig gelöscht (einschließlich Inhalt).</p>';
       else if(op==='rename')detail=`<p class="patch-operation-hint">${escapeHtml(entry.file)} → <strong>${escapeHtml(entry.to)}</strong></p>`;
-      return `<div class="patch-preview-operation${row.ok?'':' patch-invalid'}">
+      const actual=deltaOf(id),preview=actual??detected.get(id)?.byteDelta;
+      return `<div class="patch-preview-operation${row.checked?' patch-active':' patch-inactive'}${row.ok?'':' patch-invalid'}">
         <label class="patch-operation-title"><input type="checkbox" data-patch-operation="${id}" ${row.checked?'checked':''}>
-          <strong>${escapeHtml(operationLabel[op])}${h?' · Hunk '+(j+1):''}</strong><span class="patch-operation-status${row.ok?'':' is-error'}">${escapeHtml(row.message)}</span></label>${detail}</div>`;
+          <strong>${escapeHtml(operationLabel[op])}${h?' · Hunk '+(j+1):''}</strong>${!h&&Number.isFinite(preview)?patchToolDeltaHtml(preview):''}<span class="patch-operation-status${row.ok?'':' is-error'}">${escapeHtml(row.message)}</span></label>${detail}</div>`;
     }).join('');
     return `<details class="patch-preview-file" data-patch-file="${i}" ${state.expanded.has(i)?'open':''}>
       <summary class="patch-preview-file-head">
         <span class="patch-preview-file-title"><strong>${escapeHtml(entry.file)}</strong>${op==='rename'?`<strong>→ ${escapeHtml(entry.to)}</strong>`:''}${entry.description?`<small>${escapeHtml(entry.description)}</small>`:''}</span>
-        <span class="patch-preview-file-meta"><span class="patch-preview-operation-type">operation: ${escapeHtml(op)}</span><span class="patch-preview-file-counts" title="patch: ausgewählte Treffer / found: im vollständigen Patch gefundene Treffer / total: erwartete Treffer"><span class="patch-count-label">patch / found / total</span><strong>${chosen} / ${found} / ${total}</strong></span></span>
+        <span class="patch-preview-file-meta"><span class="patch-preview-operation-type">operation: ${escapeHtml(op)}</span><span class="patch-preview-file-counts" title="patch: ausgewählte Treffer / found: im vollständigen Patch gefundene Treffer / total: erwartete Treffer"><span class="patch-count-label">patch / found / total</span><strong>${chosen} / ${found} / ${total}</strong>${patchToolDeltaHtml(patchDelta)}</span></span>
       </summary><div class="patch-preview-file-body">${lines}</div>
     </details>`;
   }).join('');
-  $('#patchPreview').innerHTML=`<h4>Patch-Vorschau <span>${plan.count} ausgewählt / ${plan.operations.length} gesamt</span></h4>${markup}`;
+  $('#patchPreview').innerHTML=`<h4>Patch-Vorschau <span>${plan.count} ausgewählt / ${plan.operations.length} gesamt</span></h4>${markup}<div class="patch-preview-total">Größenänderung aller ausgewählten Patches: <strong>${patchToolDeltaHtml(totalDelta)}</strong></div>`;
   $('#patchPreview').classList.remove('hidden');
   $('#patchApply').disabled=plan.errors>0||!plan.count||!plan.affected||state.applying;
   patchToolMessage(plan.errors?plan.errors+' ausgewählte Vorgänge nicht anwendbar. Bitte Auswahl oder Patch korrigieren.':
@@ -429,8 +533,8 @@ async function patchToolApply(){
     const plan=planWorkspacePatch(state.patch,state.selected,state.projectId);
     if(plan.errors)throw Error('Mindestens ein ausgewählter Vorgang passt nicht mehr.');
     if(!plan.count||!plan.affected)throw Error('Keine Änderungen zum Einspielen ausgewählt.');
-    const save=$('#patchSave')?.checked;
-    const stored=save?patchToolSaveRecord(state.patch,state.selected,plan,state.projectId):null;
+    const saveMode=$('#patchSave')?.value||'none';
+    const stored=saveMode==='none'?null:patchToolSaveRecord(state.patch,state.selected,plan,state.projectId,new Date(),saveMode);
     historyBusy=true;updateHistoryButtons();
     await workspaceCommitChanges(stored?[...plan.changes,stored]:plan.changes,plan.deletedIds,plan.folders,docId);
     const count=plan.count,files=plan.affected;

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v37 layout spacing and shared node-editing regression checks.
+// v53: verify current map spacing and shared node-editing regressions.
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -30,12 +30,12 @@ const check=(rootNode,from,to,desired)=>{
 const leaf=(path)=>({path,children:[]});
 const block=(name)=>({path:name,children:[0,1,2].map(i=>leaf(`${name}-${i}`))});
 const main={path:'root',children:[block('a'),block('b'),block('c'),block('d')]};
-check(main,'a-0','a-1',30);
-check(main,'b-1','b-2',30);
-check(main,'a-2','b-0',64);
-check(main,'b-2','c-0',64);
+check(main,'a-0','a-1',24);
+check(main,'b-1','b-2',24);
+check(main,'a-2','b-0',24);
+check(main,'b-2','c-0',24);
 const nested={path:'root',children:[{path:'a',children:[{path:'a0',children:[leaf('a00'),leaf('a01')]},{path:'a1',children:[]}]}]};
-check(nested,'a00','a01',18);
+check(nested,'a00','a01',24);
 const deeper={path:'root',children:[{path:'a',children:[{path:'a0',children:[{path:'a00',children:[leaf('a000'),leaf('a001')]}]}]}]};
 check(deeper,'a000','a001',12);
 const dialogs=read('ui/dialogs.js');
@@ -45,6 +45,6 @@ assert.ok(!nodeEditor.includes('isKanbanTicket'),'Editor must not special-case K
 assert.match(nodeEditor,/<label for="nodeTitle">Knoten bearbeiten<\/label>/);
 assert.match(nodeEditor,/id="nodeStatus"/);
 assert.match(nodeEditor,/status:\$\('#nodeStatus'\)\.value\|\|null/);
-assert.equal(JSON.parse(read('module-manifest.json')).version,'v52');
-assert.match(read('sw.js'),/const VERSION='mindfagg-v52'/);
-console.log('PASS: v37 sibling spacing 30/18/12px, parent-block spacing 64px, shared node editor and v38 PWA version');
+assert.equal(JSON.parse(read('module-manifest.json')).version,'v53');
+assert.match(read('sw.js'),/const VERSION='mindfagg-v53'/);
+console.log('PASS: current sibling spacing 24/12px, shared node editor and v53 PWA version');

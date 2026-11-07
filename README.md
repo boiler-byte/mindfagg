@@ -1,3 +1,169 @@
+# mindfagg v58 – Größenanzeige pro Hunk
+
+Dieses Delta-Update auf v57 enthält nur geänderte und neue Dateien. Dateien
+unter Beibehaltung der Ordnerstruktur über die bestehende Installation kopieren.
+Die Offline-Cache-Version ist `mindfagg-v58`.
+
+- Der Größenwert hinter **search (Treffer N)** in der Patch-Vorschau richtet sich
+  jetzt nach dem Auswahlzustand: **aktiv** zeigt die Änderung in UTF-8-Bytes/KB
+  (positiv oder negativ), **inaktiv** zeigt `0 B`.
+- Bei erneuter Aktivierung erscheint der ursprüngliche Größenwert. Auch nicht
+  anwendbare Hunks tragen `0 B` zur geplanten Änderung bei.
+- Hunk-, Datei- und Gesamtsumme beziehen sich damit auf dieselbe aktuell
+  ausgewählte Patch-Planung. Diff-Farben, gespeicherte Patch-Inhalte und die
+  tatsächliche Patch-Anwendung bleiben unverändert.
+
+**Tests:** `python3 tests/v58-browser.py`, `python3 tests/v57-browser.py`,
+`python3 tests/v53-browser.py`, `node tests/v53-patch.mjs`,
+`node tests/check-structure.mjs`.
+
+---
+
+# mindfagg v57 – Farbregel für die Patch-Vorschau
+
+Dieses **Delta-Update** auf v56 enthält ausschließlich neue oder geänderte Dateien.
+Den Inhalt über die bestehende v56-Installation kopieren (Unterordner beibehalten).
+Neue Offline-Cache-Version: `mindfagg-v57`.
+
+- **Aktiver Hunk:** Nur wirklich entfallende Zeichen in **search** sind rot
+  markiert, nur neu eingefügte Zeichen in **replace** grün.
+- **Inaktiver Hunk:** Die Farben werden umgekehrt: der im Original verbleibende
+  search-Unterschied ist grün, die verworfene replace-Ergänzung rot.
+- **Unveränderte Zeichen** sind in beiden Spalten neutral, unabhängig davon,
+  ob der Hunk aktiviert oder deaktiviert ist. Der Farbwechsel erfolgt direkt
+  bei jeder Checkbox-Umschaltung; andere Hunks behalten ihren Zustand.
+- Patch-Anwendung, Trefferberechnung, Byte-Summen und Export bleiben unverändert.
+
+**Tests:** `python3 tests/v57-browser.py`, `python3 tests/v55-browser.py`,
+`node tests/v55-patch.mjs`, `node tests/check-structure.mjs`.
+
+---
+
+# mindfagg v56 – CSV-Einfügepositionen und kompakte HTML-Knoten
+
+Dieses **Delta-Update** auf v55 enthält nur geänderte und neue Dateien. Den
+ZIP-Inhalt über die bestehende vollständige Installation entpacken und die
+Unterordner beibehalten. Bestehende Daten- und Projektformate bleiben unverändert.
+Der Offline-Cache wechselt zu `mindfagg-v56`.
+
+- **CSV-Grid:** `+ Zeile` fügt **über der ausgewählten Zeile** ein, `+ Spalte`
+  **links von der ausgewählten Spalte**. Ohne Auswahl wird jeweils am Ende
+  angefügt. Auch Zeilen- und Spaltenköpfe lassen sich direkt auswählen;
+  die neue Zelle wird nach dem Einfügen fokussiert. Mehrseitige und ungleich
+  lange CSV-Datensätze bleiben ausgerichtet.
+- **Markdown/HTML:** Auf schmalen Bildschirmen ist die Ansicht in der
+  Toolbar nur als HTML-Icon sichtbar; die zugängliche Beschriftung bleibt.
+  Aufgaben-Checkboxen stehen ohne sichtbares Label oder Entfernen-Button
+  **links vor dem Knotennamen**. Nicht gesetzte Aufgaben-, Status- und
+  Datumsfelder werden nicht mehr direkt im Knoten angezeigt.
+- **Knotenattribute:** Solange Checkbox, Status oder Datum fehlen, erscheint
+  ein **Plus-Menü** mit den jeweils noch möglichen Attributen. Status wird
+  nach Auswahl eines Werts übernommen, das Datum erst mit „Übernehmen“.
+  Bestehende Status- und Datumswerte bleiben editierbar und entfernbar.
+
+**Tests:** `python3 tests/v56-browser.py`, `python3 tests/v51-browser.py`,
+`python3 tests/v54-browser.py`, `node tests/check-structure.mjs`.
+Der Strukturtest erwartet die SVG-Icons aus der vollständigen Installation.
+
+---
+
+# mindfagg v55 - Differenzmarkierung in der Patch-Vorschau
+
+Dieses **Delta-Update** auf v54 enthält ausschließlich geänderte und neue Dateien.
+Die Dateien über die bestehende vollständige Installation kopieren (Verzeichnisstruktur
+beibehalten). Workspace-Daten, Patch-Format und Patch-Einspielung bleiben unverändert.
+Neuer PWA-/Offline-Cache: `mindfagg-v55`.
+
+- **Patch-Tool / Vorschau:** Die `search`-/`replace`-Gegenüberstellung markiert
+  unveränderte, erhaltene Textteile grün. Bei **aktiviertem Hunk** sind entfernte
+  Abschnitte in `search` rot und durchgestrichen; eingefügte Abschnitte in
+  `replace` sind grün. Bei **deaktiviertem Hunk** bleiben diese alten Abschnitte
+  grün, und die verworfenen Einfügungen werden rot und durchgestrichen. Der
+  Farbwechsel erfolgt sofort beim Umschalten der jeweiligen Checkbox.
+- **Zeichengenaue Diff-Erkennung:** Gleiche Textteile bleiben sichtbar; bei
+  größeren Änderungen wird zur Performance auf Tokenvergleich zurückgegriffen.
+  Verglichen werden die ersten 2.000 Unicode-Zeichen jedes Hunk-Textes; längere
+  Texte erhalten wie bisher einen Kürzungshinweis. Angezeigte Texte sind als
+  HTML maskiert. Original-Patches, Byte-Deltas und Auswahl werden nicht verändert.
+- **Initialisierung:** Die bereits vorhandene `views/csv.js` wird vor
+  `ui/settings.js` geladen, damit die CSV-Defaults bei einem direkten Seitenaufruf
+  definiert sind. Das `module-manifest.json` hatte bereits diese korrekte Reihenfolge.
+
+**Tests:** `node tests/v55-patch.mjs`, `python tests/v55-browser.py`,
+`node tests/v53-patch.mjs`, `python tests/v54-browser.py` und
+`node tests/check-structure.mjs`. Der Strukturtest benötigt die Icon-SVGs
+(`icons/icon.svg`, `icons/icon-maskable.svg`) aus der vollständigen Installation.
+
+---
+
+# mindfagg v54 - CSV-Grid, JSON Pretty Code, Mermaid-Zentrierung
+
+Dieses **Delta-Update** auf v53 enthaelt nur geaenderte und neue Dateien. Den
+Inhalt ueber die bestehende vollstaendige Installation kopieren. Die bisherige
+Projekt-/Datenbankstruktur bleibt erhalten. Neuer Offline-Cache: `mindfagg-v54`.
+
+- **Mermaid:** Ein Button mit Zentrieren-/Einpassen-Symbol befindet sich unten
+  rechts ueber der Statusleiste. Er setzt Zoom und Verschiebung auf die
+  optimale Einpassung zurueck; Pointer-/Touch-Zoom bleiben erhalten.
+- **JSON:** Der vorhandene **Pretty Code**-Button ist jetzt auch fuer `.json`
+  verfuegbar; mit `JSON.parse` validierter Inhalt wird mit zwei Leerzeichen
+  formatiert. Bei Syntaxfehlern bleibt der Inhalt unveraendert.
+- **CSV:** `.csv` ist ein Script-Dateiformat mit eigenem Sidebar-Icon und den
+  Tabs **Script** und **Grid**. Das Grid bietet bearbeitbare Klartext-Zellen,
+  Hinzufuegen/Loeschen von Zeilen und Spalten und Seitennavigation (100 Zeilen
+  pro Seite). Zellen mit HTML bleiben uninterpretierter Text. Aenderungen
+  speichern ueber die bestehende Dokumentpersistenz.
+- **App-Einstellungen > Neue CSV-Dateien:** Trennzeichen (Komma/Semikolon/Tab/
+  Pipe), Zeichencodierung (UTF-8, UTF-8 mit BOM, UTF-16 LE/BE mit BOM,
+  Windows-1252), Zeilenende (CRLF/LF/CR) und Textbegrenzung (doppelte oder
+  einfache Anfuehrungszeichen). Diese Werte gelten fuer neu erstellte CSV;
+  importierte CSV-Dateien erhalten erkannte Einstellungen. Unveraenderte
+  importierte Dateien exportieren weiterhin ihre Originalbytes.
+- **Papa Parse 5.7.0:** Wird bei CSV-Ansicht bei erreichbarem CDN dynamisch
+  geladen (`cdn.jsdelivr.net/npm/papaparse@5.7.0/papaparse.min.js`). Ohne
+  Netzwerk/bei blockiertem CDN arbeitet die Grid-Ansicht mit einem lokalen
+  CSV-Parser/Serializer (quoted fields, doppelte Quotes, Zeilenumbrueche) weiter.
+  Nur Papa Parse wird extern bezogen; alle App-Module bleiben lokal im Cache.
+
+**Tests:** `python tests/v54-browser.py`, `node tests/check-structure.mjs`,
+`python tests/v53-browser.py` und `node tests/v53-patch.mjs`. Der Strukturtest
+setzt die Icon-SVGs aus der vollstaendigen Installation voraus.
+
+---
+
+# mindfagg v53 - Mermaid-Navigation und Patch-Groessen
+
+Dieses Delta baut auf der **vollstaendigen v52-Installation** auf. Alle Dateien aus dem
+v53-ZIP in die bestehende Anwendungsstruktur entpacken (Verzeichnisse beibehalten).
+Nur geaenderte bzw. neue Dateien werden ausgeliefert. Version des Offline-Caches:
+`mindfagg-v53`.
+
+- **Mermaid-Vorschau:** Keine eigene Preview-Toolbar mehr; im Diagramm mit Maus/Touch
+  ziehen, per Mausrad bzw. Zwei-Finger-Geste zoomen. Tastatur: Pfeiltasten zum
+  Verschieben, `+`/`-` zum Zoomen und `0` zum Einpassen. Die Position bleibt beim
+  Wechsel zwischen Editor und Vorschau fuer identischen Inhalt erhalten. SVG bleibt
+  als inertes `img` isoliert; Syntaxfehler werden in der Statuszeile angezeigt.
+- **Zwischenablage:** Erkannte Mermaid-Quelltexte (z. B. `flowchart`, `sequenceDiagram`,
+  `classDiagram`, `stateDiagram-v2`) werden als `clipboard.mmd` vorgeschlagen.
+- **Mindmap:** Anzeige von Knotentiteln auf maximal 120 Zeichen begrenzt; der
+  vollstaendige Titel bleibt gespeichert und ist im Editor verfuegbar.
+- **Markdown-Tabs:** HTML direkt zwischen Mindmap und Kanban.
+- **Patch-Vorschau:** UTF-8-Byte-Differenz je Hunk, je Dateipatch und am Ende der
+  Dateiliste; positive und negative Werte, angezeigt in B bzw. KB (1 KB = 1024 B).
+  Patch-/Gesamtsummen beziehen sich auf ausgewaehlte, anwendbare Vorgaenge;
+  nicht ausgewaehlte Hunks zeigen weiterhin ihre geplante Einzeldifferenz.
+- **Patch speichern:** Auswahl `Patch nicht speichern` (Standard), `Patch
+  vollstaendig speichern` (Originalpatch einschliesslich abgewaehlter Vorgaenge),
+  `Patch-Auswahl speichern` (nur ausgewaehlte Vorgaenge). Das Einspielen selbst
+  folgt immer den aktivierten Checkboxen.
+- **GitHub Pages:** Die neue leere `.nojekyll` im Web-Root verhindert, dass Jekyll
+  Mermaid-Abhaengigkeiten mit fuehrendem Unterstrich wie `_baseUniq...js` auslaesst.
+
+Tests: `node tests/check-structure.mjs`, `node tests/v53-patch.mjs`,
+`python tests/v53-browser.py`; ausserdem vorhandene Regressionen.
+
+---
+
 # mindfagg v52 – Mermaid `.mmd`
 
 Delta-Update für die vollständige v51-Installation: Nur die geänderten und neuen Dateien aus dem v52-Paket über die bestehende Ordnerstruktur entpacken. Vor dem Update ein Workspace-Backup anlegen. Der Service-Worker verwendet `mindfagg-v52`.

@@ -10,7 +10,7 @@ function applyMapInlineDraft(state,edit){
   const changed=lineEdit(edit.row.node,{title});
   if(!changed)return false;
   edit.row.node.title=title;
-  edit.label.textContent=plain(title);
+  edit.label.textContent=mapVisibleNodeTitle(title);
   edit.row.el.setAttribute('aria-label',nodeTypeLabel(edit.row.node)+' '+plain(title)+'; auswählen oder ziehen');
   edit.dirty=true;
   updateSaveStatus();

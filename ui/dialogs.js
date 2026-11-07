@@ -202,7 +202,7 @@ function createProject(){
 }
 function createDocument(){
   if(!projectId)return createProject();
-  openModal(`<h2>Datei erstellen</h2><p>Markdown-Dateien erhalten die Endung .md; .mmd-Dateien verwenden den Script-Editor mit Mermaid-Vorschau.</p>
+  openModal(`<h2>Datei erstellen</h2><p>Markdown (.md), Mermaid (.mmd) und CSV (.csv) sowie weitere Textdateien werden unterstützt.</p>
     <form id="docForm"><div class="field"><label for="newDocName">Dateiname</label>
       <input id="newDocName" required maxlength="200" placeholder="Notizen.md, diagramm.mmd oder app.js" autofocus></div>
       <div class="field"><label for="newDocFolder">Ordner</label><select id="newDocFolder">${workspaceFolderOptions()}</select><button type="button" class="btn" id="newFolderFromFile" style="justify-self:start">Neuen Ordner anlegen</button></div>
@@ -218,7 +218,8 @@ function createDocument(){
     if(!workspaceUniquePath(path))return toast('Dateiname in diesem Ordner bereits vergeben');
     if(!isMarkdownPath(path)&&!knownTextPath(path))return toast('Neue Dateien müssen ein Textformat haben; Binärdateien per ZIP importieren');
     const markdown=isMarkdownPath(path);
-    const d={id:uid(),projectId,path,name:docNameForPath(path),fileType:markdown?'markdown':'script',content:markdown?'# '+docNameForPath(path)+'\n':(['mmd','mermaid'].includes(pathExtension(path))?'flowchart TD\n  A[Start] --> B[Ende]\n':'')};
+    const csv=pathExtension(path)==='csv',csvSettings=csv?csvNormalizeOptions(appCsvSettings):null;
+    const d={id:uid(),projectId,path,name:docNameForPath(path),fileType:markdown?'markdown':'script',content:markdown?'# '+docNameForPath(path)+'\n':csv?csvNewFileContent(csvSettings):(['mmd','mermaid'].includes(pathExtension(path))?'flowchart TD\n  A[Start] --> B[Ende]\n':''),...(csv?{csvSettings}:{})};
     try{await recordWorkspaceFileCreation(d);selectDocument(d.id);closeModal();toast('Datei erstellt · Rückgängig möglich')}
     catch(error){console.error(error);toast('Datei konnte nicht erstellt werden')}
   };
@@ -246,6 +247,7 @@ function renameDocument(){
     const wasText=docIsText(d);
     d.path=path;d.name=docNameForPath(path);
     if(wasText)d.fileType=isMarkdownPath(path)?'markdown':'script';
+    if(wasText&&pathExtension(path)==='csv'&&!d.csvSettings)d.csvSettings=csvDetectOptions(d.content); 
     try{await put('docs',{...d})}
     catch(error){Object.assign(d,previous);console.error(error);toast('Datei konnte nicht umbenannt werden');return}
     changeWorkspaceFolder(folder);closeModal();render();toast('Datei gespeichert');

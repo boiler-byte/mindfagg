@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v49: standalone static integrity test. Not needed to run the app.
+// v50: standalone static integrity test. Not needed to run the app.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,7 +30,7 @@ assert(missingAssets.length===0,'Missing cache assets: '+missingAssets.join(', '
 for(const name of catalog.cacheAssets){
   assert(sw.includes("'"+name+"'"),'Service-worker pre-cache misses '+name);
 }
-assert(sw.includes("const VERSION='mindfagg-v49'"),'Service-worker cache version incorrect');
+assert(sw.includes("const VERSION='mindfagg-v50'"),'Service-worker cache version incorrect');
 const runtimeAssets=new Set([...css,...js,'./index.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-maskable.svg'].map(x=>x.replace(/^\.\//,'')));
 for(const name of runtimeAssets)assert(catalog.cacheAssets.some(x=>x.replace(/^\.\//,'')===name),'Runtime file not cached: '+name);
 let passed=0;

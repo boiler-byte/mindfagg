@@ -18,3 +18,11 @@
 .collapse-folders-button{display:grid;place-items:center;min-width:32px;height:31px;padding:4px 6px}
 .collapse-folders-button[hidden]{display:none!important}
 .collapse-folders-button svg{display:block}
+
+/* v50: file-extension icons in the sidebar, independent of project accent. */
+.file-navitem .sym:has(.file-type-mark){display:grid;place-items:center}
+.file-navitem .file-type-mark{display:block;flex:none;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.file-navitem .file-type-js{stroke:none}
+.file-navitem .file-type-css{color:#4aa8ff}
+.file-navitem .file-type-html{color:#fa8f42}
+.file-navitem .file-type-markdown{color:#4aa8ff}

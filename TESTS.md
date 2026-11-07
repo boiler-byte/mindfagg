@@ -1,3 +1,18 @@
+# mindfagg v50 – Dateiliste und Icon-Regression
+
+- [ ] In der Sidebar steht **Patchen** rechts von **Teilen**. Der Klick öffnet weiterhin das Patch-Tool.
+- [ ] `.js`, `.mjs`, `.cjs` und `.jsx` zeigen ein gelbes JS-Quadrat.
+- [ ] `.css` zeigt ein blaues Hash-Symbol (#).
+- [ ] `.htm`, `.html`, `.xhtml` zeigen orange spitze Klammern (`<>`).
+- [ ] `.md`, `.markdown`, `.mdown` zeigen einen blauen Pfeil nach unten.
+- [ ] Weitere Dateitypen (z. B. Bild, Audio, Text) behalten die bisherigen Icons; Ordnersymbole bleiben unverändert.
+- [ ] Dateiliste im Root und in Unterordnern, aktive Datei, Klick und mobile Darstellung prüfen.
+- [ ] Offline-Cache `mindfagg-v50`, Manifest-Version `v50` und Delta-Installation über v49 prüfen.
+
+**Automatisiert:** `node tests/check-structure.mjs`, `python tests/v50-browser.py`, ergänzend `python tests/v48-browser.py` und `python tests/v49-browser.py`.
+
+---
+
 # mindfagg v49 - Regressionen
 
 - [ ] Sidebar: **Teilen** steht links von **Patch-Tool**, Desktop und Mobil, Buttons funktionieren weiterhin.

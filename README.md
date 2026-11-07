@@ -1,3 +1,19 @@
+# mindfagg v50
+
+Delta-Update für eine vollständige v49-Installation. Das ZIP enthält ausschließlich die neuen oder geänderten Dateien und ist nicht eigenständig lauffähig.
+
+## Neu in v50
+
+- **Sidebar – Patch-Button:** Die Schnellaktion heißt jetzt **Patchen**. Sie öffnet unverändert das Patch-Tool.
+- **Dateityp-Symbole:** JavaScript (`.js`, `.mjs`, `.cjs`, `.jsx`) zeigt ein gelbes JS-Quadrat, CSS (`.css`) ein blaues Hash-Symbol, HTML (`.htm`, `.html`, `.xhtml`) orange spitze Klammern (`<>`) und Markdown (`.md`, `.markdown`, `.mdown`) einen blauen Pfeil nach unten. Andere Dateitypen und Ordnersymbole bleiben unverändert.
+- **Offline-PWA:** Cache und Modulmanifest auf `v50` erhöht. IndexedDB- und Exportformate bleiben unverändert.
+
+**Installation:** `mindfagg-v50.zip` über die bestehende vollständige v49-Installation entpacken. Vorher Projekt-Backup erstellen. Verzeichnisstruktur beibehalten.
+
+**Tests:** `node tests/check-structure.mjs`, `python tests/v50-browser.py` und bisherige Sidebar-/Patch-Regressionen.
+
+---
+
 # mindfagg v49
 
 Delta-Update fuer eine vollstaendige v48-Installation. Das ZIP enthaelt ausschliesslich neue oder geaenderte Dateien, keine vollstaendige Anwendung.

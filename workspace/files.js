@@ -126,6 +126,16 @@ function workspaceExpandAncestors(path){
   }
   if(changed)workspacePersistFolderOpen();
 }
+// v50: file types get distinct, color-coded icons in the sidebar tree.
+// Names and paths remain plain escaped text; these SVG templates are static.
+function workspaceFileIcon(doc){
+  const path=workspacePath(doc),ext=pathExtension(path);
+  if(['js','mjs','cjs','jsx'].includes(ext))return '<svg class="file-type-mark file-type-js" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="3" fill="#f7df1e"/><text x="12" y="16.8" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11.8" font-weight="800" fill="#242112">JS</text></svg>';
+  if(ext==='css')return '<svg class="file-type-mark file-type-css" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 6 21M17 3l-3 18M4 9h17M3 15h17"/></svg>';
+  if(['htm','html','xhtml'].includes(ext))return '<svg class="file-type-mark file-type-html" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5-6 7 6 7m6-14 6 7-6 7"/></svg>';
+  if(isMarkdownPath(path)||fileKind(doc)==='markdown')return '<svg class="file-type-mark file-type-markdown" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v17m-7-7 7 7 7-7"/></svg>';
+  return escapeHtml({script:'⌘',image:'▧',audio:'♫',binary:'▣'}[fileKind(doc)]||'▣');
+}
 function workspaceTreeHtml(p){
   if(!p)return '';
   const folderPaths=workspaceFolderPaths(p),files=docs.filter(d=>d.projectId===p.id);
@@ -146,8 +156,7 @@ function workspaceTreeHtml(p){
       </div>${expanded?build(path,level+1):''}</div>`;
     }
     for(const file of leaves){
-      const kind=fileKind(file),icon={markdown:'▤',script:'⌘',image:'▧',audio:'♫',binary:'▣'}[kind];
-      html+=`<button type="button" class="navitem file-navitem ${file.id===docId?'active':''}" style="--tree-level:${level}" data-doc="${file.id}" title="${escapeHtml(workspacePath(file))}"><span class="sym" aria-hidden="true">${icon}</span><span>${escapeHtml(fileLabel(file))}</span></button>`;
+      html+=`<button type="button" class="navitem file-navitem ${file.id===docId?'active':''}" style="--tree-level:${level}" data-doc="${file.id}" title="${escapeHtml(workspacePath(file))}"><span class="sym" aria-hidden="true">${workspaceFileIcon(file)}</span><span>${escapeHtml(fileLabel(file))}</span></button>`;
     }
     return html;
   }

@@ -1,3 +1,13 @@
+# mindfagg v50 – Änderungshinweise
+
+- `index.html`: Der sichtbare Schnellaktions-Button des Patch-Tools heißt **Patchen**; IDs und Eventbindung bleiben unverändert.
+- `workspace/files.js`: `workspaceFileIcon()` erzeugt feste, farbige SVG-Dateisymbole anhand der Dateiendung. Dateinamen werden weiterhin über `escapeHtml()` gerendert; alle Dateioperationen bleiben unverändert.
+- `workspace/files.css`: Typbezogene Symbolgrößen und feste Farben, unabhängig vom Projektakzent.
+- `module-manifest.json` und `sw.js`: Offline-Version v50, unveränderte Modulreihenfolge.
+- Keine Änderung am Speicher-/ZIP-Schema, an Undo/Redo oder den Patch-Operationen.
+
+---
+
 # mindfagg v49 - gezielte UI-Aenderungen
 
 - `index.html`: Die zwei vorhandenen `workspace-quick-button`s in `workspace-quick-actions` sind im DOM vertauscht; das responsiv zweispaltige Layout und die Event-IDs bleiben identisch.

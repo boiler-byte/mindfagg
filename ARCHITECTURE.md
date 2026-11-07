@@ -1,3 +1,29 @@
+# mindfagg v52 – Mermaid-Diagramme
+
+- `workspace/files.js`: `.mmd`/`.mermaid` gelten als Text-Scripts, erhalten ein eigenes Sidebar-Symbol und einen zweiten Dateitab **Mermaid**; bestehende Script-/HTML-/SVG-Ansichten bleiben unverändert.
+- `ui/router.js` und `views/mermaid.js`: Neue asynchrone Vorschau mit eigenem Sequenzschutz für Dateiwechselsituationen. Die lokal geladene Mermaid-Engine wird einmal mit `securityLevel: 'strict'` initialisiert und SVG nur über `URL.createObjectURL(new Blob(...))` als `<img>` angezeigt; die bestehende Vorschau-Ressourcenverwaltung gibt URLs wieder frei.
+- `script/editor.js` und `vendor/prism-mermaid.min.js`: Mermaid-Grammatik nutzt den bestehenden Prism-Overlay-Editor. `mermaidValidateSyntax()` ruft den Mermaid-Parser asynchron auf; veraltete Ergebnisse werden verworfen. Diagnose, Minimap, Zeilenmarkierung und Navigation zu Fehlerstellen verwenden die schon vorhandenen Komponenten.
+- `views/mermaid.css`: Eigene scrollbar gerenderte Diagrammansicht mit Toolbar, Status und Fehleranzeige.
+- `ui/dialogs.js`, `workspace/io.js` und `sw.js`: Neue `.mmd`-Datei mit Startinhalt, Text-MIME, Import/Export und VFS-MIME. Kein Datenbank-Schemawechsel.
+- `vendor/mermaid/*`: Lokal zusammengestellte Mermaid-11.12.2-ESM-Abhängigkeiten. `index.html`, `module-manifest.json` und `sw.js` referenzieren neue CSS-/Script-Module und alle lokalen Mermaid-Chunks; Service-Worker-Version `mindfagg-v52`.
+- `tests/v52-browser.py`: Browserintegration mit gemocktem Engine-API (Editor, Vorschau, Fehler, Import/Export); die echte ES-Modul-Ausführung über `tests/v52-mermaid-engine.py` (Offline-Importmap, vier Diagrammtypen und Parserfehler) automatisiert geprüft.
+
+---
+
+# mindfagg v51 – HTML-Ansicht und Toolbar
+
+- `index.html` erweitert `#markdownTabs` um einen fünften Tab (HTML) und verwendet einheitliche SVG-Symbole für Mindmap, Kanban, Kalender und HTML. Die bisherigen `data-view`-Werte und Eventbindungen bleiben bestehen.
+- `core/state.js`: `VIEWS` enthält jetzt `html`. Die Persistenz des letzten Tabs (`mfLastView`) funktioniert damit ohne Datenmigration.
+- `ui/router.js`: Für Markdown-Dateien wird `renderMarkdownHtml()` vor der exklusiven H1-Validierung aufgerufen; HTML funktioniert daher auch bei ungültiger Mindmap-Struktur. Die HTML-Bildressourcen werden vor jeder Neuzeichnung freigegeben. Die aktiven Tabs besitzen `aria-selected`.
+- **Neu: `views/html-markdown.js`** baut HTML aus gescannten Markdown-Zeilen und `currentModel` (keine zweite Datenquelle). Alle dynamischen Werte werden HTML-kodiert; URL-Protokolle werden geprüft. Das Inhaltsverzeichnis verwendet die Quellzeilen als stabile Anker und verändert die Browser-History nicht. Die Status-, Checkbox- und Datumskontrollen bearbeiten die Markdown-Metadaten auf der zugehörigen Quellzeile und speichern sie über `put('docs',...)`. Dadurch entsteht jeweils ein regulärer Undo-Snapshot, der von `changeHistory()` verarbeitet wird. Die übrigen Markdown-Zeilen bleiben unverändert.
+- **Neu: `views/html-markdown.css`** gestaltet die zweispaltige HTML-Ansicht, das mobile einklappbare Inhaltsverzeichnis und die responsiven Fünf-Tab-Ansichten. Bei ≤850 px haben Kanban und Kalender nur Symbole, die Textlabels von Markdown, Mindmap und HTML bleiben sichtbar.
+- `module-manifest.json` und `sw.js`: Binden beide neuen Module in Ladereihenfolge und Offline-Cache ein; Cache-Version `mindfagg-v51`.
+- `tests/v51-browser.py`: Prüft Rendering, TOC, sichere Maskierung, Inline-Bearbeitung von Aufgaben/Status/Datum, Undo-Snapshots, Ansichtswechsel und kleine Bildschirme.
+
+**Weiterhin unverändert:** IndexedDB-Schema, Kanban/Kalender/Mindmap, der Script- und HTML-Datei-Preview, die GitHub-/Patch-/Teilen-Werkzeuge und alle bisherigen Exportformate.
+
+---
+
 # mindfagg v50 – Änderungshinweise
 
 - `index.html`: Der sichtbare Schnellaktions-Button des Patch-Tools heißt **Patchen**; IDs und Eventbindung bleiben unverändert.

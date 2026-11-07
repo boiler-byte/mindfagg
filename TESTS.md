@@ -1,3 +1,42 @@
+# mindfagg v52 – Mermaid `.mmd`
+
+## Abnahme
+
+- [ ] `.mmd` im Dateidialog erstellen: `flowchart TD` als Startinhalt, Script-Editor und Mermaid-Tab erscheinen.
+- [ ] Mermaid-Quelltext wird farbig hervorgehoben; Minimap, Zeilennummern, Suchen/Ersetzen und Autosave funktionieren wie bei `.js`/`.css`/`.html`.
+- [ ] Mermaid-Tab rendert Flowchart, Sequence Diagram, Class Diagram und State Diagram; leere Datei zeigt einen hilfreichen Platzhalter. Es wird kein SVG als Live-Markup in das App-DOM eingefügt.
+- [ ] Eine fehlerhafte Mermaid-Syntax führt zu einer Zeilenmarkierung und einem anklickbaren Fehler mit Zeile/Spalte im Script-Editor. Der Mermaid-Tab zeigt dieselbe Fehlerstelle und den Rücksprung zum Editor.
+- [ ] Schneller Wechsel zwischen zwei `.mmd`-Dateien und dem Editor lässt keine veralteten Render-Ergebnisse erscheinen; Blob-URLs werden beim Wechsel freigegeben.
+- [ ] `.mmd`-Dateien bleiben bei ZIP-Import und -Export unverändert; vorhandene Dateien öffnen nach Neustart im Script-Editor.
+- [ ] Unter HTTPS/localhost mit aktualisiertem Service-Worker `mindfagg-v52` funktioniert Mermaid auch nach vollständigem Neu-Laden ohne Netzverbindung. Alle lokalen Module unter `vendor/mermaid/` sind Teil des Offline-Caches.
+- [ ] Kleine Bildschirme: Diagramm ist scrollbar, Editor/Diagramm-Schalter bedienbar, Fehlermeldungen nicht abgeschnitten.
+
+**Automatisiert:** `python tests/v52-browser.py`, `python tests/v52-mermaid-engine.py` und `node tests/check-structure.mjs`. Der erste Browsertest nutzt für UI-Interaktionen einen isolierten Mock; der zweite lädt die tatsächlich lokal gebündelte Mermaid-Engine über eine Offline-Importmap und rendert Flowchart, Sequence-, Class- und State-Diagramme sowie einen Syntaxfehler.
+
+---
+
+# mindfagg v51 – HTML-Ansicht, Toolbar und Regression
+
+## HTML-Ansicht
+
+- [ ] Markdown-Datei öffnen und fünften **HTML**-Tab wählen. Überschriften, Absätze, fett/kursiv, Wikilinks, Listen, Zitate, Tabellen, Codeblöcke und Bilder darstellen; Script-Datei sollte weiterhin die Script-Tabs besitzen.
+- [ ] Links im Inhaltsverzeichnis springen zu den richtigen Überschriften, auch bei gleichem Überschriftstext und unterschiedlichen Ebenen.
+- [ ] Aufgaben-Checkboxen aktivieren/deaktivieren, zu normalen Knoten hinzufügen und wieder entfernen; im Markdown-Editor erscheinen die korrekten `[ ]`/`[x]`-Tokens.
+- [ ] Status eines H1-/Listenknotens direkt wählen oder entfernen; `[status:...]` ist im Markdown an der richtigen Stelle, ohne Titeländerung. Statusbezeichnungen folgen den Projekt-Einstellungen.
+- [ ] Datum und Dauer (y/m/d) hinzufügen, ändern und entfernen; `[date:...]` wird korrekt gespeichert und erscheint im Kalender.
+- [ ] Nach Bearbeitung zu Markdown, Mindmap und Kanban wechseln, wieder zurück und prüfen, dass die Änderung erhalten bleibt. Undo/Redo setzt sie wieder zurück bzw. stellt sie erneut her.
+- [ ] Bei fehlerhafter Mindmap-H1-Struktur bleibt HTML darstellbar. Rohes `<script>`/`<img onerror=...>` darf nicht ausführbar sein; `javascript:`-Links dürfen nicht als gefährliche Links gerendert werden.
+- [ ] Mobilgerät: Inhaltsverzeichnis initial geschlossen, per Touch erweiterbar; Inhalte scrollbar und Formulare bedienbar, ohne dass die App-Tabs verschwinden.
+
+## Toolbar
+
+- [ ] Mindmap-Symbol: Verzeichnisstruktur; Kanban-Symbol: drei senkrechte Linien; Kalender: Kalender; HTML: `<>`.
+- [ ] Bei ≤850 px sind nur die Labels Kanban/Kalender ausgeblendet, nicht ihre Icons. Alle fünf Tabs sind per Maus, Touch und Tastatur erreichbar und besitzen eindeutige zugängliche Namen.
+
+**Automatisiert:** `node tests/check-structure.mjs`; `python tests/v51-browser.py`. Danach Regressionen v36–v50 wiederholen. Für echten IndexedDB-/Service-Worker-Betrieb sind ergänzende Tests im normalen App-Ursprung empfohlen; der Browsertest verwendet wie bisher die lokal eingebetteten Module und einen simulierten Persistenzadapter.
+
+---
+
 # mindfagg v50 – Dateiliste und Icon-Regression
 
 - [ ] In der Sidebar steht **Patchen** rechts von **Teilen**. Der Klick öffnet weiterhin das Patch-Tool.

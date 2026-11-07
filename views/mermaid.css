@@ -1,0 +1,14 @@
+/* mindfagg v52: standalone, scrollable Mermaid preview in the existing file tab. */
+.mermaid-preview{position:absolute;inset:0;min-height:0;min-width:0;display:flex;flex-direction:column;background:#111722;color:#dce6f6}
+.mermaid-preview-toolbar{display:flex;align-items:center;gap:11px;min-height:52px;padding:7px 13px;background:#172131;border-bottom:1px solid #334258}
+.mermaid-preview-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace}
+.mermaid-preview-type{font-size:11px;color:#a4b4cd}
+.mermaid-preview-toolbar .btn{flex:none;white-space:nowrap}
+.mermaid-preview-scroll{flex:1;min-height:0;min-width:0;overflow:auto;padding:22px;display:flex;align-items:flex-start;justify-content:flex-start}
+.mermaid-preview-stage{min-height:100%;min-width:100%;display:flex;align-items:center;justify-content:center}
+.mermaid-preview-image{display:block;max-width:none;min-width:0;height:auto;object-fit:contain}
+.mermaid-preview-message{max-width:440px;padding:24px 28px;border-radius:10px;border:1px dashed #47556e;color:#b6c5db;font-size:13px;text-align:center;line-height:1.6}
+.mermaid-preview-message.is-invalid{border-color:#ac606f;background:#552b361e;color:#ffb8c4}
+.mermaid-preview-diagnostics{border:0;border-top:1px solid #35435a;border-radius:0;min-height:41px}
+@media(max-width:850px){.mermaid-preview-toolbar{min-height:47px;gap:7px;padding:6px 8px}.mermaid-preview-name{font-size:11px}.mermaid-preview-toolbar .btn{padding:7px 8px;font-size:11px}.mermaid-preview-scroll{padding:12px}}
+@media(max-width:420px){.mermaid-preview-type{display:none}.mermaid-preview-name{font-size:10px}}

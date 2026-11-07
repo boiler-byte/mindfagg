@@ -7,7 +7,7 @@ const SCRIPT_LANGUAGE_BY_EXTENSION={
   html:'markup',htm:'markup',xhtml:'markup',vue:'markup',svelte:'markup',
   xml:'markup',svg:'markup',xsd:'markup',xsl:'markup',xslt:'markup',wsdl:'markup',rss:'markup',atom:'markup',
   css:'css',scss:'css',sass:'css',less:'css',
-  json:'json',jsonc:'javascript'
+  json:'json',jsonc:'javascript',mmd:'mermaid',mermaid:'mermaid'
 };
 let scriptMiniGeometry=null,scriptMiniFrame=0,scriptMinimapLines=[],scriptLineLayout=null;
 let scriptValidationState={docId:null,language:null,errors:[]},scriptValidationTimer=null;
@@ -72,26 +72,44 @@ function scriptFocusDiagnostic(error){
   input.scrollLeft=Math.max(0,pos.x-input.clientWidth/3);
   syncScriptCodeScroll();
 }
-function refreshScriptValidation(){
-  const source=$('#scriptSource'),doc=docs.find(item=>item.id===editorDocId);
-  if(!source||!doc)return;
-  const result=validateScriptContent(codeFoldFull(source),pathExtension(workspacePath(doc)));
-  scriptValidationState={docId:doc.id,language:result.language,errors:result.errors};
+function scriptApplyValidation(doc,language,errors){
+  scriptValidationState={docId:doc.id,language,errors};
   const bar=$('#scriptValidationBar');if(!bar)return;
   bar.replaceChildren();
   const label=document.createElement('span');label.className='script-validation-label';
-  if(!result.language){label.textContent='Syntaxpr\u00fcfung: HTML, CSS und JavaScript (.html, .css, .js).'}
-  else if(!result.errors.length){label.textContent=result.language+': keine Syntaxfehler erkannt.';label.classList.add('is-valid')}
-  else{label.textContent=result.language+': '+result.errors.length+' Fehler';label.classList.add('is-invalid')}
+  if(!language){label.textContent='Syntaxprüfung: HTML, CSS, JavaScript und Mermaid (.mmd).'}
+  else if(!errors.length){label.textContent=language+': keine Syntaxfehler erkannt.';label.classList.add('is-valid')}
+  else{label.textContent=language+': '+errors.length+' Fehler';label.classList.add('is-invalid')}
   bar.appendChild(label);
-  for(const error of result.errors.slice(0,3)){
+  for(const error of errors.slice(0,3)){
     const button=document.createElement('button');button.type='button';button.className='script-diagnostic-link';
     button.textContent='Zeile '+error.line+':'+error.column+' - '+error.message;
     button.title='Fehlerstelle im Script-Editor anzeigen';
     button.onclick=()=>scriptFocusDiagnostic(error);bar.appendChild(button);
   }
-  if(result.errors.length>3){const more=document.createElement('span');more.textContent='+'+(result.errors.length-3)+' weitere';bar.appendChild(more)}
+  if(errors.length>3){const more=document.createElement('span');more.textContent='+'+(errors.length-3)+' weitere';bar.appendChild(more)}
   paintScriptValidation();
+}
+function refreshScriptValidation(){
+  const source=$('#scriptSource'),doc=docs.find(item=>item.id===editorDocId);
+  if(!source||!doc)return;
+  const code=codeFoldFull(source);
+  if(isMermaidFile(doc)){
+    scriptValidationState={docId:doc.id,language:'Mermaid',errors:[]};
+    const bar=$('#scriptValidationBar');if(bar)bar.textContent='Mermaid: Syntax wird geprüft …';
+    paintScriptValidation();
+    void mermaidValidateSyntax(code).then(errors=>{
+      // Ignore out-of-order parser results and results for a no-longer-active file.
+      if($('#scriptSource')!==source||editorDocId!==doc.id||codeFoldFull(source)!==code)return;
+      scriptApplyValidation(doc,'Mermaid',errors);
+    }).catch(error=>{
+      if($('#scriptSource')===source&&editorDocId===doc.id&&codeFoldFull(source)===code)
+        scriptApplyValidation(doc,'Mermaid',[mermaidErrorDiagnostic(code,error)]);
+    });
+    return;
+  }
+  const result=validateScriptContent(code,pathExtension(workspacePath(doc)));
+  scriptApplyValidation(doc,result.language,result.errors);
 }
 
 function scriptLanguage(doc){return SCRIPT_LANGUAGE_BY_EXTENSION[pathExtension(workspacePath(doc))]||null}
@@ -131,6 +149,7 @@ function scriptMiniColor(line,lang){
   if(lang==='markup')return trimmed.startsWith('<')?'#b6a6fa':'#7998a7';
   if(lang==='css')return trimmed.startsWith('@')?'#ecba82':trimmed.includes('{')?'#b8a6f5':trimmed.includes(':')?'#8ed8c9':'#829cb8';
   if(lang==='javascript')return /\b(?:const|let|var|function|class|return|import|export|async|await)\b/.test(trimmed)?'#b7a8fb':'#82accb';
+  if(lang==='mermaid')return /^(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph|journey|mindmap|timeline|subgraph|end|participant|note|classDef)\b/i.test(trimmed)?'#b7a8fb':/(?:-->|---|==>|-.->)/.test(trimmed)?'#8ed8c9':'#819dbd';
   if(lang==='json')return trimmed.includes(':')?'#91cdb5':'#819dbd';
   return '#8193aa';
 }

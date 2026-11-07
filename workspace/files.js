@@ -5,7 +5,7 @@ const WORKSPACE_TEXT_EXT=new Set([
   'txt','text','js','mjs','cjs','jsx','ts','tsx','json','jsonc','xml','html','htm','xhtml','css','scss','sass','less',
   'yaml','yml','toml','ini','cfg','conf','config','env','properties','csv','tsv','log','sql','graphql','gql','vue','svelte',
   'py','rb','php','java','kt','swift','go','rs','c','h','cpp','hpp','cc','cs','sh','bash','zsh','fish','ps1','bat','cmd',
-  'dockerfile','makefile','gradle','gitignore','gitattributes','editorconfig','lock','svg','tex','rst','adoc','diff','patch'
+  'mmd','mermaid','dockerfile','makefile','gradle','gitignore','gitattributes','editorconfig','lock','svg','tex','rst','adoc','diff','patch'
 ]);
 const WORKSPACE_TEXT_NAMES=new Set(['dockerfile','makefile','license','readme','changelog','.gitignore','.gitattributes','.editorconfig','.env','.npmrc','.prettierrc','.eslintrc']);
 const WORKSPACE_IMAGE_MIME={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',bmp:'image/bmp',svg:'image/svg+xml',avif:'image/avif',ico:'image/x-icon',apng:'image/apng'};
@@ -132,6 +132,7 @@ function workspaceFileIcon(doc){
   const path=workspacePath(doc),ext=pathExtension(path);
   if(['js','mjs','cjs','jsx'].includes(ext))return '<svg class="file-type-mark file-type-js" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="3" fill="#f7df1e"/><text x="12" y="16.8" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11.8" font-weight="800" fill="#242112">JS</text></svg>';
   if(ext==='css')return '<svg class="file-type-mark file-type-css" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 6 21M17 3l-3 18M4 9h17M3 15h17"/></svg>';
+  if(['mmd','mermaid'].includes(ext))return '<svg class="file-type-mark file-type-mermaid" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="7" height="6" rx="1.1"/><rect x="15" y="15" width="7" height="6" rx="1.1"/><path d="M9 6h5a4 4 0 0 1 4 4v5M14 12l4 3 4-3"/></svg>';
   if(['htm','html','xhtml'].includes(ext))return '<svg class="file-type-mark file-type-html" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5-6 7 6 7m6-14 6 7-6 7"/></svg>';
   if(isMarkdownPath(path)||fileKind(doc)==='markdown')return '<svg class="file-type-mark file-type-markdown" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v17m-7-7 7 7 7-7"/></svg>';
   return escapeHtml({script:'⌘',image:'▧',audio:'♫',binary:'▣'}[fileKind(doc)]||'▣');
@@ -268,7 +269,7 @@ function filePanelOptions(doc){
   if(!doc)return [];
   if(fileKind(doc)==='script'){
     const tabs=[{id:'script',label:'⌘  Script'}];
-    if(isSvgScriptFile(doc)||isHtmlScriptFile(doc))tabs.push({id:'preview',label:'▧  Vorschau'});
+    if(isSvgScriptFile(doc)||isHtmlScriptFile(doc)||isMermaidFile(doc))tabs.push({id:'preview',label:isMermaidFile(doc)?'◇  Mermaid':'▧  Vorschau'});
     if(isJavascriptFile(doc))tabs.push({id:'functions',label:'ƒ  Functions'});
     return tabs;
   }

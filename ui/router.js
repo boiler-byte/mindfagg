@@ -27,9 +27,10 @@ function render(){
   $('#renameDoc').disabled=!d||appSettingsOpen;
   updateHistoryButtons();
   updateSaveStatus();
-  document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.view===view));
+  document.querySelectorAll('.tab[data-view]').forEach(e=>{const active=e.dataset.view===view;e.classList.toggle('active',active);e.setAttribute('aria-selected',String(active))});
   showFileTabs(appSettingsOpen?null:d);
   releaseWorkspacePreview();
+  markdownHtmlReleaseAssets();
   if(editorResizeObserver){editorResizeObserver.disconnect();editorResizeObserver=null}
   if(view!=='markdown'||!d||fileKind(d)!=='markdown')syncMobileMarkdownViewportInactive();
   if(appSettingsOpen){activeMap=null;currentModel=null;syncMobileMarkdownViewportInactive();$('#breadcrumb').textContent='mindfagg / Einstellungen';renderAppSettingsPage();return}
@@ -39,6 +40,7 @@ function render(){
     if(fileKind(d)==='script'){
       if(activeFilePanel==='preview'&&isHtmlScriptFile(d))renderHtmlPreview();
       else if(activeFilePanel==='preview'&&isSvgScriptFile(d))renderSvgPreview();
+      else if(activeFilePanel==='preview'&&isMermaidFile(d))void renderMermaidPreview();
       else if(activeFilePanel==='functions'&&isJavascriptFile(d))renderFunctionsView();
       else renderScriptView();
     }
@@ -52,6 +54,7 @@ function render(){
   if(scopePath!==KANBAN_ALL_SCOPE&&!flattened(currentModel).some(n=>n.path===scopePath))scopePath=currentRoot().path;
   if(view!=='mindmap')activeMap=null;
   if(view==='markdown'){renderEditor();return}
+  if(view==='html'){renderMarkdownHtml();return}
   // The calendar does not require a valid H1, only valid node date markers.
   if(view==='calendar'){renderCalendar();return}
   if(!inspection.valid){

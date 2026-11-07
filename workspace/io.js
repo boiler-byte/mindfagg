@@ -3,7 +3,7 @@
 // All incoming paths are validated; an entire multi-file import is committed atomically.
 const WORKSPACE_IMPORT_LIMIT=ZIP_MAX_TOTAL;
 let workspaceActionMenu=null,workspaceDropFolder=null;
-const workspaceMime={...WORKSPACE_IMAGE_MIME,md:'text/markdown',markdown:'text/markdown',txt:'text/plain',js:'text/javascript',mjs:'text/javascript',cjs:'text/javascript',css:'text/css',json:'application/json',xml:'application/xml',html:'text/html',htm:'text/html',xhtml:'application/xhtml+xml',mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',mp4:'video/mp4',webm:'video/webm',pdf:'application/pdf'};
+const workspaceMime={...WORKSPACE_IMAGE_MIME,md:'text/markdown',markdown:'text/markdown',txt:'text/plain',js:'text/javascript',mjs:'text/javascript',cjs:'text/javascript',css:'text/css',json:'application/json',mmd:'text/plain',mermaid:'text/plain',xml:'application/xml',html:'text/html',htm:'text/html',xhtml:'application/xhtml+xml',mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',mp4:'video/mp4',webm:'video/webm',pdf:'application/pdf'};
 function workspaceMimeFor(path){return workspaceMime[pathExtension(path)]||(knownTextPath(path)?'text/plain':'application/octet-stream')}
 function workspaceZipFilename(p){return (p.name||'Workspace').replace(/[\\/:*?"<>|]/g,'_')+'.zip'}
 function workspaceResetActionButton(){for(const id of ['#addDocument','#workspaceMore']){const el=$(id);if(el)el.setAttribute('aria-expanded','false')}}

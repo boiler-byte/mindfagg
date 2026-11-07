@@ -202,9 +202,9 @@ function createProject(){
 }
 function createDocument(){
   if(!projectId)return createProject();
-  openModal(`<h2>Datei erstellen</h2><p>Markdown-Dateien erhalten die Endung .md; andere Textdateien öffnen die einfache Script-Ansicht.</p>
+  openModal(`<h2>Datei erstellen</h2><p>Markdown-Dateien erhalten die Endung .md; .mmd-Dateien verwenden den Script-Editor mit Mermaid-Vorschau.</p>
     <form id="docForm"><div class="field"><label for="newDocName">Dateiname</label>
-      <input id="newDocName" required maxlength="200" placeholder="Notizen.md, app.js oder config.json" autofocus></div>
+      <input id="newDocName" required maxlength="200" placeholder="Notizen.md, diagramm.mmd oder app.js" autofocus></div>
       <div class="field"><label for="newDocFolder">Ordner</label><select id="newDocFolder">${workspaceFolderOptions()}</select><button type="button" class="btn" id="newFolderFromFile" style="justify-self:start">Neuen Ordner anlegen</button></div>
       ${formActions('Datei erstellen')}</form>`);
   wireCancel();
@@ -218,7 +218,7 @@ function createDocument(){
     if(!workspaceUniquePath(path))return toast('Dateiname in diesem Ordner bereits vergeben');
     if(!isMarkdownPath(path)&&!knownTextPath(path))return toast('Neue Dateien müssen ein Textformat haben; Binärdateien per ZIP importieren');
     const markdown=isMarkdownPath(path);
-    const d={id:uid(),projectId,path,name:docNameForPath(path),fileType:markdown?'markdown':'script',content:markdown?'# '+docNameForPath(path)+'\n':''};
+    const d={id:uid(),projectId,path,name:docNameForPath(path),fileType:markdown?'markdown':'script',content:markdown?'# '+docNameForPath(path)+'\n':(['mmd','mermaid'].includes(pathExtension(path))?'flowchart TD\n  A[Start] --> B[Ende]\n':'')};
     try{await recordWorkspaceFileCreation(d);selectDocument(d.id);closeModal();toast('Datei erstellt · Rückgängig möglich')}
     catch(error){console.error(error);toast('Datei konnte nicht erstellt werden')}
   };

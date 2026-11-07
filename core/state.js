@@ -37,7 +37,7 @@ function applyProjectAccent(p){
 
 const SAMPLE=`# [ ] Mein Projekt\nEine zentrale Mindmap für Ideen, Aufgaben und Fortschritt.\n\n## [status:done] Planung\nDie Anforderungen und das Konzept werden vorbereitet.\n\n- [x] Ziele definieren\n- [x] Anforderungen sammeln\n\n## [status:doing] Entwicklung\nDie App wird Schritt für Schritt umgesetzt.\n\n- [x] Markdown-Parser\n- [ ] [status:doing] Mindmap-Ansicht\n- [ ] [status:todo] Kanban-Ansicht\n- [ ] [status:review] Dokumentation\n\n## Ideen\nHier ist Platz für neue Gedanken.\n\n- [ ] Später umsetzen\n- [[Planung]]\n`;
 let db,projects=[],docs=[],projectId=null,docId=null,view='markdown',scopePath='0',currentModel=null,saveTimer;
-const VIEWS=['markdown','mindmap','kanban','calendar'];
+const VIEWS=['markdown','mindmap','kanban','calendar','html'];
 // Markdown is the fallback for new users. Later visits restore the last selected tab.
 function setView(next){
   if(!VIEWS.includes(next))return;

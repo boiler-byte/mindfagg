@@ -1,3 +1,48 @@
+# mindfagg v52 – Mermaid `.mmd`
+
+Delta-Update für die vollständige v51-Installation: Nur die geänderten und neuen Dateien aus dem v52-Paket über die bestehende Ordnerstruktur entpacken. Vor dem Update ein Workspace-Backup anlegen. Der Service-Worker verwendet `mindfagg-v52`.
+
+- `.mmd`- und `.mermaid`-Dateien lassen sich neu erstellen, importieren, bearbeiten, umbenennen und über ZIP bzw. als Einzeldatei exportieren. Neue Diagramme erhalten eine kleine Flowchart-Vorlage.
+- Der **Script**-Tab verwendet unverändert den Quelltexteditor mit Zeilennummern, Codefaltung, Minimap, Suchen/Ersetzen, Autosave und Prism-Syntaxhervorhebung für Mermaid.
+- Der **Mermaid**-Tab rendert die aktuell gespeicherte `.mmd` als Diagramm. Im Tab **Script** erscheinen asynchrone Parser-Fehler mit Zeile und Spalte; Fehler in der Mermaid-Ansicht führen zurück zur betroffenen Stelle.
+- Der Mermaid-Renderer 11.12.2 und alle benötigten ES-Module sind lokal enthalten (kein CDN). Es werden keine Projektskripte ausgeführt; `securityLevel: 'strict'` ist aktiviert und erzeugtes SVG wird ausschließlich als Bild (Blob-URL) eingebunden.
+- Keine Änderung an IndexedDB-Schema, GitHub-Sync, Projekt-ZIP-Format oder den vorhandenen Markdown-Ansichten.
+
+**Tests:** `python tests/v52-browser.py` prüft Script-Editor, Syntaxfarben, Fehlernavigation, Dateierstellung sowie Import/Export mit einem isolierten Diagramm-Renderer. `node tests/check-structure.mjs` prüft Modulstruktur, JavaScript und Offline-Assets (setzt die Icon-Dateien der vollständigen Installation voraus). Mit `python tests/v52-mermaid-engine.py` werden Flowchart, Sequence-, Class- und State-Diagramm sowie Parserfehler mit der tatsächlich gebündelten Mermaid-Engine ohne Netzwerk geprüft. Service-Worker-Offline-Nutzung zusätzlich im regulären Browser über HTTPS oder localhost prüfen.
+
+---
+
+# mindfagg v51
+
+Delta-Update für eine vollständige v50-Installation. Das Paket enthält ausschließlich neue und geänderte Dateien; die bisherige Ordnerstruktur bleibt erhalten.
+
+## Neue Markdown-HTML-Ansicht
+
+- Fünfter Tab **HTML** neben **Markdown**, **Mindmap**, **Kanban** und **Kalender**. Die HTML-Ansicht ist für Markdown-Dateien verfügbar; Script-, Bild-, Audio- und Binärdateien behalten ihre bisherigen Ansichten.
+- Rendert Überschriften, Absätze, Hervorhebungen, Links, Wikilinks, Listen (auch verschachtelt), Codeblöcke, Zitate, Tabellen und Bilder aus dem Projekt. Ein **Inhaltsverzeichnis** enthält klickbare Einträge zu allen Überschriften (H1–H6). Auf kleinen Bildschirmen ist es zunächst eingeklappt.
+- **Direkt im HTML-Dokument bearbeitbar:** Aufgaben hinzufügen/abhaken/entfernen, Knotenstatus wählen und Datum mit Dauer (Jahre, Monate, Tage) hinzufügen/ändern/entfernen. Die Aktionen ändern das ursprüngliche Markdown, nutzen die vorhandene automatische IndexedDB-Speicherung und sind über Undo/Redo rückgängig zu machen. Überschriften und Freitext werden weiterhin im Markdown-Editor oder Knoten-Dialog bearbeitet.
+- **Sicherheitsprinzip:** Markdown-Quelltext wird vor der HTML-Darstellung maskiert, eingebettetes rohes HTML nicht ausgeführt. Gefährliche Link-Protokolle werden unterdrückt. Projektinterne Bilder mit unterstütztem Rasterbildformat sind per sicherer Blob-URL sichtbar (externe HTTPS-Bilder werden bei bestehender Netzverbindung ebenfalls geladen); SVG-Quelltext wird nicht inline eingebettet.
+
+## Ansichten-Toolbar
+
+- **Mindmap:** Verzeichnisstruktur-Symbol.
+- **Kanban:** drei senkrechte Linien (um 90 Grad gedrehtes Hamburger-Menü).
+- **Kalender:** Kalender-Symbol.
+- **HTML:** `<>`-Symbol.
+- Auf kleinen Bildschirmen werden nur die *Textlabels* von **Kanban** und **Kalender** verborgen; beide Tabs bleiben mit Symbol und zugänglichem Namen erreichbar.
+
+## Aktualisierung und Tests
+
+1. Vor dem Aktualisieren ein Projekt-Backup exportieren.
+2. `mindfagg-v51.zip` über die vollständige v50-Installation entpacken, vorhandene Dateien ersetzen und die Ordnerstruktur beibehalten.
+3. App neu laden, bei Offline-/PWA-Betrieb die neue Cache-Version `mindfagg-v51` aktiv werden lassen.
+
+**Tests:** `node tests/check-structure.mjs`, `python tests/v51-browser.py`, anschließend die vorhandenen Regressionsskripte aus `tests/`.
+
+**Kompatibilität:** Keine Datenmigration und keine Änderung des Projekt-ZIP-, Patch- oder IndexedDB-Formats. Der Editor speichert weiterhin Markdown als einzige Datenquelle. Die neuen Module `views/html-markdown.js` und `views/html-markdown.css` werden klassisch geladen und für Offline-Betrieb zwischengespeichert.
+
+---
+
 # mindfagg v50
 
 Delta-Update für eine vollständige v49-Installation. Das ZIP enthält ausschließlich die neuen oder geänderten Dateien und ist nicht eigenständig lauffähig.

@@ -4,7 +4,7 @@
  * navigation to a preview URL without an iframe sandbox attribute. */
 'use strict';
 
-const VERSION='mindfagg-v50';
+const VERSION='mindfagg-v52';
 const CORE_CACHE=`${VERSION}-core`;
 const RUNTIME_CACHE=`${VERSION}-runtime`;
 const VFS_ROUTE='__mindfagg_preview__/';
@@ -25,6 +25,7 @@ const CORE_ASSETS=[
   './ui/theme.css',
   './views/kanban.css',
   './views/calendar.css',
+  './views/html-markdown.css',
   './workspace/files.css',
   './workspace/io.css',
   './workspace/github.css',
@@ -52,6 +53,7 @@ const CORE_ASSETS=[
   './markdown/completions.js',
   './markdown/commands.js',
   './markdown/editor.js',
+  './views/html-markdown.js',
   './workspace/files.js',
   './preview/html-preview.js',
   './ui/settings.js',
@@ -72,14 +74,84 @@ const CORE_ASSETS=[
   './ui/bindings.js',
   './core/service-worker.js',
   './icons/icon.svg',
-  './icons/icon-maskable.svg'
+  './icons/icon-maskable.svg',
+  './views/mermaid.css',
+  './vendor/prism-mermaid.min.js',
+  './views/mermaid.js',
+  './vendor/mermaid/_baseUniq-Y4WFS72s.js',
+  './vendor/mermaid/arc-CSo4ybba.js',
+  './vendor/mermaid/architecture-U656AL7Q-B0aT4QJ2.js',
+  './vendor/mermaid/architectureDiagram-VXUJARFQ-CCOdiPU4.js',
+  './vendor/mermaid/blockDiagram-VD42YOAC-C4UOSqDr.js',
+  './vendor/mermaid/c4Diagram-YG6GDRKO-DzK26qXY.js',
+  './vendor/mermaid/channel-CWqaS4Jl.js',
+  './vendor/mermaid/chunk-4BX2VUAB-BaO1cqwC.js',
+  './vendor/mermaid/chunk-55IACEB6-DRRLWp3g.js',
+  './vendor/mermaid/chunk-B4BG7PRW-CbQ8D9M5.js',
+  './vendor/mermaid/chunk-DI55MBZ5-Bl2jrir-.js',
+  './vendor/mermaid/chunk-FMBD7UC4-CmreEvgd.js',
+  './vendor/mermaid/chunk-QN33PNHL-CTWghO9X.js',
+  './vendor/mermaid/chunk-QZHKN3VN-D9Om-fOY.js',
+  './vendor/mermaid/chunk-TZMSLE5B-B6U4LxXm.js',
+  './vendor/mermaid/classDiagram-2ON5EDUG-CaMWxcv5.js',
+  './vendor/mermaid/classDiagram-v2-WZHVMYZB-CaMWxcv5.js',
+  './vendor/mermaid/clone-CMXc9HUx.js',
+  './vendor/mermaid/colors-Cc3OSVma.js',
+  './vendor/mermaid/cose-bilkent-S5V4N54A-Dgxubuxm.js',
+  './vendor/mermaid/cytoscape.esm-5J0xJHOV.js',
+  './vendor/mermaid/dagre-6UL2VRFP-CovziYUG.js',
+  './vendor/mermaid/defaultLocale-CzDG__Ur.js',
+  './vendor/mermaid/diagram-PSM6KHXK-BaOZ_W7c.js',
+  './vendor/mermaid/diagram-QEK2KX5R-DGdH6jS5.js',
+  './vendor/mermaid/diagram-S2PKOQOG-DU59fZvD.js',
+  './vendor/mermaid/dispatch-kxCwF96_.js',
+  './vendor/mermaid/erDiagram-Q2GNP2WA-BBFjvy80.js',
+  './vendor/mermaid/flowDiagram-NV44I4VS-BcGzX01g.js',
+  './vendor/mermaid/ganttDiagram-JELNMOA3-CVPqjhwm.js',
+  './vendor/mermaid/gitGraph-F6HP7TQM-DtAHpTEk.js',
+  './vendor/mermaid/gitGraphDiagram-NY62KEGX-BqXjLLaB.js',
+  './vendor/mermaid/graph-BrhA-33P.js',
+  './vendor/mermaid/index-BU4IRnz1.js',
+  './vendor/mermaid/info-NVLQJR56-DsY8nGXZ.js',
+  './vendor/mermaid/infoDiagram-WHAUD3N6-kTDtfRnW.js',
+  './vendor/mermaid/init-Dmth1JHB.js',
+  './vendor/mermaid/journeyDiagram-XKPGCS4Q-CRgOiro7.js',
+  './vendor/mermaid/kanban-definition-3W4ZIXB7-aoKSFCZX.js',
+  './vendor/mermaid/katex-XbL3y5x-.js',
+  './vendor/mermaid/layout-BOSGuAzj.js',
+  './vendor/mermaid/linear-Bc_1ZEPy.js',
+  './vendor/mermaid/mermaid-entry.js',
+  './vendor/mermaid/mermaid-parser.core-C2YL8PBe.js',
+  './vendor/mermaid/mermaid.core-nQedeAL4.js',
+  './vendor/mermaid/min-BsQtlEPy.js',
+  './vendor/mermaid/mindmap-definition-VGOIOE7T-CGx00QaD.js',
+  './vendor/mermaid/ordinal-BeghXfj9.js',
+  './vendor/mermaid/packet-BFZMPI3H-CIbab7aJ.js',
+  './vendor/mermaid/pie-7BOR55EZ-M8Psj7d1.js',
+  './vendor/mermaid/pieDiagram-ADFJNKIX-BkULcsJ0.js',
+  './vendor/mermaid/quadrantDiagram-AYHSOK5B-Beqah9EL.js',
+  './vendor/mermaid/radar-NHE76QYJ-5ODM55so.js',
+  './vendor/mermaid/range-OtVwhkKS.js',
+  './vendor/mermaid/requirementDiagram-UZGBJVZJ-BO-Er0Gv.js',
+  './vendor/mermaid/sankeyDiagram-TZEHDZUN-Flg_xlJG.js',
+  './vendor/mermaid/select-BigU4G0v.js',
+  './vendor/mermaid/sequenceDiagram-WL72ISMW-BYJVMZSO.js',
+  './vendor/mermaid/stateDiagram-FKZM4ZOC-D2v1Cixb.js',
+  './vendor/mermaid/stateDiagram-v2-4FDKWEC3-YCZ2rsQb.js',
+  './vendor/mermaid/step-ChYay-CR.js',
+  './vendor/mermaid/time-BeeRGM3E.js',
+  './vendor/mermaid/timeline-definition-IT6M3QCI-DGC3eVRT.js',
+  './vendor/mermaid/treemap-KMMF4GRG-BrVflxTa.js',
+  './vendor/mermaid/xychartDiagram-PRI3JC2R-qrUHXmDM.js'
 ];
 
 self.addEventListener('install',event=>{
+  // A missing optional asset must not cause the entire offline core (including
+  // the Mermaid ES-module chunks) to be discarded by cache.addAll().
   event.waitUntil(caches.open(CORE_CACHE)
-    .then(cache=>cache.addAll(CORE_ASSETS).catch(err=>{
-      console.warn('[SW] Einige Core-Assets konnten nicht gecacht werden:',err);
-    })).then(()=>self.skipWaiting()));
+    .then(cache=>Promise.all(CORE_ASSETS.map(asset=>cache.add(asset).catch(error=>{
+      console.warn('[SW] Core-Asset konnte nicht gecacht werden:',asset,error);
+    })))).then(()=>self.skipWaiting()));
 });
 self.addEventListener('activate',event=>{
   event.waitUntil(caches.keys().then(keys=>Promise.all(
@@ -90,7 +162,7 @@ self.addEventListener('activate',event=>{
 const VFS_MIME={
   html:'text/html',htm:'text/html',xhtml:'application/xhtml+xml',
   css:'text/css',js:'text/javascript',mjs:'text/javascript',cjs:'text/javascript',
-  json:'application/json',jsonc:'application/json',xml:'application/xml',svg:'image/svg+xml',
+  json:'application/json',jsonc:'application/json',mmd:'text/plain',mermaid:'text/plain',xml:'application/xml',svg:'image/svg+xml',
   txt:'text/plain',text:'text/plain',md:'text/markdown',markdown:'text/markdown',
   csv:'text/csv',tsv:'text/tab-separated-values',webmanifest:'application/manifest+json',
   png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',
@@ -102,7 +174,7 @@ const VFS_MIME={
   woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',otf:'font/otf',eot:'application/vnd.ms-fontobject',
   wasm:'application/wasm',pdf:'application/pdf'
 };
-const VFS_TEXT_TYPES=new Set(['html','htm','xhtml','css','js','mjs','cjs','json','jsonc','xml','svg','txt','text','md','markdown','csv','tsv','webmanifest']);
+const VFS_TEXT_TYPES=new Set(['html','htm','xhtml','css','js','mjs','cjs','json','jsonc','xml','svg','txt','text','md','markdown','mmd','mermaid','csv','tsv','webmanifest']);
 const VFS_ENCODER=new TextEncoder();
 
 function vfsMime(path){

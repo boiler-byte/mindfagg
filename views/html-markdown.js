@@ -71,15 +71,15 @@ function markdownHtmlNodeCheckbox(node,line){
 }
 function markdownHtmlDateFields(line,date){
   const number=(unit,label)=>`<label>${label}<input type="number" inputmode="numeric" min="0" max="9999" step="1" data-html-date-${unit} value="${Number(date?.duration?.[unit]||0)}" aria-label="${label}"></label>`;
-  return `<div class="html-md-date-fields"><label>Startdatum<input type="date" min="0001-01-01" max="9999-12-31" data-html-date-start value="${escapeHtml(date?.start||'')}"></label><div class="html-md-date-duration">${number('y','Jahre')}${number('m','Monate')}${number('d','Tage')}</div><div class="html-md-date-actions"><button type="button" data-html-date-save="${line}">Übernehmen</button>${date?`<button type="button" data-html-date-remove="${line}">Entfernen</button>`:`<button type="button" data-html-attr-cancel>Abbrechen</button>`}</div></div>`;
+  const hours=Array.from({length:24},(_,hour)=>`<option value="${hour}" ${date?.hour===hour?'selected':''}>${String(hour).padStart(2,'0')}:00 Uhr</option>`).join('');
+  return `<div class="html-md-date-fields"><div class="html-md-date-start-fields"><label>Startdatum<input type="date" min="0001-01-01" max="9999-12-31" data-html-date-start value="${escapeHtml(date?.start||'')}"></label><label>Startstunde (optional)<select data-html-date-hour><option value="" ${date?.hour===null||date?.hour===undefined?'selected':''}>Ohne Uhrzeit</option>${hours}</select></label></div><div class="html-md-date-duration">${number('y','Jahre')}${number('m','Monate')}${number('d','Tage')}${number('h','Stunden')}</div><div class="html-md-date-actions"><button type="button" data-html-date-save="${line}">Übernehmen</button>${date?`<button type="button" data-html-date-remove="${line}">Entfernen</button>`:`<button type="button" data-html-attr-cancel>Abbrechen</button>`}</div></div>`;
 }
 function markdownHtmlNodeControls(node,line){
   if(!node)return '';
   const hasTask=node.checked!==null,hasStatus=!!node.status&&node.status!=='story',hasDate=!!node.date;
   const statusOptions=STATUS.filter(s=>s!=='story').map(s=>`<option value="${s}" ${node.status===s?'selected':''}>${escapeHtml(statusLabel(s))}</option>`).join('');
   const status=hasStatus?`<label class="html-md-status"><span class="sr-only">Status für ${escapeHtml(node.title)}</span><select data-html-status="${line}" aria-label="Status für ${escapeHtml(node.title)}"><option value="">Status entfernen</option>${statusOptions}</select></label>`:'';
-  const duration=hasDate?['y','m','d'].filter(k=>node.date.duration?.[k]>0).map(k=>'+'+node.date.duration[k]+k).join(' '):'';
-  const date=hasDate?`<details class="html-md-date" data-html-date-line="${line}"><summary title="Datum und Dauer bearbeiten">Datum: ${escapeHtml(node.date.start+(duration?' '+duration:''))}</summary>${markdownHtmlDateFields(line,node.date)}</details>`:'';
+  const date=hasDate?`<details class="html-md-date" data-html-date-line="${line}"><summary title="Datum, Startstunde und Dauer bearbeiten">Datum: ${escapeHtml(serializeNodeDate(node.date).slice(6,-1))}</summary>${markdownHtmlDateFields(line,node.date)}</details>`:'';
   const available=[!hasTask?`<button type="button" data-html-attr-add="task" data-html-line="${line}">Checkbox (Aufgabe)</button>`:'',
     !hasStatus?`<button type="button" data-html-attr-add="status" data-html-line="${line}">Status</button>`:'',
     !hasDate?`<button type="button" data-html-attr-add="date" data-html-line="${line}">Datum</button>`:''].filter(Boolean);
@@ -276,16 +276,17 @@ function renderMarkdownHtml(){
       const row=save.closest('[data-html-date-line]');
       const start=row.querySelector('[data-html-date-start]').value;
       if(!start){toast('Startdatum wählen');return}
+      const hour=row.querySelector('[data-html-date-hour]').value;
       const duration={};
-      for(const unit of ['y','m','d']){
+      for(const unit of ['y','m','d','h']){
         const input=row.querySelector('[data-html-date-'+unit+']');
         const value=Number(input.value);
         if(!Number.isSafeInteger(value)||value<0||value>9999){toast('Ungültige Dauer: '+unit);return}
         duration[unit]=value;
       }
-      const payload=start+['y','m','d'].filter(unit=>duration[unit]>0).map(unit=>' +'+duration[unit]+unit).join('');
+      const payload=start+(hour===''?'':':'+String(hour).padStart(2,'0'))+['y','m','d','h'].filter(unit=>duration[unit]>0).map(unit=>' +'+duration[unit]+unit).join('');
       const date=parseNodeDatePayload(payload);
-      if(!date){toast('Ungültiges Datum oder ungültige Dauer');return}
+      if(!date){toast('Ungültiges Datum, ungültige Startstunde oder ungültige Dauer');return}
       await markdownHtmlChangeNode(Number(save.dataset.htmlDateSave),{date});return;
     }
     const removeDate=event.target.closest('[data-html-date-remove]');

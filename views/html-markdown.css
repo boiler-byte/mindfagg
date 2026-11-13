@@ -30,6 +30,9 @@
 .html-md-add-editor>button{padding:5px 8px;border:1px solid #455975;border-radius:6px;background:#27354a;color:#cfdae9;cursor:pointer}
 .html-md-date-draft{position:relative;min-width:1px;min-height:28px;max-width:100%}
 .html-md-date-draft .html-md-date-fields{position:absolute;left:0;top:0;z-index:11}
+.html-md-date-start-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.html-md-date-fields select{width:100%;min-width:0;background:#111a27;color:#f0f4ff;border:1px solid #455772;border-radius:6px;padding:7px}
+.html-md-date-duration{grid-template-columns:repeat(2,minmax(0,1fr))}
 .html-md-heading .html-md-node-controls{margin-top:7px}
 /* On narrow screens the HTML view is represented only by its icon. */
 @media(max-width:850px){#markdownTabs{grid-template-columns:minmax(80px,1.3fr) minmax(77px,1.25fr) repeat(3,minmax(34px,.55fr))}#markdownTabs .tab[data-view="html"] .tab-label{display:none}}

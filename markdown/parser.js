@@ -30,23 +30,25 @@ function validationMessage(scan){
   if(!scan.roots.length)return 'Keine H1 · # Titel ergänzen';
   return scan.roots.length+' H1 gefunden · nur eine erlaubt (Zeilen '+scan.roots.slice(1).map(i=>i+1).join(', ')+')';
 }
-// [date:YYYY-MM-DD +1y +2m +3d] is a node property like [status:...].
-// Units may appear in any order, but must be positive and occur at most once.
+// [date:YYYY-MM-DD:HH +1y +2m +3d +4h] is a node property like [status:...].
+// The hour is optional (00–23). Duration units may appear in any order,
+// but must be positive and occur at most once. Date-only tags stay valid.
 function parseNodeDatePayload(raw){
-  const match=String(raw).match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(.+))?$/);
+  const match=String(raw).match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?::(\d{1,2}))?(?:\s+(.+))?$/);
   if(!match)return null;
   const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
-  if(year<1||month<1||month>12||day<1||day>31)return null;
+  const hour=match[4]===undefined?null:Number(match[4]);
+  if(year<1||month<1||month>12||day<1||day>31||(hour!==null&&(hour<0||hour>23)))return null;
   const calendar=new Date(0);calendar.setUTCHours(0,0,0,0);calendar.setUTCFullYear(year,month-1,day);
   if(calendar.getUTCFullYear()!==year||calendar.getUTCMonth()!==month-1||calendar.getUTCDate()!==day)return null;
-  const duration={y:0,m:0,d:0},seen=new Set();
-  if(match[4])for(const component of match[4].split(/\s+/)){
-    const part=component.match(/^\+([1-9]\d*)([ymd])$/);
+  const duration={y:0,m:0,d:0,h:0},seen=new Set();
+  if(match[5])for(const component of match[5].split(/\s+/)){
+    const part=component.match(/^\+([1-9]\d*)([ymdh])$/);
     if(!part||seen.has(part[2]))return null;
     const amount=Number(part[1]);if(!Number.isSafeInteger(amount))return null;
     seen.add(part[2]);duration[part[2]]=amount;
   }
-  return {start:String(year).padStart(4,'0')+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0'),duration};
+  return {start:String(year).padStart(4,'0')+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0'),hour,duration};
 }
 function nodeDatePrefix(text){
   const token=String(text).match(/^\[date:([^\]\r\n]+)\](?=\s|$)/);
@@ -56,23 +58,31 @@ function nodeDatePrefix(text){
 }
 function serializeNodeDate(date){
   if(!date?.start)return '';
-  const pieces=['y','m','d'].filter(unit=>date.duration?.[unit]>0).map(unit=>'+'+date.duration[unit]+unit);
-  return '[date:'+date.start+(pieces.length?' '+pieces.join(' '):'')+']';
+  const pieces=['y','m','d','h'].filter(unit=>date.duration?.[unit]>0).map(unit=>'+'+date.duration[unit]+unit);
+  const hour=date.hour===null||date.hour===undefined?'':':'+String(date.hour).padStart(2,'0');
+  return '[date:'+date.start+hour+(pieces.length?' '+pieces.join(' '):'')+']';
 }
-// Calendar months/years are applied before days, clamping the day in short months.
-// All calculations use UTC to avoid daylight-saving shifts.
-function nodeDateEnd(date){
+// Calendar months/years are applied before days and hours, clamping the day
+// in short months. UTC arithmetic avoids local daylight-saving transitions.
+// The hour is null for legacy day-only tags without an hourly duration.
+function nodeDateEndInfo(date){
   if(!date?.start)return null;
   const [y,m,d]=date.start.split('-').map(Number);
   const months=y*12+m-1+(date.duration?.y||0)*12+(date.duration?.m||0);
   const year=Math.floor(months/12),month=months%12+1;
   if(!Number.isSafeInteger(months)||year<1||year>9999)return null;
+  const hours=(date.hour??0)+(date.duration?.h||0);
+  if(!Number.isSafeInteger(hours)||hours<0)return null;
   const endOfMonth=new Date(0);endOfMonth.setUTCHours(0,0,0,0);endOfMonth.setUTCFullYear(year,month,0);
   const result=new Date(0);result.setUTCHours(0,0,0,0);result.setUTCFullYear(year,month-1,Math.min(d,endOfMonth.getUTCDate()));
-  result.setUTCDate(result.getUTCDate()+(date.duration?.d||0));
+  result.setUTCDate(result.getUTCDate()+(date.duration?.d||0)+Math.floor(hours/24));
   const endYear=result.getUTCFullYear();
   if(!Number.isInteger(endYear)||endYear<1||endYear>9999)return null;
-  return String(endYear).padStart(4,'0')+'-'+String(result.getUTCMonth()+1).padStart(2,'0')+'-'+String(result.getUTCDate()).padStart(2,'0');
+  return {day:String(endYear).padStart(4,'0')+'-'+String(result.getUTCMonth()+1).padStart(2,'0')+'-'+String(result.getUTCDate()).padStart(2,'0'),
+    hour:date.hour!==null&&date.hour!==undefined||date.duration?.h>0?hours%24:null};
+}
+function nodeDateEnd(date){
+  return nodeDateEndInfo(date)?.day||null;
 }
 function nodeText(raw){
   let s=raw.trim(),checked=null,status=null,date=null;

@@ -31,6 +31,7 @@
 .calendar-event:hover, .calendar-event:focus-visible{background:color-mix(in srgb,var(--calendar-accent) 28%,#1a2434);border-color:var(--calendar-accent)}
 .calendar-event-dot, .calendar-agenda-dot, .calendar-mobile-dot{display:inline-block;width:7px;height:7px;flex:none;border-radius:50%;background:var(--calendar-accent)}
 .calendar-event-title{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
+.calendar-event-hour{flex:none;font-size:9px;color:#d8e8f5;font-variant-numeric:tabular-nums;white-space:nowrap}
 .calendar-event.is-period .calendar-event-dot{border-radius:2px}
 .calendar-more{align-self:flex-start;background:transparent;color:#bdb2ff;border-radius:5px;font-size:10px;text-align:left;padding:2px 3px}
 .calendar-more:hover, .calendar-more:focus-visible{background:#373052;color:#fff}

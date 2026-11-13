@@ -1,3 +1,65 @@
+# mindfagg v65 – Datumsangaben mit optionaler Startstunde und Stundendauer
+
+Dieses **Delta-Update** wird über eine vollständige v64-Installation installiert.
+Es enthält nur neue oder geänderte Dateien. Die Verzeichnisstruktur beim Entpacken
+beibehalten und vorhandene Dateien überschreiben. Der Service-Worker-Cache heißt
+`mindfagg-v65`.
+
+**Markdown-Syntax** (an Überschriften oder Listen-Knoten):
+
+```markdown
+- [date:2026-11-13] Ganztägiger Eintrag (wie bisher)
+- [date:2026-11-13:18] Beginn am 13.11.2026 um 18:00 Uhr
+- [date:2026-11-13:18 +6h] Von 18:00 bis 00:00 Uhr am Folgetag
+- [date:2026-11-13:23 +2h] Über Mitternacht bis 01:00 Uhr
+- [date:2026-11-13:18 +1d +3h] Tage und Stunden kombinieren
+```
+
+- `:HH` ist optional und akzeptiert **00–23**. Beim Speichern wird die Stunde
+  zweistellig geschrieben. Es gibt keine Minutenangabe.
+- `+Nh` gibt eine positive **Dauer in Stunden** an. Wie `+Ny`, `+Nm` und
+  `+Nd` darf jede Einheit höchstens einmal vorkommen; die Reihenfolge ist
+  beliebig. Ohne Startstunde beginnt ein `+h`-Intervall um **00:00 Uhr**.
+- Die bisherigen Datumsangaben ohne Uhrzeit bleiben unverändert gültig. Jahre
+  und Monate werden wie bisher vor Tagen/Stunden addiert; ungültige Datumswerte,
+  Stunden außerhalb 00–23 und doppelte/negative Dauereinheiten werden abgewiesen.
+- **Kalender:** Start- und Endzeit erscheinen in Tagesagenda und Tooltips. In
+  der Monatsansicht wird die Uhrzeit vor dem Eintrag angezeigt. Über Mitternacht
+  reichende Stundenintervalle erscheinen an beiden Tagen, sofern sie nach
+  Mitternacht weiterlaufen. Endet ein Stundenintervall exakt um **00:00 Uhr**,
+  wird der neue Tag nicht belegt. Die bisherigen `+d/+m/+y`-Zeiträume behalten
+  ihre inklusive Tagesdarstellung.
+- **Formulare:** Im Dialog *Knoten erstellen/bearbeiten* gibt es die optionale
+  Startstunde und eine vierte Dauer-Einheit *Stunden (h)*. Dieselben Felder
+  stehen in der Markdown-HTML-Ansicht beim Hinzufügen und Ändern von Datums-
+  Attributen bereit. Das Original-Markdown bleibt die alleinige Datenquelle.
+
+**Tests:** `node tests/v65-date.mjs`, `python3 tests/v65-browser.py`,
+`node tests/check-structure.mjs` sowie die bisherigen v37-/v51-/v56-/v64-
+Browserregressionen.
+
+---
+
+# mindfagg v64 – Hinweise zu Markdown-Editorinteraktionen
+
+Dieses Delta-Update wird über v63 installiert und enthält ausschließlich geänderte
+oder neue Dateien. Der Offline-/Service-Worker-Cache verwendet `mindfagg-v64`.
+
+- **Wordwrap:** Die App-Einstellungen weisen jetzt darauf hin, dass bei aktivem
+  Zeilenumbruch die klickbaren Markdown-Knotenmarker, Checkboxen, Status- und
+  Datumsfelder in der Quelltextansicht nicht verfügbar sind.
+- **Code Folding:** Der Hinweis erklärt, dass die Klickbedienelemente nur dann
+  ausgeblendet werden, wenn tatsächlich mindestens ein Abschnitt eingeklappt
+  ist; vollständiges Aufklappen stellt sie wieder her.
+- **Unveränderte Editorlogik:** Keine riskante Neuberechnung von Klickflächen
+  bei umgebrochenen bzw. eingeklappten Zeilen. Bestehende Einstellungen
+  und Dokumentinhalte bleiben unverändert.
+
+**Tests:** `python3 tests/v64-browser.py`, `node tests/v39-preferences.mjs`
+und `node tests/check-structure.mjs` (bei vollständiger Installation).
+
+---
+
 # mindfagg v63 – Patch Export im Teilen-Dialog
 
 Dieses **Delta-Update** wird über v62 installiert; die Ordnerstruktur

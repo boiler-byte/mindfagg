@@ -1,3 +1,43 @@
+# mindfagg v65 – Erweiterung der Knoten-Datumsangaben
+
+- `markdown/parser.js` akzeptiert `[date:YYYY-MM-DD[:HH] [+Ny] [+Nm] [+Nd] [+Nh]]`.
+  Der bestehende Parser liefert weiterhin `start` und `duration`, ergänzt um
+  `hour` (Zahl `0…23` oder `null`) sowie `duration.h` (0 oder positive Ganzzahl).
+  `serializeNodeDate()` erhält das alte Datumsformat ohne `:HH` und `+h`.
+- `nodeDateEndInfo()` berechnet Endtag und optionale Endstunde unter Verwendung
+  von UTC-Kalenderarithmetik. Jahres-/Monatsdauer, Monatsende-Clamping und
+  Tagesdauer behalten die bisherigen Regeln. `nodeDateEnd()` bleibt als
+  kompatible Funktion für Endtage bestehen.
+- `views/calendar.js` baut die Tagesbelegung aus Start-/Endtag und exakter
+  Stundendauer auf. Bei einer Stunden-Dauer ist ein Endzeitpunkt von 00:00 Uhr
+  exklusiv für den neuen Kalendertag; bestehende reine Tagesintervalle bleiben
+  an ihrem Endtag sichtbar. Agenda und Zelleneinträge zeigen Stunden.
+- `ui/dialogs.js` und `views/html-markdown.js` erweitern Bearbeitungs- und
+  Erstellungsformulare um Startstunde und Stundendauer. Alle Änderungen werden
+  weiterhin als Quelltext-Tag im Markdown gespeichert.
+- `markdown/highlight.js` erkennt die neue Syntax und erklärt ungültige Stunden.
+  `ui/project-components.css`, `views/html-markdown.css` und `views/calendar.css`
+  ergänzen das responsive Layout. Cache-/Paketversion: v65.
+- `tests/v65-date.mjs` und `tests/v65-browser.py` prüfen Parsing, alte Tags,
+  UTC-Grenzen, Kalenderdarstellung sowie beide Formularvarianten.
+
+---
+
+# mindfagg v64 – Kompatibilitätshinweise in den App-Einstellungen
+
+- `ui/settings.js`: An den Wordwrap- und Code-Folding-Checkboxen steht ein
+  dauerhafter Hinweis zur eingeschränkten Klickbarkeit der Markdown-Quelltextansicht.
+  Bei Folding betrifft dies nur tatsächlich eingeklappte Abschnitte.
+- `ui/settings.css`: Gut lesbarer Hinweisstil in der vorhandenen Einstellungszeile.
+- `markdown/controls.js` bleibt unverändert. Die absichtliche Deaktivierung
+  interaktiver Overlays bei Wordwrap und eingeklapptem Inhalt bleibt bestehen,
+  damit keine Klicks auf falsch ausgerichtete Marker oder falsche Knoten zielen.
+- `module-manifest.json`, `sw.js`: Version v64/Offline-Cache-Bump.
+- `tests/v64-browser.py`: Verhalten der Einstellungen und der Hinweise in
+  Chromium auf Desktop- und Mobilbreite.
+
+---
+
 # mindfagg v63 – Clipboard-Patch-Export
 
 - `workspace/io.js`: Die Dateiauswahl im Teilen-Dialog steuert den neuen

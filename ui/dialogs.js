@@ -281,22 +281,25 @@ async function deleteCurrentDocument(){
 }
 // Date controls are shared by the node editor and the creation dialog.
 function dateSelectOptions(unit,selected){
-  const maxima={y:100,m:120,d:365},max=maxima[unit];
+  const maxima={y:100,m:120,d:365,h:168},max=maxima[unit];
   const choices=Array.from({length:max+1},(_,n)=>n);
   if(Number.isSafeInteger(selected)&&selected>max)choices.push(selected);
   return choices.map(n=>`<option value="${n}" ${n===selected?'selected':''}>${n||'–'}</option>`).join('');
 }
 function nodeDateFieldsHtml(value=null){
-  const date=value||{start:'',duration:{y:0,m:0,d:0}};
+  const date=value||{start:'',hour:null,duration:{y:0,m:0,d:0,h:0}};
+  const hours=Array.from({length:24},(_,hour)=>`<option value="${hour}" ${date.hour===hour?'selected':''}>${String(hour).padStart(2,'0')}:00 Uhr</option>`).join('');
   return `<div class="field node-date-fields">
     <span class="node-date-label">Datum / Zeitraum</span>
     <div class="node-date-layout">
-      <div class="node-date-start"><label for="nodeDateStart">Start</label><input id="nodeDateStart" type="date" value="${escapeHtml(date.start)}" min="0001-01-01" max="9999-12-31"></div>
+      <div class="node-date-start"><label for="nodeDateStart">Startdatum</label><input id="nodeDateStart" type="date" value="${escapeHtml(date.start)}" min="0001-01-01" max="9999-12-31">
+        <label for="nodeDateHour">Startstunde (optional)</label><select id="nodeDateHour"><option value="" ${date.hour===null||date.hour===undefined?'selected':''}>Ohne Uhrzeit</option>${hours}</select></div>
       <div class="node-date-durations">
         <div class="node-duration-selects">
           <div><label for="nodeDateYears">Jahre (y)</label><select id="nodeDateYears">${dateSelectOptions('y',date.duration.y)}</select></div>
           <div><label for="nodeDateMonths">Monate (m)</label><select id="nodeDateMonths">${dateSelectOptions('m',date.duration.m)}</select></div>
           <div><label for="nodeDateDays">Tage (d)</label><select id="nodeDateDays">${dateSelectOptions('d',date.duration.d)}</select></div>
+          <div><label for="nodeDateHours">Stunden (h)</label><select id="nodeDateHours">${dateSelectOptions('h',date.duration.h||0)}</select></div>
         </div>
       </div>
     </div>
@@ -306,24 +309,27 @@ function nodeDateFieldsHtml(value=null){
 function readNodeDateFields(){
   const start=$('#nodeDateStart').value;
   if(!start)return null;
-  const duration={y:Number($('#nodeDateYears').value),m:Number($('#nodeDateMonths').value),d:Number($('#nodeDateDays').value)};
-  return parseNodeDatePayload(start+['y','m','d'].filter(unit=>duration[unit]>0).map(unit=>' +'+duration[unit]+unit).join(''));
+  const hour=$('#nodeDateHour').value;
+  const duration={y:Number($('#nodeDateYears').value),m:Number($('#nodeDateMonths').value),d:Number($('#nodeDateDays').value),h:Number($('#nodeDateHours').value)};
+  return parseNodeDatePayload(start+(hour===''?'':':'+String(hour).padStart(2,'0'))+['y','m','d','h'].filter(unit=>duration[unit]>0).map(unit=>' +'+duration[unit]+unit).join(''));
 }
 function wireNodeDateFields(){
   const start=$('#nodeDateStart'),preview=$('#nodeDatePreview');
   if(!start||!preview)return;
   function update(){
     const empty=!start.value;
-    for(const id of ['#nodeDateYears','#nodeDateMonths','#nodeDateDays'])$(id).disabled=empty;
+    for(const id of ['#nodeDateHour','#nodeDateYears','#nodeDateMonths','#nodeDateDays','#nodeDateHours'])$(id).disabled=empty;
     if(empty){preview.textContent='Ohne Startdatum wird kein [date:…]-Tag gespeichert.';return}
     const date=readNodeDateFields();
-    if(!date){preview.textContent='Bitte ein gültiges Startdatum wählen.';return}
+    if(!date){preview.textContent='Bitte ein gültiges Datum, eine Stunde von 00 bis 23 und eine zulässige Dauer wählen.';return}
     const hasDuration=Object.values(date.duration).some(Boolean);
-    const end=hasDuration?nodeDateEnd(date):null;
-    preview.textContent=hasDuration?(end?'Zeitraum: '+date.start+' → '+end:'Zeitraum überschreitet den darstellbaren Kalenderbereich.'):'Einzeldatum: '+date.start;
+    const end=hasDuration?nodeDateEndInfo(date):null;
+    const label=(day,hour)=>day+(hour===null?'':', '+String(hour).padStart(2,'0')+':00 Uhr');
+    const beginning=label(date.start,date.hour??(date.duration.h>0?0:null));
+    preview.textContent=(hasDuration?(end?'Zeitraum: '+beginning+' → '+label(end.day,end.hour):'Zeitraum überschreitet den darstellbaren Kalenderbereich.'):'Zeitpunkt: '+beginning)+' · '+serializeNodeDate(date);
   }
   start.addEventListener('input',update);start.addEventListener('change',update);
-  for(const id of ['#nodeDateYears','#nodeDateMonths','#nodeDateDays'])$(id).addEventListener('change',update);
+  for(const id of ['#nodeDateHour','#nodeDateYears','#nodeDateMonths','#nodeDateDays','#nodeDateHours'])$(id).addEventListener('change',update);
   update();
 }
 function lineEdit(n,props){
@@ -386,7 +392,7 @@ function editNode(path){
     e.preventDefault();
     const nextType=$('#nodeType').value;
     const date=readNodeDateFields();
-    if($('#nodeDateStart').value&&!date){toast('Ungültiges Startdatum oder unzulässige Dauer');return}
+    if($('#nodeDateStart').value&&!date){toast('Ungültiges Startdatum, ungültige Stunde oder unzulässige Dauer');return}
     const d=lineEdit(n,{title:$('#nodeTitle').value.trim(),nodeType:nextType,
       status:$('#nodeStatus').value||null,
       checked:$('#nodeUseCheck').checked?$('#nodeDone').checked:null,
@@ -427,7 +433,7 @@ function addNode(){
   $('#addForm').onsubmit=async e=>{
     e.preventDefault();
     const date=readNodeDateFields();
-    if($('#nodeDateStart').value&&!date){toast('Ungültiges Startdatum oder unzulässige Dauer');return}
+    if($('#nodeDateStart').value&&!date){toast('Ungültiges Startdatum, ungültige Stunde oder unzulässige Dauer');return}
     const parent=options.find(n=>n.path===$('#parentSelect').value),d=documentNow(),lines=d.content.split('\n');
     const indent=parent.kind==='li'?' '.repeat(parent.indent+2):'';
     const status=$('#addStatus').value;

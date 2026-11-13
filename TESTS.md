@@ -1,3 +1,41 @@
+# mindfagg v65 – Abnahme Datumsstunden
+
+- [ ] `[date:2026-11-13]` funktioniert unverändert in Markdown, Formularen und Kalender.
+- [ ] `[date:2026-11-13:18]` erscheint am 13.11.2026 als Eintrag um 18:00 Uhr.
+- [ ] `[date:2026-11-13:18 +6h]` endet am 14.11. um 00:00 Uhr; der
+  Folgetag wird nicht als belegter Kalendertag angezeigt.
+- [ ] `[date:2026-11-13:23 +2h]` erscheint am 13. und 14.11.; Endzeit 01:00 Uhr.
+- [ ] Werte wie `:24`, `+0h`, `-2h` oder doppelt `+2h +3h` gelten als ungültig.
+- [ ] Der Knoten-Bearbeitungsdialog übernimmt bestehende Stunden-/Dauerwerte;
+  Änderungen werden in das Markdown geschrieben, ohne ältere Tags umzuschreiben.
+- [ ] Neue Knoten lassen sich mit optionaler Startstunde und `+h` erstellen.
+- [ ] Die Datumskontrollen der HTML-Markdown-Ansicht können Startstunde und
+  Dauer hinzufügen, ändern und entfernen.
+- [ ] Auch bei 375 px Bildschirmbreite sind Startstunde und Stundendauer
+  im Knotenformular erreichbar.
+- [ ] Die App verwendet den Offline-Cache `mindfagg-v65`.
+
+**Automatisiert:** `node tests/v65-date.mjs`, `python3 tests/v65-browser.py`,
+`node tests/check-structure.mjs` sowie bestehende Regressionstests.
+
+---
+
+# mindfagg v64 – Abnahme
+
+- [ ] App-Einstellungen: Wordwrap zeigt einen Hinweis, dass klickbare
+  Markdown-Knotenmarker/Attribute bei eingeschaltetem Wordwrap nicht verfügbar sind.
+- [ ] Code Folding zeigt einen Hinweis, dass die interaktiven Markdown-Elemente
+  nur bei tatsächlich eingeklappten Abschnitten nicht verfügbar sind.
+- [ ] Text, Checkboxen und Hinweise bleiben bei schmaler Bildschirmbreite lesbar.
+- [ ] Einstellungen/Checkboxen funktionieren weiterhin; es werden keine
+  Einstellungen zurückgesetzt oder Dokumente geändert.
+- [ ] Service-Worker-Cache verwendet `mindfagg-v64`.
+
+**Automatisiert:** `python3 tests/v64-browser.py`,
+`node tests/v39-preferences.mjs`, `node tests/check-structure.mjs`.
+
+---
+
 # mindfagg v63 – Abnahme
 
 - [ ] **Dateien teilen:** Der bisherige Kopieren-Button heißt mit

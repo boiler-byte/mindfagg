@@ -40,7 +40,7 @@ for(const [s,expected] of [
 ])assert.equal(invoke('detectClipboardCodeLanguage',s),expected,'clipboard '+s);
 const index=read('index.html'),sw=read('sw.js');
 assert.ok(index.includes('<script src="script/validators.js"></script>'));
-assert.ok(sw.includes("const VERSION='mindfagg-v63'"));
+assert.ok(sw.includes("const VERSION='mindfagg-v65'"));
 assert.ok(sw.includes("'./script/validators.js'"));
 assert.ok(read('workspace/io.js').includes("const language=detectClipboardCodeLanguage(t)"));
 assert.ok(read('ui/settings.js').includes('https://github.com/settings/personal-access-tokens/new'));

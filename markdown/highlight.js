@@ -22,7 +22,7 @@ function paintNodeText(value){
     if(date){html+=`<span class="syn-date">${escapeHtml(date.text)}</span>`;rest=rest.slice(date.text.length);continue}
     // Invalid date syntax remains literal text and gets a warning in the editor.
     const invalidDate=rest.match(/^\[date[^\]\r\n]*\](?=\s|$)/i);
-    if(invalidDate){html+=`<span class="syn-date-invalid" title="Ungültiges Datums-Tag: [date:YYYY-MM-DD +1y +1m +1d], keine negativen oder doppelten Einheiten">${escapeHtml(invalidDate[0])}</span>`;rest=rest.slice(invalidDate[0].length);break}
+    if(invalidDate){html+=`<span class="syn-date-invalid" title="Ungültiges Datums-Tag: [date:YYYY-MM-DD:HH +1y +1m +1d +1h]. Stunde 00–23; Dauer positiv, jede Einheit höchstens einmal.">${escapeHtml(invalidDate[0])}</span>`;rest=rest.slice(invalidDate[0].length);break}
     break;
   }
   return html+paintInline(rest);

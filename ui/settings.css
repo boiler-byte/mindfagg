@@ -40,6 +40,8 @@
 .app-setting-row>span,.app-setting-row>div:first-child{display:flex;flex-direction:column;gap:4px;min-width:0}
 .app-setting-row strong,.app-setting-row label{font-size:14px;color:#e3eafa;font-weight:700}
 .app-setting-row small{font-size:12px;color:var(--muted);line-height:1.55}
+/* v64: describe Markdown control restrictions without changing editor behavior. */
+.app-setting-row .app-setting-compat-note{display:block;margin-top:5px;color:#e6c995;line-height:1.5}
 .app-setting-row input[type=checkbox]{accent-color:var(--accent);width:21px;height:21px;flex:none;cursor:pointer}
 .app-setting-font-control{display:flex;flex-direction:column;align-items:flex-end;gap:9px;flex:0 0 min(210px,42%)}
 .app-setting-font-control output{font-size:13px;color:var(--accent-foreground);font-weight:750;font-variant-numeric:tabular-nums}

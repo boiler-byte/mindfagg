@@ -28,14 +28,33 @@ function calendarFullDate(key){
   const [year,month,day]=key.split('-').map(Number);
   return new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(calendarUTC(year,month,day));
 }
+function calendarTime(hour){return String(hour).padStart(2,'0')+':00 Uhr'}
+function calendarEventRange(entry){
+  const start=calendarDisplayDate(entry.start)+(entry.hasHour?', '+calendarTime(entry.startHour):'');
+  if(!entry.hasDuration)return start;
+  if(entry.endBeyond)return start+' – nach 9999';
+  const end=calendarDisplayDate(entry.endDate)+(entry.hasHour?', '+calendarTime(entry.endHour):'');
+  return start===end?start:start+' – '+end;
+}
 function calendarDatedNodes(){
   return flattened(currentModel).filter(node=>node.kind!=='virtual'&&node.date?.start).map(node=>{
-    const end=nodeDateEnd(node.date);
+    const end=nodeDateEndInfo(node.date);
     const hasDuration=Object.values(node.date.duration||{}).some(Boolean);
-    return {path:node.path,start:node.date.start,end:end||(hasDuration?'9999-12-31':node.date.start),
-      endBeyond:hasDuration&&!end,title:plain(node.title)||'Ohne Titel',accent:mapStatusColor(node),
+    const hasHour=node.date.hour!==null&&node.date.hour!==undefined||node.date.duration?.h>0;
+    const endDate=end?.day||(hasDuration?'9999-12-31':node.date.start);
+    let occupiedEnd=endDate;
+    // An hourly interval ending exactly at 00:00 does not occupy the new day.
+    // Existing date-only +d/+m/+y periods keep their inclusive end-day behavior.
+    if(node.date.duration?.h>0&&end?.hour===0&&endDate>node.date.start){
+      const [y,m,d]=endDate.split('-').map(Number);
+      const previous=calendarUTC(y,m,d-1);
+      occupiedEnd=calendarDateKey(previous);
+    }
+    return {path:node.path,start:node.date.start,end:occupiedEnd,endDate,
+      startHour:hasHour?(node.date.hour??0):null,endHour:end?.hour??null,
+      hasHour,hasDuration,endBeyond:hasDuration&&!end,title:plain(node.title)||'Ohne Titel',accent:mapStatusColor(node),
       status:node.status&&STATUS.includes(node.status)?statusLabel(node.status):node.checked===true?statusLabel('done'):''};
-  }).sort((a,b)=>a.start.localeCompare(b.start)||a.title.localeCompare(b.title,'de'));
+  }).sort((a,b)=>a.start.localeCompare(b.start)||(a.startHour??-1)-(b.startHour??-1)||a.title.localeCompare(b.title,'de'));
 }
 function calendarShiftMonth(delta){
   const index=(calendarMonth.year-1)*12+(calendarMonth.month-1)+delta;
@@ -72,7 +91,6 @@ function renderCalendar(){
   const weekdays=['Mo','Di','Mi','Do','Fr','Sa','So'];
   const monthLabel=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric',timeZone:'UTC'}).format(first);
   const selected=eventsByDate.get(calendarSelectedDay)||[];
-  const dateRange=entry=>calendarDisplayDate(entry.start)+(entry.end!==entry.start?' – '+(entry.endBeyond?'nach 9999':calendarDisplayDate(entry.end)):'');
   const cellHTML=dates.map(date=>{
     if(!date.valid)return '<div class="calendar-day is-unavailable" aria-hidden="true"></div>';
     const dayEntries=eventsByDate.get(date.key)||[];
@@ -83,8 +101,8 @@ function renderCalendar(){
     return `<div class="calendar-day${outsideClass}${todayClass}${selectedClass}" data-calendar-cell="${date.key}">
       <div class="calendar-day-head"><button type="button" class="calendar-date-button" data-calendar-day="${date.key}"
         aria-label="${escapeHtml(calendarFullDate(date.key))}, ${dayEntries.length} datierte Knoten" aria-pressed="${date.key===calendarSelectedDay}">${date.day}${dayEntries.length?`<span class="calendar-day-count" aria-hidden="true">${dayEntries.length}</span>`:''}</button></div>
-      <div class="calendar-event-stack">${shown.map(entry=>`<button type="button" class="calendar-event${entry.start!==entry.end?' is-period':''}" data-calendar-node="${escapeHtml(entry.path)}"
-        style="--calendar-accent:${entry.accent}" title="${escapeHtml(entry.title+' · '+dateRange(entry))}" aria-label="${escapeHtml(entry.title+' bearbeiten, '+dateRange(entry))}"><span class="calendar-event-dot" aria-hidden="true"></span><span class="calendar-event-title">${escapeHtml(entry.title)}</span></button>`).join('')}
+      <div class="calendar-event-stack">${shown.map(entry=>`<button type="button" class="calendar-event${entry.hasDuration?' is-period':''}" data-calendar-node="${escapeHtml(entry.path)}"
+        style="--calendar-accent:${entry.accent}" title="${escapeHtml(entry.title+' · '+calendarEventRange(entry))}" aria-label="${escapeHtml(entry.title+' bearbeiten, '+calendarEventRange(entry))}"><span class="calendar-event-dot" aria-hidden="true"></span>${entry.hasHour?`<span class="calendar-event-hour" aria-hidden="true">${String(date.key===entry.start?entry.startHour:0).padStart(2,'0')}:00</span>`:''}<span class="calendar-event-title">${escapeHtml(entry.title)}</span></button>`).join('')}
       ${dayEntries.length>3?`<button type="button" class="calendar-more" data-calendar-more="${date.key}">+${dayEntries.length-3} weitere</button>`:''}</div>
       <div class="calendar-mobile-indicators" aria-hidden="true">${dayEntries.slice(0,4).map(entry=>`<span class="calendar-mobile-dot" style="--calendar-accent:${entry.accent}"></span>`).join('')}</div>
     </div>`;
@@ -104,7 +122,7 @@ function renderCalendar(){
       <section class="calendar-agenda" aria-label="Einträge des ausgewählten Tages">
         <div class="calendar-agenda-top"><h3 class="calendar-agenda-title">${escapeHtml(calendarFullDate(calendarSelectedDay))}</h3><span class="calendar-agenda-count">${selected.length} ${selected.length===1?'Knoten':'Knoten'}</span></div>
         ${selected.length?`<div class="calendar-agenda-list">${selected.map(entry=>`<button type="button" class="calendar-agenda-item" data-calendar-node="${escapeHtml(entry.path)}" style="--calendar-accent:${entry.accent}" aria-label="${escapeHtml(entry.title+' bearbeiten')}">
-          <span class="calendar-agenda-dot" aria-hidden="true"></span><span class="calendar-agenda-info"><span class="calendar-agenda-name">${escapeHtml(entry.title)}</span><span class="calendar-agenda-meta">${escapeHtml(dateRange(entry))}${entry.status?' · '+escapeHtml(entry.status):''}</span></span>
+          <span class="calendar-agenda-dot" aria-hidden="true"></span><span class="calendar-agenda-info"><span class="calendar-agenda-name">${escapeHtml(entry.title)}</span><span class="calendar-agenda-meta">${escapeHtml(calendarEventRange(entry))}${entry.status?' · '+escapeHtml(entry.status):''}</span></span>
         </button>`).join('')}</div>`:'<p class="calendar-empty-message">An diesem Tag sind keine datierten Knoten vorhanden.</p>'}
       </section>
     </div>

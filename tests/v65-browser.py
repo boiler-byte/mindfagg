@@ -84,10 +84,11 @@ def main():
         page.wait_for_function('docs[0].content.includes("[date:2026-11-13 +6h] Fixer Termin")')
         print('PASS: HTML view supports adding/removing an optional hour and editing hourly duration',flush=True)
         page.evaluate("setView('calendar');render();addNode()")
-        assert page.locator('#nodeDateHour').is_visible()
+        assert page.locator('#nodeDateHour').is_hidden()  # v69: no start date yet
         assert page.locator('#nodeDateHour').is_disabled()
         page.locator('#nodeTitle').fill('Neue Zeitaufgabe')
         page.locator('#nodeDateStart').fill('2026-11-13')
+        assert page.locator('#nodeDateHour').is_visible()
         page.locator('#nodeDateHour').select_option('9')
         page.locator('#nodeDateHours').select_option('3')
         page.locator('#addForm button[type="submit"]').click()
@@ -99,6 +100,7 @@ def main():
         print('PASS: syntax highlighting accepts valid new tags and flags invalid hours',flush=True)
         page.set_viewport_size({'width':375,'height':770})
         page.evaluate("setView('calendar');render();addNode()")
+        page.locator('#nodeDateStart').fill('2026-11-13')  # v69: reveal optional fields
         assert page.locator('#nodeDateHour').is_visible()
         assert page.locator('#nodeDateHours').count()==1
         widths=page.evaluate('''()=>{

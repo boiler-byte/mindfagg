@@ -1,3 +1,129 @@
+# mindfagg v69 – Abnahme der Formular-Sichtbarkeit
+
+- [x] „Knoten bearbeiten“ bei einem Knoten ohne `[date]`: Nur Startdatum
+  sichtbar; Uhrzeit, Dauern, Reminder und Vorschau unsichtbar/deaktiviert.
+- [x] Startdatum wählen: Uhrzeit, Dauern, Reminder-Schalter und Vorschau
+  erscheinen. Vorlauf, Einheit und ID-Hinweis bleiben bis zur Aktivierung
+  von „Reminder speichern“ ausgeblendet.
+- [x] Reminder einschalten: Vorlauf, Einheit und ID-Hinweis sichtbar, ID wird
+  generiert. Ausschalten: Details wieder verborgen; Vorschau ohne Reminder.
+- [x] Erneut einschalten: Werte und stabile ID unverändert. Startdatum
+  löschen und neu setzen: Form ein-/ausklappen ohne Verlust der Eingaben.
+- [x] Vorhandenen Reminder bearbeiten und entfernen: Startdatum und Dauer
+  bleiben erhalten, die Reminder-Daten werden bei ausgeschalteter Option
+  nicht gespeichert.
+- [x] Startdatum löschen und speichern: gesamtes `[date]`-Tag entfällt.
+- [x] „Knoten erstellen“ benutzt dieselben Sichtbarkeitsregeln und speichert
+  gültige Datumsangaben ohne Reminder.
+- [x] Mobile-Ansicht: Felder auf 375px ein-/ausklappbar; keine JS-Fehler.
+- [x] Bestandstests für v65, v66, v67 und v68 bestanden. Die mobilen
+  Geometrie-Tests v65/v67 setzen ab v69 zunächst ein Startdatum, damit die
+  Zeitfelder wie vorgesehen sichtbar sind.
+- [x] `node tests/check-structure.mjs`: Manifest, Cache-Assets,
+  JavaScript-Syntax und v69-Cache-Version korrekt.
+
+**Ausführen:** `python3 tests/v69-browser.py`, `python3 tests/v68-browser.py`,
+`python3 tests/v67-browser.py`, `python3 tests/v66-browser.py`,
+`python3 tests/v65-browser.py`, `node tests/v68-reminder.mjs`,
+`node tests/v67-date.mjs`, `node tests/v65-date.mjs`,
+`node tests/check-structure.mjs`.
+
+---
+
+# mindfagg v68 – Abnahme Reminder-Datenpflege
+
+- [ ] `[date:2026-11-13:18:00 +1h !a7f3:30m]`, `!a7f3:1h`,
+  `!a7f3:1D` und `!a7f3:0m` sind gültig; die v67-Dauer bleibt unverändert.
+- [ ] Ein gültiges `!0m` oder `!30m` ohne ID wird im Markdown-Editor zu einer
+  eindeutigen vierstelligen hexadezimalen ID ergänzt, auch beim Öffnen oder
+  Einfügen. Der Text wird mit der neuen ID gespeichert.
+- [ ] Vorhandene IDs bleiben nach Bearbeitung, Speichern, erneutem Öffnen
+  erhalten. Beim Generieren wird gegen bekannte Reminder-IDs geprüft.
+- [ ] Unvollständige/ungültige Tags, normaler Beschreibungstext und
+  eingezäunte Codeblöcke bleiben bei der ID-Ergänzung unberührt.
+- [ ] `0m` ist als Reminder gültig, `+0m` als Dauer ungültig. Falsche
+  Einheiten, negative Zahlen, doppelte Reminder und ID-Fehlformate werden
+  abgewiesen.
+- [ ] Knoten-Dialog für Neu/Bearbeiten: Reminder aktivieren, Vorlauf/Einheit
+  ändern, ID beibehalten, Reminder entfernen, Datum unverändert lassen.
+- [ ] Markdown-HTML-Formular: Reminder erstellen/bearbeiten/entfernen.
+  Standardmäßig deaktivierte Vorlauf-Felder werden beim Aktivieren nutzbar.
+- [ ] Desktop, mobil und Codefaltung: Cursor, Markdown und Darstellung bleiben
+  bei der automatischen ID-Ergänzung konsistent.
+- [ ] Kalender zeigt dieselben Start-/Endzeitpunkte. Keine Cloudflare-Aufrufe,
+  Notifications oder Reminder-Scheduler.
+- [ ] v65 Stunden, v66 Direktlinks, v67 Minuten/Dauern funktionieren weiter.
+- [ ] Service Worker verwendet `mindfagg-v68` und Cache-Manifest ist konsistent.
+
+**Automatisiert:** `node tests/v68-reminder.mjs`, `python3 tests/v68-browser.py`,
+`node tests/v67-date.mjs`, `python3 tests/v67-browser.py`,
+`node tests/v65-date.mjs`, `python3 tests/v65-browser.py`,
+`python3 tests/v66-browser.py`, `node tests/check-structure.mjs`.
+
+---
+
+# mindfagg v67 – Abnahme `[date]` mit Minuten und Großbuchstaben
+
+- [ ] `[date:2026-11-13]` und `[date:2026-11-13:18]` bleiben gültig.
+- [ ] `[date:2026-11-13:18:00 +30m]` zeigt 13.11.2026 18:00–18:30 Uhr im
+  Kalender und in beiden Datumsformularen; beim Speichern bleibt `:00` erhalten.
+- [ ] `+1Y`, `+2M`, `+3D`, `+4h`, `+30m` sind unabhängig kombinierbar; eine
+  erneute Serialisierung ordnet sie in dieser Reihenfolge an.
+- [ ] `+1M` bedeutet einen Monat, `+1m` eine Minute. `+1y` und `+1d`
+  werden als ungültiges Datums-Tag markiert. Es findet keine Datenmigration statt.
+- [ ] `:18:59` ist gültig, `:18:60`, `:24:00`, `+0m` und doppelte
+  Dauereinheiten sind ungültig.
+- [ ] Bei `23:30 +30m` ist der Folgetag frei; bei `23:30 +31m` erscheint
+  der Eintrag an beiden Tagen. Monatsende/Jahreswechsel funktionieren.
+- [ ] Die Tagesagenda ist nach Startstunde **und Startminute** sortiert;
+  Monatszellen, Tooltips und Agenda zeigen `HH:MM`.
+- [ ] Beim Erstellen/Bearbeiten in Knotenformular und Markdown-HTML-Ansicht
+  können Startminute und Minutendauer gesetzt, geändert und entfernt werden.
+  Ohne Startstunde ist die optionale Startminute deaktiviert.
+- [ ] Bei 375 px Breite sind alle neuen Formularelemente ohne Überlauf
+  erreichbar; die Direktlink-Funktion aus v66 funktioniert weiterhin.
+- [ ] Der Offline-Service-Worker verwendet `mindfagg-v67`.
+
+**Automatisiert:** `node tests/v67-date.mjs`, `python3 tests/v67-browser.py`,
+`node tests/v65-date.mjs`, `python3 tests/v65-browser.py`,
+`python3 tests/v66-browser.py`, `python3 tests/v51-browser.py`,
+`python3 tests/v56-browser.py`, `node tests/check-structure.mjs`.
+
+---
+
+# mindfagg v66 – Abnahme Direktlinks
+
+- [ ] Klick auf die Breadcrumb in der Topbar kopiert eine vollständige URL mit
+  `?project=<ID>&fileId=<ID>&view=<Ansicht>`; eine Rückmeldung bestätigt den Erfolg.
+- [ ] Die Breadcrumb ist über Tab/Enter/Leertaste bedienbar und mobil sichtbar.
+- [ ] Kopieren führt zu keinem Navigationswechsel und überschreibt keine
+  aktuellen Projekt-/Dateiinhalte.
+- [ ] Beim direkten Öffnen der URL wird nach dem Laden der lokalen Projekte
+  exakt die passende Projekt-/Datei-ID und die gespeicherte Ansicht aktiviert,
+  selbst wenn `msProject`, `msDoc` und `mfLastView` etwas anderes enthalten.
+- [ ] Alle Markdown-Ansichten (`markdown`, `mindmap`, `html`, `kanban`,
+  `calendar`) sowie Script-Dateiunteransichten (`script`, `functions`,
+  `preview`, `grid`) können beim Öffnen wiederhergestellt werden.
+- [ ] Mit Projekt/Datei nicht übereinstimmende oder gelöschte IDs führen zu
+  einem Hinweis, nicht zu einer falschen Dateiauswahl.
+- [ ] Ein unbekannter `view`-Wert erzeugt einen Hinweis und eine sichere
+  Standard-/Zuletzt-verwendet-Ansicht; ohne Query bleibt die bisherige
+  Startauswahl erhalten.
+- [ ] App-Einstellungen bzw. fehlende Datei deaktivieren die Kopierfunktion.
+- [ ] Fehlt Clipboard API oder ist ihr Zugriff gesperrt, arbeitet der
+  Fallback; ohne bestätigten Kopiererfolg wird kein Erfolg behauptet.
+- [ ] Offline-Service-Worker verwendet den Cache `mindfagg-v66` und kennt
+  das neue Modul `ui/direct-links.js`.
+- [ ] Ein Direktlink ist kein Export: Auf einem anderen Browserprofil ohne
+  dieselben lokal vorhandenen IDs erscheint ein entsprechender Hinweis.
+
+**Automatisiert:** `python3 tests/v66-browser.py` (Inline-Chromium mit simuliertem
+Startzustand), `node tests/check-structure.mjs`, `node tests/v65-date.mjs`,
+`python3 tests/v65-browser.py`, `python3 tests/v64-browser.py`,
+`python3 tests/v51-browser.py` sowie die relevanten älteren Node-Regressionen.
+
+---
+
 # mindfagg v65 – Abnahme Datumsstunden
 
 - [ ] `[date:2026-11-13]` funktioniert unverändert in Markdown, Formularen und Kalender.

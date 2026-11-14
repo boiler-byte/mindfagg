@@ -17,7 +17,7 @@ def inline_app():
 SOURCE=(
     '# [ ] [status:doing] Projekt **Start**\n'
     'Ein Absatz mit **Fettdruck**, *kursiv* und `inline code`.\n\n'
-    '## [date:2026-11-07 +2d] Planung\n'
+    '## [date:2026-11-07 +2D] Planung\n'
     '- [ ] Erstes Element\n'
     '  - [x] Unterpunkt\n'
     '- [status:todo] Offene Aufgabe\n\n'
@@ -89,14 +89,14 @@ def run():
         page.locator('[data-html-date-line="3"] [data-html-date-start]').fill('2026-11-08')
         page.locator('[data-html-date-line="3"] [data-html-date-d]').fill('5')
         page.locator('[data-html-date-line="3"] [data-html-date-save]').click()
-        page.wait_for_function('docs[0].content.includes("[date:2026-11-08 +5d]")')
+        page.wait_for_function('docs[0].content.includes("[date:2026-11-08 +5D]")')
         page.locator('[data-html-date-line="3"] summary').click()
         page.locator('[data-html-date-line="3"] [data-html-date-remove]').click()
         page.wait_for_function('!docs[0].content.includes("[date:")')
         assert len(page.evaluate('testWrites'))>=5
         assert page.evaluate('docHistoryFor("md1").undo.length')>=5
         page.evaluate("changeHistory('undo')")
-        page.wait_for_function('docs[0].content.includes("[date:2026-11-08 +5d]")')
+        page.wait_for_function('docs[0].content.includes("[date:2026-11-08 +5D]")')
         page.evaluate("changeHistory('redo')")
         page.wait_for_function('!docs[0].content.includes("[date:")')
         assert not errors, errors

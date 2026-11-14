@@ -59,14 +59,39 @@ function renderEditor(){
     </div>
     <div class="editfoot"><button type="button" id="rootState" class="root-state" title="H1-Validierung"></button><small class="codehelp" id="editorHelp">Autocomplete: / · [[ · [status: · Enter setzt Listen fort · Tab/Shift+Tab rückt ein/aus</small></div>
   </div>`;
-  const source=$('#source');source.value=d.content;source.wrap=appEditorSettings.wordWrap?'soft':'off';
+  const source=$('#source');
+  const completed=completeMarkdownReminderIds(d.content);
+  if(completed.text!==d.content){
+    d.content=completed.text;
+    // Opening a file with !30m must persist the generated ID, not just display it.
+    void saveSource(d.id,d.content).catch(error=>{console.error(error);toast('Reminder-ID konnte nicht gespeichert werden')});
+  }
+  source.value=d.content;source.wrap=appEditorSettings.wordWrap?'soft':'off';
   codeFoldInitialize(source,d,'markdown',()=>{refreshCodeVisuals();hideCompletions()});
   syncMobileMarkdownViewport();
   refreshCodeVisuals();wireMinimap();wireEditorTools();
   $('#rootState').onclick=focusRootProblem;
   source.onscroll=syncCodeScroll;
   source.oninput=()=>{
-    const text=codeFoldUpdateAfterInput(source);
+    let text=codeFoldUpdateAfterInput(source);
+    if(!editorComposing){
+      const completed=completeMarkdownReminderIds(text);
+      if(completed.insertions.length){
+        const fold=codeFoldState(source);
+        const oldStart=fold?codeFoldMapToFull(fold,source.selectionStart):source.selectionStart;
+        const oldEnd=fold?codeFoldMapToFull(fold,source.selectionEnd):source.selectionEnd;
+        const adjust=offset=>offset===null?null:offset+completed.insertions.reduce((n,item)=>n+(item.at<=offset?item.text.length:0),0);
+        const top=source.scrollTop,left=source.scrollLeft;
+        text=completed.text;
+        if(fold){fold.full=text;codeFoldRebuild(fold);source.value=fold.visible}
+        else source.value=text;
+        const start=adjust(oldStart),end=adjust(oldEnd);
+        if(start!==null&&end!==null){
+          source.setSelectionRange(fold?codeFoldMapToVisible(fold,start):start,fold?codeFoldMapToVisible(fold,end):end);
+        }
+        source.scrollTop=top;source.scrollLeft=left;
+      }
+    }
     const doc=docs.find(item=>item.id===editorDocId);
     if(doc){
       if(doc.content!==text){const h=docHistoryFor(doc.id);h.redo.length=0;deletionHistoryFor(doc.projectId).redo.length=0}
@@ -82,7 +107,7 @@ function renderEditor(){
     saveTimer=setTimeout(()=>saveSource(id,text).catch(error=>{console.error(error);toast('Speichern fehlgeschlagen')}),650);
   };
   source.oncompositionstart=()=>{editorComposing=true;hideCompletions()};
-  source.oncompositionend=()=>{editorComposing=false;updateCompletions()};
+  source.oncompositionend=()=>{editorComposing=false;source.dispatchEvent(new Event('input',{bubbles:true}));updateCompletions()};
   source.onkeydown=e=>{
     if(codeFoldHasCollapsed(source)&&(e.key==='Enter'||e.key==='Tab'))codeFoldExpandAll(source);
     if(completionState?.items?.length&&!editorComposing){

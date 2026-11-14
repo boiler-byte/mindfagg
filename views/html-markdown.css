@@ -31,6 +31,8 @@
 .html-md-date-draft{position:relative;min-width:1px;min-height:28px;max-width:100%}
 .html-md-date-draft .html-md-date-fields{position:absolute;left:0;top:0;z-index:11}
 .html-md-date-start-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.html-md-date-start-fields>label:first-child{grid-column:1/-1}
+.html-md-date-start-fields select:disabled{opacity:.5;cursor:not-allowed}
 .html-md-date-fields select{width:100%;min-width:0;background:#111a27;color:#f0f4ff;border:1px solid #455772;border-radius:6px;padding:7px}
 .html-md-date-duration{grid-template-columns:repeat(2,minmax(0,1fr))}
 .html-md-heading .html-md-node-controls{margin-top:7px}
@@ -59,3 +61,11 @@
   position:absolute;top:50%;left:100%;transform:translateY(-50%);
   margin:0;padding-left:7px;z-index:5;white-space:nowrap
 }
+
+/* v68: reminder property fields in the Markdown HTML date editor. */
+.html-md-reminder{border-top:1px solid #34475c;margin-top:5px;padding-top:9px;display:grid;gap:7px}
+.html-md-reminder-toggle{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;font-size:12px!important}
+.html-md-reminder-toggle input{width:16px!important;accent-color:var(--accent)}
+.html-md-reminder-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.html-md-reminder-options select{width:100%;min-width:0;background:#111a27;color:#f0f4ff;border:1px solid #455772;border-radius:6px;padding:7px}
+.html-md-reminder-info{font-size:11px;color:#9bb0c6}

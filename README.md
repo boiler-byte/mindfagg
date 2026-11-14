@@ -1,3 +1,170 @@
+# mindfagg v69 – Datums- und Reminder-Felder bedingt anzeigen
+
+**Delta-Installation:** Dieses ZIP über die vollständige **v68-Installation**
+entpacken (Ordnerstruktur beibehalten, vorhandene Dateien überschreiben).
+Der Offline-Cache wird auf `mindfagg-v69` angehoben. Das Delta enthält nur
+neue und gegenüber v68 geänderte Dateien.
+
+**Neu im Knoten-Dialog (Bearbeiten und Erstellen):**
+
+- **Ohne Startdatum** bleibt unter „Datum / Zeitraum“ ausschließlich das
+  Startdatum-Feld sichtbar. Startstunde, Startminute, alle Dauern, die
+  Reminder-Checkbox mit ihren Feldern und die Vorschau sind ausgeblendet.
+- **Mit Startdatum** werden Uhrzeit, Dauer und „Reminder speichern“ angezeigt.
+  Die Reminder-Einstellungen („Vorher erinnern“, Einheit und Reminder-ID)
+  bleiben ausgeblendet, solange die Checkbox nicht aktiviert ist.
+- Beim Aktivieren der Checkbox werden die Reminder-Einstellungen eingeblendet;
+  beim Deaktivieren wieder ausgeblendet. Ausgeblendete Felder werden deaktiviert,
+  ihre bereits eingegebenen Werte und die Reminder-ID jedoch während des
+  Bearbeitens beibehalten. Ohne Startdatum wird beim Speichern kein `[date]`-Tag
+  geschrieben; beim Entfernen eines vorhandenen Startdatums wird der Tag gelöscht.
+- Die Markdown-Syntax, die Reminder-ID-Generierung und der Kalender bleiben
+  unverändert. Es gibt **keine Migration** und weiterhin **keine
+  Reminder-Benachrichtigungen**.
+
+**Tests:** `python3 tests/v69-browser.py`, `node tests/check-structure.mjs`.
+Die bestehenden Datum-/Reminder-Regressionen sind weiterhin vorhanden.
+
+---
+
+# mindfagg v68 – `[date]`-Reminderdaten und stabile IDs
+
+**Delta-Installation:** Dieses ZIP über die vollständige **v67-Installation**
+entpacken (Ordnerstruktur beibehalten, Dateien überschreiben). Der Offline-Cache
+wird mit `mindfagg-v68` neu aufgebaut. Es werden nur Dateien geliefert, die
+sich gegenüber v67 geändert haben oder neu sind.
+
+**Neu im Markdown:**
+
+```markdown
+- [date:2026-11-13:18:00 +1h !a7f3:30m] Eine halbe Stunde vorher
+- [date:2026-11-13:18 +1h !a7f3:1h] Eine Stunde vorher
+- [date:2026-11-13:18 +1h !a7f3:1D] Einen Tag vorher
+- [date:2026-11-13:18 +1h !a7f3:0m] Zum Startzeitpunkt
+- [date:2026-11-13:18 +1h !0m] Neue Erinnerung ohne ID (wird ergänzt)
+```
+
+- `!` kennzeichnet einen einzelnen, optionalen Reminder pro gültigem `[date]`-Tag.
+  Er wird **nach** etwaigen `+`-Dauern geschrieben.
+- `a7f3` ist eine vierstellige hexadezimale **Reminder-ID**, die beim
+  Neuanlegen automatisch erzeugt und im Markdown gespeichert wird. Existierende
+  IDs bleiben beim Ändern des Datums oder Reminder-Vorlaufs unverändert.
+- `30m` ist der Vorlauf *vor Beginn* des Ereignisses; `0m` bedeutet zum
+  Startzeitpunkt. Gültige Einheiten: `Y` (Jahre), `M` (Monate), `D` (Tage),
+  `h` (Stunden), `m` (Minuten), wie bei den v67-Dauern. Der Reminder-Vorlauf
+  darf null sein; die v67-Dauer `+0m` bleibt ungültig.
+- Bei Eingabe eines gültigen Tags mit `!30m`, `!0m` usw. im Markdown-Editor
+  wird die fehlende ID sofort ergänzt. Beim Öffnen eines Markdown-Dokuments im
+  Editor werden bereits vorhandene Tags ohne ID nachgetragen und gespeichert.
+  Das gilt für Eigenschaften von Überschriften/Listenpunkten; normale Texte,
+  Codeblöcke und ungültige Tags werden nicht verändert. Neue IDs werden gegen
+  die bekannten IDs im Workspace geprüft, bevor sie vergeben werden.
+- Der Knoten-Dialog (Neu/Bearbeiten) und das Datumsformular der
+  Markdown-HTML-Ansicht bieten Reminder-Ein/Aus, Vorlauf, Einheit und ID-Anzeige.
+  Beim Ändern des Vorlaufs bleibt die ID stabil; beim Entfernen wird die gesamte
+  `!…`-Angabe entfernt. `0` ist in beiden Formularen zulässig.
+- Die Erinnerung wird **nur gespeichert**. Es gibt keine Benachrichtigungen,
+  keine Terminplanung, keine Cloudflare-Verbindung und keinen Hintergrunddienst.
+  Kalenderanzeige und Zeitraumberechnung werden vom Reminder nicht verändert.
+- Datumsangaben ohne Reminder bleiben unverändert gültig. Es gibt keine
+  Migration anderer Daten. Ein wiederverwendetes, bewusst manuell angegebenes
+  Reminder-ID-Token wird nicht automatisch ersetzt; für echte Eindeutigkeit
+  nur neue IDs generieren lassen.
+
+**Tests:** `node tests/v68-reminder.mjs`, `python3 tests/v68-browser.py`,
+`node tests/v67-date.mjs`, `python3 tests/v67-browser.py`,
+`node tests/v65-date.mjs`, `python3 tests/v65-browser.py`,
+`python3 tests/v66-browser.py`, `node tests/check-structure.mjs`.
+
+---
+
+# mindfagg v67 – Datumsformat mit Großbuchstaben und Minuten
+
+Dieses **Delta-Update** wird über die vollständige **v66-Installation** entpackt.
+Es enthält nur neue und geänderte Dateien. Die Ordnerstruktur beibehalten,
+vorhandene Dateien überschreiben und bei PWA-Nutzung neu laden. Der Cache des
+Service Workers wird auf `mindfagg-v67` angehoben.
+
+**Neues `[date]`-Format:**
+
+```markdown
+- [date:2026-11-13] Ganztägig
+- [date:2026-11-13:18] Beginn um 18:00 Uhr (weiterhin gültig)
+- [date:2026-11-13:18:00] Beginn um 18:00 Uhr mit expliziten Minuten
+- [date:2026-11-13:18:00 +30m] Termin von 18:00 bis 18:30 Uhr
+- [date:2026-11-13:23:45 +30m] Termin bis 00:15 Uhr am nächsten Tag
+- [date:2026-11-13:18:15 +1Y +2M +3D +4h +30m] Kombinierter Zeitraum
+```
+
+- **Groß-/Kleinschreibung ist relevant:** `Y` = Jahre, `M` = Monate, `D` = Tage,
+  `h` = Stunden, `m` = Minuten. Jede Dauer-Einheit darf höchstens einmal
+  vorkommen, ist positiv und kann in beliebiger Reihenfolge stehen. Die
+  Serialisierung verwendet immer `Y`, `M`, `D`, `h`, `m` in dieser Reihenfolge.
+- Die Startuhrzeit ist optional: `:HH` (00–23) und danach optional `:MM`
+  (00–59). Die Minutenangabe setzt eine Startstunde voraus. Explizites `:00`
+  bleibt beim Bearbeiten erhalten. Ohne Startuhrzeit beginnen Angaben mit
+  Stunden-/Minutendauer um 00:00 Uhr.
+- **Formulare:** Der gemeinsame Dialog zum Anlegen/Bearbeiten von Knoten und
+  das Datumsformular der Markdown-HTML-Ansicht bieten Startminute und
+  Minutendauer sowie beschriftete Felder für die fünf Dauereinheiten.
+- **Kalender:** Zeitangaben und Intervalle werden minutengenau sortiert und
+  angezeigt, auch über Tages-/Monats-/Jahresgrenzen. Ein Intervall, das genau
+  um 00:00 Uhr endet, belegt den Folgetag nicht. Zeiträume mit ausschließlich
+  `+D`, `+M`, `+Y` behalten ihre inklusive Endtagesdarstellung.
+- **Keine Datenmigration:** Bestehende Markdown-Dateien werden nicht umgeschrieben.
+  `+y` und `+d` werden nicht mehr erkannt; bisheriges `+m` wird nun als
+  **Minuten** statt Monate interpretiert. Für Monatsdauern gilt ausdrücklich
+  `+M`. Unveränderte Datums-Tags und `+h` bleiben gültig.
+
+**Tests:** `node tests/v67-date.mjs`, `python3 tests/v67-browser.py`,
+`node tests/check-structure.mjs`; zusätzlich Regressionen für v65-Stunden,
+v66-Direktlinks und die älteren HTML-Formulare.
+
+---
+
+# mindfagg v66 – Direktlinks zu Projekt, Datei und Ansicht
+
+Dieses **Delta-Update** wird über eine vorhandene **v65-Installation** entpackt.
+Es enthält ausschließlich neue/geänderte Dateien; beim Entpacken die
+Ordnerstruktur erhalten und vorhandene Dateien überschreiben. Der
+Offline-/Service-Worker-Cache verwendet `mindfagg-v66`.
+
+**Direktlink kopieren:** Auf den Projekt-/Dateipfad (Breadcrumb) in der Topbar
+klicken oder ihn mit der Tastatur fokussieren und Enter/Leertaste drücken.
+Die App kopiert die vollständige URL in die Zwischenablage und bestätigt mit
+„Direktlink kopiert“. Beispiel:
+
+```text
+https://beispiel.de/mindfagg/?project=PROJEKT-UUID&fileId=DATEI-UUID&view=mindmap
+```
+
+Die URL verwendet `project` und `fileId` als stabile interne IDs und `view`
+als Ansicht. Für Markdown sind `markdown`, `mindmap`, `html`, `kanban` und
+`calendar` gültig. Bei anderen Dateien wird die Dateiansicht in `view`
+gespeichert (z. B. `script`, `preview`, `functions`, `grid` oder `file`).
+Ein Aufruf des Links stellt **Projekt, Datei und Ansicht** auch nach dem
+Neustart der App wieder her und hat Vorrang vor der zuletzt gewählten Ansicht.
+Kopieren verändert die aktuell angezeigte URL nicht. Weitere bereits vorhandene
+Query-Parameter bleiben erhalten; ein alter URL-Fragmentanker wird entfernt.
+
+**Wichtige Grenze:** Projekte und Dateien liegen weiterhin ausschließlich im
+IndexedDB-Speicher des jeweiligen Browserprofils/Ursprungs. Der Link enthält
+**keine Daten** und funktioniert nur dort, wo die angegebenen Projekt- und
+Datei-IDs bereits existieren. Zum Öffnen auf einem anderen Gerät müssen die
+entsprechenden Inhalte zuvor dort importiert oder anderweitig synchronisiert
+worden sein. Fehlende oder gelöschte Ziele werden ohne automatische Auswahl
+anderer Projekte gemeldet. Ein ungültiger Ansichtsname führt zu einer
+verständlichen Warnung und einer passenden Standard- bzw. zuletzt verwendeten
+Ansicht. In den App-Einstellungen sowie ohne ausgewählte Datei ist das
+Kopieren deaktiviert. Bei einer gesperrten Clipboard API wird die ältere
+Kopiermethode ausprobiert und nötigenfalls ein manueller Kopierdialog geöffnet.
+
+**Tests:** `python3 tests/v66-browser.py`, `node tests/check-structure.mjs`
+sowie die bestehenden Regressionstests einschließlich `tests/v65-date.mjs`
+und `tests/v65-browser.py`.
+
+---
+
 # mindfagg v65 – Datumsangaben mit optionaler Startstunde und Stundendauer
 
 Dieses **Delta-Update** wird über eine vollständige v64-Installation installiert.

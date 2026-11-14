@@ -70,9 +70,15 @@ function markdownHtmlNodeCheckbox(node,line){
   return `<input class="html-md-task-checkbox" type="checkbox" data-html-task="${line}" aria-label="Aufgabe ${escapeHtml(node.title)} erledigt" ${node.checked?'checked':''}>`;
 }
 function markdownHtmlDateFields(line,date){
-  const number=(unit,label)=>`<label>${label}<input type="number" inputmode="numeric" min="0" max="9999" step="1" data-html-date-${unit} value="${Number(date?.duration?.[unit]||0)}" aria-label="${label}"></label>`;
-  const hours=Array.from({length:24},(_,hour)=>`<option value="${hour}" ${date?.hour===hour?'selected':''}>${String(hour).padStart(2,'0')}:00 Uhr</option>`).join('');
-  return `<div class="html-md-date-fields"><div class="html-md-date-start-fields"><label>Startdatum<input type="date" min="0001-01-01" max="9999-12-31" data-html-date-start value="${escapeHtml(date?.start||'')}"></label><label>Startstunde (optional)<select data-html-date-hour><option value="" ${date?.hour===null||date?.hour===undefined?'selected':''}>Ohne Uhrzeit</option>${hours}</select></label></div><div class="html-md-date-duration">${number('y','Jahre')}${number('m','Monate')}${number('d','Tage')}${number('h','Stunden')}</div><div class="html-md-date-actions"><button type="button" data-html-date-save="${line}">Übernehmen</button>${date?`<button type="button" data-html-date-remove="${line}">Entfernen</button>`:`<button type="button" data-html-attr-cancel>Abbrechen</button>`}</div></div>`;
+  const number=(unit,attribute,label)=>`<label>${label}<input type="number" inputmode="numeric" min="0" max="9999" step="1" data-html-date-${attribute} value="${Number(date?.duration?.[unit]||0)}" aria-label="${label}"></label>`;
+  const hours=Array.from({length:24},(_,hour)=>`<option value="${hour}" ${date?.hour===hour?'selected':''}>${String(hour).padStart(2,'0')} Uhr</option>`).join('');
+  const minutes=Array.from({length:60},(_,minute)=>`<option value="${minute}" ${date?.minute===minute?'selected':''}>${String(minute).padStart(2,'0')} Min.</option>`).join('');
+  return `<div class="html-md-date-fields"><div class="html-md-date-start-fields"><label>Startdatum<input type="date" min="0001-01-01" max="9999-12-31" data-html-date-start value="${escapeHtml(date?.start||'')}"></label><label>Startstunde (optional)<select data-html-date-hour><option value="" ${date?.hour===null||date?.hour===undefined?'selected':''}>Ohne Uhrzeit</option>${hours}</select></label><label>Startminute (optional)<select data-html-date-minute ${date?.hour===null||date?.hour===undefined?'disabled':''}><option value="" ${date?.minute===null||date?.minute===undefined?'selected':''}>Ohne Minutenangabe</option>${minutes}</select></label></div><div class="html-md-date-duration">${number('Y','y','Jahre (Y)')}${number('M','months','Monate (M)')}${number('D','d','Tage (D)')}${number('h','h','Stunden (h)')}${number('m','m','Minuten (m)')}</div>
+    <div class="html-md-reminder"><label class="html-md-reminder-toggle"><input type="checkbox" data-html-reminder-enable ${date?.reminder?'checked':''}> Reminder speichern (ohne Benachrichtigung)</label>
+      <input type="hidden" data-html-reminder-id value="${escapeHtml(date?.reminder?.id||'')}">
+      <div class="html-md-reminder-options"><label>Vorlauf<input type="number" data-html-reminder-amount inputmode="numeric" min="0" max="9999" step="1" value="${date?.reminder?.amount??30}" ${date?.reminder?'':'disabled'}></label><label>Einheit<select data-html-reminder-unit ${date?.reminder?'':'disabled'}>${[['m','Minuten (m)'],['h','Stunden (h)'],['D','Tage (D)'],['M','Monate (M)'],['Y','Jahre (Y)']].map(([unit,label])=>`<option value="${unit}" ${unit===(date?.reminder?.unit||'m')?'selected':''}>${label}</option>`).join('')}</select></label></div>
+      <small class="html-md-reminder-info">${date?.reminder?.id?'Reminder-ID: '+escapeHtml(date.reminder.id):'ID wird beim Speichern erzeugt.'}</small>
+    </div><div class="html-md-date-actions"><button type="button" data-html-date-save="${line}">Übernehmen</button>${date?`<button type="button" data-html-date-remove="${line}">Entfernen</button>`:`<button type="button" data-html-attr-cancel>Abbrechen</button>`}</div></div>`;
 }
 function markdownHtmlNodeControls(node,line){
   if(!node)return '';
@@ -277,22 +283,41 @@ function renderMarkdownHtml(){
       const start=row.querySelector('[data-html-date-start]').value;
       if(!start){toast('Startdatum wählen');return}
       const hour=row.querySelector('[data-html-date-hour]').value;
+      const minute=row.querySelector('[data-html-date-minute]').value;
       const duration={};
-      for(const unit of ['y','m','d','h']){
-        const input=row.querySelector('[data-html-date-'+unit+']');
+      for(const [unit,attribute] of [['Y','y'],['M','months'],['D','d'],['h','h'],['m','m']]){
+        const input=row.querySelector('[data-html-date-'+attribute+']');
+        if(!input.value.trim()){toast('Bitte eine Dauer eingeben: '+unit);return}
         const value=Number(input.value);
         if(!Number.isSafeInteger(value)||value<0||value>9999){toast('Ungültige Dauer: '+unit);return}
         duration[unit]=value;
       }
-      const payload=start+(hour===''?'':':'+String(hour).padStart(2,'0'))+['y','m','d','h'].filter(unit=>duration[unit]>0).map(unit=>' +'+duration[unit]+unit).join('');
+      let reminder='';
+      if(row.querySelector('[data-html-reminder-enable]').checked){
+        const raw=row.querySelector('[data-html-reminder-amount]').value.trim(),value=Number(raw);
+        if(!/^(0|[1-9]\d*)$/.test(raw)||!Number.isSafeInteger(value)||value>9999){toast('Reminder-Vorlauf muss zwischen 0 und 9999 liegen');return}
+        const id=row.querySelector('[data-html-reminder-id]').value;
+        reminder=' !'+(id?id+':':'')+value+row.querySelector('[data-html-reminder-unit]').value;
+      }
+      const payload=start+(hour===''?'':':'+String(hour).padStart(2,'0')+(minute===''?'':':'+String(minute).padStart(2,'0')))+
+        ['Y','M','D','h','m'].filter(unit=>duration[unit]>0).map(unit=>' +'+duration[unit]+unit).join('')+reminder;
       const date=parseNodeDatePayload(payload);
-      if(!date){toast('Ungültiges Datum, ungültige Startstunde oder ungültige Dauer');return}
+      if(!date){toast('Ungültiges Datum, ungültige Startzeit, Dauer oder Reminder');return}
+      ensureNodeReminderId(date,documentNow()?.content);
       await markdownHtmlChangeNode(Number(save.dataset.htmlDateSave),{date});return;
     }
     const removeDate=event.target.closest('[data-html-date-remove]');
     if(removeDate){await markdownHtmlChangeNode(Number(removeDate.dataset.htmlDateRemove),{date:null});return}
   });
   viewElement.addEventListener('change',async event=>{
+    if(event.target.matches('[data-html-reminder-enable]')){
+      const row=event.target.closest('.html-md-date-fields');
+      row?.querySelectorAll('[data-html-reminder-amount],[data-html-reminder-unit]').forEach(input=>input.disabled=!event.target.checked);
+    }
+    if(event.target.matches('[data-html-date-hour]')){
+      const minute=event.target.closest('.html-md-date-fields')?.querySelector('[data-html-date-minute]');
+      if(minute){minute.disabled=event.target.value==='';if(minute.disabled)minute.value=''}
+    }
     if(event.target.matches('[data-html-task]')){
       await markdownHtmlChangeNode(Number(event.target.dataset.htmlTask),{checked:event.target.checked});
     }else if(event.target.matches('[data-html-status]')){

@@ -30,25 +30,38 @@ function validationMessage(scan){
   if(!scan.roots.length)return 'Keine H1 · # Titel ergänzen';
   return scan.roots.length+' H1 gefunden · nur eine erlaubt (Zeilen '+scan.roots.slice(1).map(i=>i+1).join(', ')+')';
 }
-// [date:YYYY-MM-DD:HH +1y +2m +3d +4h] is a node property like [status:...].
-// The hour is optional (00–23). Duration units may appear in any order,
-// but must be positive and occur at most once. Date-only tags stay valid.
+// v68: [date:YYYY-MM-DD:HH:MM +1h !a7f3:30m]. Reminders are stored metadata
+// only: an optional 4-digit hexadecimal ID and a nonnegative offset in Y/M/D/h/m.
+// Missing IDs (!30m, !0m, etc.) are parsed without side effects and completed
+// once in the Markdown editor or a date form. Existing IDs are preserved.
+// Durations remain positive, unique and case-sensitive (v67 syntax).
 function parseNodeDatePayload(raw){
-  const match=String(raw).match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?::(\d{1,2}))?(?:\s+(.+))?$/);
+  const match=String(raw).match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?::(\d{1,2})(?::(\d{1,2}))?)?(?:\s+(.+))?$/);
   if(!match)return null;
   const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
   const hour=match[4]===undefined?null:Number(match[4]);
-  if(year<1||month<1||month>12||day<1||day>31||(hour!==null&&(hour<0||hour>23)))return null;
+  const minute=match[5]===undefined?null:Number(match[5]);
+  if(year<1||month<1||month>12||day<1||day>31||
+      (hour!==null&&(hour<0||hour>23))||(minute!==null&&(minute<0||minute>59)))return null;
   const calendar=new Date(0);calendar.setUTCHours(0,0,0,0);calendar.setUTCFullYear(year,month-1,day);
   if(calendar.getUTCFullYear()!==year||calendar.getUTCMonth()!==month-1||calendar.getUTCDate()!==day)return null;
-  const duration={y:0,m:0,d:0,h:0},seen=new Set();
-  if(match[5])for(const component of match[5].split(/\s+/)){
-    const part=component.match(/^\+([1-9]\d*)([ymdh])$/);
+  const duration={Y:0,M:0,D:0,h:0,m:0},seen=new Set();
+  const components=match[6]?match[6].split(/\s+/):[];
+  let reminder=null;
+  if(components.at(-1)?.startsWith('!')){
+    const token=components.pop();
+    const part=token.match(/^!(?:([0-9a-f]{4}):)?(0|[1-9]\d*)([YMDhm])$/);
+    if(!part)return null;
+    const amount=Number(part[2]);if(!Number.isSafeInteger(amount))return null;
+    reminder={id:part[1]||null,amount,unit:part[3]};
+  }
+  for(const component of components){
+    const part=component.match(/^\+([1-9]\d*)([YMDhm])$/);
     if(!part||seen.has(part[2]))return null;
     const amount=Number(part[1]);if(!Number.isSafeInteger(amount))return null;
     seen.add(part[2]);duration[part[2]]=amount;
   }
-  return {start:String(year).padStart(4,'0')+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0'),hour,duration};
+  return {start:String(year).padStart(4,'0')+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0'),hour,minute,duration,...(reminder?{reminder}:{})};
 }
 function nodeDatePrefix(text){
   const token=String(text).match(/^\[date:([^\]\r\n]+)\](?=\s|$)/);
@@ -58,28 +71,103 @@ function nodeDatePrefix(text){
 }
 function serializeNodeDate(date){
   if(!date?.start)return '';
-  const pieces=['y','m','d','h'].filter(unit=>date.duration?.[unit]>0).map(unit=>'+'+date.duration[unit]+unit);
-  const hour=date.hour===null||date.hour===undefined?'':':'+String(date.hour).padStart(2,'0');
-  return '[date:'+date.start+hour+(pieces.length?' '+pieces.join(' '):'')+']';
+  const pieces=['Y','M','D','h','m'].filter(unit=>date.duration?.[unit]>0).map(unit=>'+'+date.duration[unit]+unit);
+  const hour=date.hour===null||date.hour===undefined?'':':'+String(date.hour).padStart(2,'0')+
+    (date.minute===null||date.minute===undefined?'':':'+String(date.minute).padStart(2,'0'));
+  const reminder=date.reminder;
+  const offset=reminder&&Number.isSafeInteger(reminder.amount)&&reminder.amount>=0&&
+    /^[YMDhm]$/.test(reminder.unit)?' !'+(reminder.id?reminder.id+':':'')+reminder.amount+reminder.unit:'';
+  return '[date:'+date.start+hour+(pieces.length?' '+pieces.join(' '):'')+offset+']';
 }
-// Calendar months/years are applied before days and hours, clamping the day
-// in short months. UTC arithmetic avoids local daylight-saving transitions.
-// The hour is null for legacy day-only tags without an hourly duration.
+// Generate new 4-hex IDs without colliding with known Markdown reminder IDs.
+// These IDs are identifiers, not authentication tokens. Never regenerate a
+// provided ID while parsing, rendering, or editing an existing reminder.
+function nodeReminderKnownIds(text='',otherDocs=typeof docs!=='undefined'?docs:[]){
+  const used=new Set(),collect=source=>{
+    for(const hit of String(source??'').matchAll(/\s!([0-9a-f]{4}):(?:0|[1-9]\d*)[YMDhm](?=\])/g))used.add(hit[1]);
+  };
+  collect(text);
+  for(const doc of otherDocs||[])if(doc?.content)collect(doc.content);
+  return used;
+}
+function newNodeReminderId(used=nodeReminderKnownIds()){
+  for(let attempts=0;attempts<256;attempts++){
+    let number;
+    if(typeof crypto!=='undefined'&&typeof crypto.getRandomValues==='function'){
+      const bytes=new Uint16Array(1);crypto.getRandomValues(bytes);number=bytes[0];
+    }else number=Math.floor(Math.random()*65536);
+    const id=number.toString(16).padStart(4,'0');
+    if(!used.has(id)){used.add(id);return id}
+  }
+  for(let number=0;number<65536;number++){
+    const id=number.toString(16).padStart(4,'0');
+    if(!used.has(id)){used.add(id);return id}
+  }
+  throw new Error('Keine freien vierstelligen Reminder-IDs mehr verfügbar');
+}
+function ensureNodeReminderId(date,source=''){
+  if(date?.reminder&&!date.reminder.id){
+    date.reminder.id=newNodeReminderId(nodeReminderKnownIds(source));
+  }
+  return date;
+}
+// Only touch complete, valid [date] metadata on Markdown heading/list lines.
+// Never modify free text or fenced code, and only insert an ID after '!'.
+// Return insertion locations for lossless caret/selection adjustments.
+function completeMarkdownReminderIds(source,otherDocs=typeof docs!=='undefined'?docs:[]){
+  const text=String(source??''),scan=scanMarkdown(text),insertions=[];
+  const used=nodeReminderKnownIds(text,otherDocs);
+  for(const item of scan.items){
+    if(item.kind!=='heading'&&item.kind!=='list')continue;
+    const prefix=item.raw.match(item.kind==='heading'?/^ {0,3}#{1,6}[ \t]+/:/^[ \t]*(?:[-+*]|\d+[.)])[ \t]+/);
+    if(!prefix)continue;
+    let position=prefix[0].length;
+    for(let k=0;k<3;k++){
+      const rest=item.raw.slice(position),space=rest.match(/^[ \t]*/)[0];
+      position+=space.length;
+      const value=item.raw.slice(position);
+      const check=value.match(/^\[[ xX]\](?=\s|$)/);
+      const status=value.match(/^\[status:[a-z-]+\](?=\s|$)/i);
+      const date=nodeDatePrefix(value);
+      if(check){position+=check[0].length;continue}
+      if(status){position+=status[0].length;continue}
+      if(date){
+        if(date.date.reminder&&!date.date.reminder.id){
+          const bang=date.text.lastIndexOf(' !');
+          if(bang>=0)insertions.push({at:scan.offsets[item.line]+position+bang+2,
+            text:newNodeReminderId(used)+':'});
+        }
+        position+=date.text.length;continue;
+      }
+      break;
+    }
+  }
+  if(!insertions.length)return {text,insertions};
+  let completed=text;
+  for(const insertion of [...insertions].reverse()){
+    completed=completed.slice(0,insertion.at)+insertion.text+completed.slice(insertion.at);
+  }
+  return {text:completed,insertions};
+}
+// Calendar years and months are added first, clamping short months, then days,
+// hours and minutes. UTC avoids daylight-saving changes in wall-clock time.
+// Day-only tags retain null hour/minute until a clock or timed duration is used.
 function nodeDateEndInfo(date){
   if(!date?.start)return null;
   const [y,m,d]=date.start.split('-').map(Number);
-  const months=y*12+m-1+(date.duration?.y||0)*12+(date.duration?.m||0);
+  const months=y*12+m-1+(date.duration?.Y||0)*12+(date.duration?.M||0);
   const year=Math.floor(months/12),month=months%12+1;
   if(!Number.isSafeInteger(months)||year<1||year>9999)return null;
-  const hours=(date.hour??0)+(date.duration?.h||0);
-  if(!Number.isSafeInteger(hours)||hours<0)return null;
+  const minutes=(date.hour??0)*60+(date.minute??0)+(date.duration?.h||0)*60+(date.duration?.m||0);
+  if(!Number.isSafeInteger(minutes)||minutes<0)return null;
   const endOfMonth=new Date(0);endOfMonth.setUTCHours(0,0,0,0);endOfMonth.setUTCFullYear(year,month,0);
   const result=new Date(0);result.setUTCHours(0,0,0,0);result.setUTCFullYear(year,month-1,Math.min(d,endOfMonth.getUTCDate()));
-  result.setUTCDate(result.getUTCDate()+(date.duration?.d||0)+Math.floor(hours/24));
+  result.setUTCDate(result.getUTCDate()+(date.duration?.D||0)+Math.floor(minutes/1440));
   const endYear=result.getUTCFullYear();
   if(!Number.isInteger(endYear)||endYear<1||endYear>9999)return null;
+  const hasTime=date.hour!==null&&date.hour!==undefined||(date.duration?.h||0)>0||(date.duration?.m||0)>0;
   return {day:String(endYear).padStart(4,'0')+'-'+String(result.getUTCMonth()+1).padStart(2,'0')+'-'+String(result.getUTCDate()).padStart(2,'0'),
-    hour:date.hour!==null&&date.hour!==undefined||date.duration?.h>0?hours%24:null};
+    hour:hasTime?Math.floor(minutes%1440/60):null,minute:hasTime?minutes%60:null};
 }
 function nodeDateEnd(date){
   return nodeDateEndInfo(date)?.day||null;

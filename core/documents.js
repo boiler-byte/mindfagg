@@ -132,7 +132,8 @@ async function init(){
     const savedDoc=localStorage.getItem('msDoc');
     if(savedDoc&&docs.some(item=>item.id===savedDoc&&item.projectId===projectId))docId=savedDoc;
   }catch(e){console.warn('Letztes Dokument konnte nicht geladen werden:',e)}
-  selectProject(projectId);
+  const directLink=restoreInitialDirectLink();
+  selectProject(projectId,{initialPanel:directLink?.panel||'script'});
 
 }
 async function refresh(){projects=await all('projects');docs=await all('docs');for(const d of docs)persistedDocSnapshots.set(d.id,docSnapshot(d));updateHistoryButtons()}
@@ -143,7 +144,7 @@ function persistDocId(){
     else localStorage.removeItem('msDoc');
   }catch(e){console.warn('Dokumentauswahl konnte nicht gespeichert werden:',e)}
 }
-function selectProject(id,{keepSidebarOpen=false}={}){if(!keepSidebarOpen)setMobileMenu(false);appSettingsOpen=false;activeFilePanel='script';projectId=id||null;try{if(projectId)localStorage.setItem('msProject',projectId);else localStorage.removeItem('msProject')}catch(e){console.warn('Projektauswahl konnte nicht gespeichert werden:',e)}let pd=docs.filter(d=>d.projectId===projectId);let old=docId;docId=pd.some(d=>d.id===old)?old:pd[0]?.id||null;activeFolderPath=docId?pathParent(workspacePath(documentNow())):'';scopePath='0';render();githubProjectActivated(project())}
+function selectProject(id,{keepSidebarOpen=false,initialPanel='script'}={}){if(!keepSidebarOpen)setMobileMenu(false);appSettingsOpen=false;activeFilePanel=initialPanel;projectId=id||null;try{if(projectId)localStorage.setItem('msProject',projectId);else localStorage.removeItem('msProject')}catch(e){console.warn('Projektauswahl konnte nicht gespeichert werden:',e)}let pd=docs.filter(d=>d.projectId===projectId);let old=docId;docId=pd.some(d=>d.id===old)?old:pd[0]?.id||null;activeFolderPath=docId?pathParent(workspacePath(documentNow())):'';scopePath='0';render();githubProjectActivated(project())}
 function selectDocument(id){setMobileMenu(false);appSettingsOpen=false;activeFilePanel='script';docId=id;const d=documentNow();if(d)changeWorkspaceFolder(pathParent(workspacePath(d)));scopePath='0';render()}
 
 // A shared scanner keeps root validation, highlighting and the tree parser consistent.

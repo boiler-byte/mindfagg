@@ -1,3 +1,123 @@
+# mindfagg v69 – Bedingte Datums-/Reminder-Eingabefelder
+
+- `ui/dialogs.js`: `nodeDateFieldsHtml` erzeugt für das gemeinsame
+  Knoten-Erstellen/Bearbeiten-Formular initial passende Sichtbarkeitszustände.
+  `wireNodeDateFields` schaltet sie über `hidden` bei Änderungen von Startdatum
+  und „Reminder speichern“. Ohne Startdatum sind Uhrzeit, Dauer, Reminder
+  und Vorschau verborgen. Sobald ein Startdatum gesetzt wird, erscheint der
+  Reminder-Schalter; Betrag, Einheit und ID-Hinweis erscheinen nur bei
+  aktiviertem Reminder. Die unveränderte `readNodeDateFields`-Logik stellt
+  weiter sicher, dass leere Startdaten keine `[date]`-Tags erzeugen.
+- `ui/node-dialogs.css`: Layout der Startdatumauswahl ohne zusätzliche Felder
+  und explizite `[hidden]`-Regeln für Container, deren bestehende CSS-Klassen
+  sonst `display:grid` erzwingen würden. Versteckte Inputs werden zusätzlich
+  deaktiviert, damit sie weder Fokus noch falsche Formularwerte verursachen.
+  Ein- und Ausblenden verändert keine Nutzerdaten und keine Reminder-IDs.
+- `module-manifest.json` und `sw.js`: v69-Version und neuer Offline-Cache;
+  `tests/check-structure.mjs` erwartet v69.
+- `tests/v69-browser.py`: Browser-Abnahmetests zu Initialzustand, Startdatum
+  wählen/löschen/wiederherstellen, Reminder ein-/ausschalten, vorhandenen
+  Reminder entfernen, neue Datumsangaben speichern und Mobile-Layout.
+  `tests/v65-browser.py`/`tests/v67-browser.py` prüfen ihre bisherigen
+  Felder künftig nach dem Expandieren (Auswahl des Startdatums).
+
+---
+
+# mindfagg v68 – `[date]` Reminder-Metadaten ohne Scheduler
+
+- `markdown/parser.js`: `parseNodeDatePayload` unterstützt optional den
+  letzten Token `!<id>:<n><unit>` bzw. `!<n><unit>` ohne ID (`id`: vierstellige
+  lowercase Hexzahl, `n`: nichtnegative sichere ganze Zahl, Einheiten
+  `Y/M/D/h/m`). `date.reminder` ist optional und bleibt ohne Reminder
+  **nicht gesetzt**, um die v67-Knotenstruktur stabil zu halten. Der Parser
+  generiert beim Lesen **keine** Zufallswerte. `serializeNodeDate` erhält
+  vorhandene IDs und schreibt Reminder immer nach allen Dauern.
+- `newNodeReminderId`, `ensureNodeReminderId`, `completeMarkdownReminderIds`
+  vergeben freie IDs (Browser-Kryptozufall, Fallback) unter Ausschluss
+  bereits bekannter IDs aus Markdown-Dokumenten. Sie verändern ausschließlich
+  vollständige, gültige Date-Metadaten auf Heading-/Listenpunktzeilen und
+  liefern Einfügepositionen zurück. Codefences werden vom Markdown-Scanner
+  übersprungen. Die ID-Ergänzung ist idempotent.
+- `markdown/editor.js`: Autovervollständigung bei Texteingabe/Einfügen
+  und beim Öffnen des Editors; der korrigierte Text wird gespeichert. Für
+  Texteingabe im aufgeklappten und gefalteten Modus werden Textarea, kanonischer
+  Code-Fold-Text, Scrollposition und Auswahl zusammen aktualisiert; während
+  IME-Komposition erfolgt die Ergänzung erst nach `compositionend`.
+- `ui/dialogs.js`, `views/html-markdown.js`: Reminder-Checkbox und Vorlauf
+  mit Einheit in beiden Datumsformularen, ID als nicht editierbare Metadaten.
+  Neue IDs werden nur beim erstmaligen Anlegen vergeben. Deaktivieren entfernt
+  den Reminder, Ändern von Offset/Einheit bewahrt die ID.
+- `ui/node-dialogs.css`, `views/html-markdown.css`: responsives Layout.
+  `markdown/highlight.js` erklärt das neue Format in der Fehlerhilfe.
+- Keine Benachrichtigungslogik, kein Cloudflare-Client, kein Zeitplaner.
+  `nodeDateEndInfo` und Kalender-Berechnungen bleiben unverändert.
+- `sw.js` und `module-manifest.json`: Version v68. Regressionen und neue Tests
+  in `tests/v68-reminder.mjs` und `tests/v68-browser.py`.
+
+---
+
+# mindfagg v67 – Case-sensitive `[date]`-Dauern und Minutenauflösung
+
+- **`markdown/parser.js`** erweitert den gemeinsamen Date-Parser um `:MM`
+  und die neuen Dauereinheiten `Y`, `M`, `D`, `h`, `m`. Parsing bleibt
+  strikt und case-sensitive; `+m` steht ab v67 für Minuten. Die interne
+  Struktur `date.duration` nutzt dieselben Keys `{Y,M,D,h,m}`; `date.hour`
+  und `date.minute` sind nullable Zahlen. Keine Bestandsdaten-Migration.
+- `serializeNodeDate()` formatiert optional `:HH[:MM]`, bewahrt explizites
+  `:00` und normalisiert Dauern nach `Y,M,D,h,m`. `nodeDateEndInfo()`
+  verarbeitet zuerst Kalenderjahre/-monate (Clamping auf Monatsende), dann
+  Tage und minutengenaue Uhrzeit via UTC; Ergebnisse enthalten `day`, `hour`,
+  `minute` und sind bei Kalenderüberlauf `null`.
+- **`views/calendar.js`** verwendet Minuten für Zeitanzeigen, sortiert
+  Ereignisse am selben Tag nach Stunde und Minute und verhindert die Belegung
+  eines Folgetags bei einem minutengenau um Mitternacht endenden Intervall.
+  Reine Datumszeiträume bleiben inklusiv.
+- **`ui/dialogs.js`, `views/html-markdown.js`**: Knoten- und HTML-Formulare
+  erhalten wählbare Startminuten und eine Minutendauer zusätzlich zu den
+  vorhandenen Stundeneinstellungen. Die Startminute ist ohne Stunde inaktiv.
+  `markdown/highlight.js` erläutert neue Syntax und ungültige Werte.
+  Die CSS-Dateien halten die zusätzlichen Felder auch mobil nutzbar.
+- **Versionierung:** `sw.js`, `module-manifest.json`, Strukturtests auf v67.
+  **Regressionen:** `tests/v67-date.mjs`, `tests/v67-browser.py`; ältere
+  Datums-/HTML-Regressionen wurden auf den neuen Syntaxvertrag angepasst.
+
+---
+
+# mindfagg v66 – Projekt-/Datei-Direktlinks
+
+- `index.html`: Breadcrumb `#breadcrumb` ist ein zugänglicher Button statt
+  eines passiven Text-Divs. Er bleibt optisch der bisherige Projekt-/Dateipfad.
+- `ui/direct-links.js`: `directLinkUrl()` erzeugt den aktuellen vollständigen
+  Link aus URL, Projekt-ID, Datei-ID und aktiver Ansicht. Bei nicht-Markdown-
+  Dateien wird der tatsächlich aktive Subtab (`script`, `grid`, `preview`,
+  `functions`, `file`) verwendet. Bestehende fremde Query-Parameter bleiben
+  erhalten; alte Route-Parameter und ein Hash werden entfernt. Der Kopierpfad
+  verwendet Clipboard API, `execCommand('copy')` als Fallback und notfalls
+  einen manuellen Prompt. Erfolg wird erst nach bestätigtem Kopieren angezeigt.
+- `ui/bindings.js`: einmaliges Click-Binding an den Breadcrumb-Button.
+  `ui/router.js` aktualisiert während `render()` Beschriftung und Aktivierbarkeit;
+  in App-Einstellungen und ohne gültige Dokumentzuordnung ist er deaktiviert.
+  `ui/project-components.css` erhält die bisherige unaufdringliche Typografie,
+  Hover- und Tastatur-Fokusdarstellung einschließlich schmaler Bildschirme.
+- `core/documents.js`: `init()` liest die Route nach dem Laden von IndexedDB,
+  dem bisherigen `mfLastView` und der letzten Projekt-/Dateiauswahl. Eine valide
+  Route gewinnt vor diesen Einstellungen; `selectProject()` übernimmt optional
+  einen initialen Dateisubtab, damit ein Redirect keine erste falsche Ansicht
+  rendert. Ungültige oder nicht mehr existierende ID-Paare werden verworfen
+  (keine Auswahl fremder Dateien, kein Datenbankeingriff). Für unbekannte
+  Ansichten gilt die zuletzt verwendete Markdown-Ansicht bzw. der erste
+  passende Dateitab.
+- Service Worker `sw.js` / `module-manifest.json` inkl. neuem Modul werden auf
+  v66 aktualisiert; bestehende v47-Browser-Zurück-Guard-Funktion bleibt erhalten.
+  Keine Datenbankmigration und keine Änderung des Projekt-ZIP-Formats.
+- `tests/v66-browser.py` testet die tatsächliche Breadcrumb-Bindung, URL-Bau,
+  Startnavigation, alle Markdown-Ansichten, Script-Subviews, Fehlerfälle,
+  Clipboard-Fallback, App-Einstellungen und responsiven Zustand. Da HTTP-/Datei-
+  Navigation in der isolierten Ausführungsumgebung blockiert ist, werden die
+  klassischen Browser-Skripte inline geladen und IndexedDB beim Start simuliert.
+
+---
+
 # mindfagg v65 – Erweiterung der Knoten-Datumsangaben
 
 - `markdown/parser.js` akzeptiert `[date:YYYY-MM-DD[:HH] [+Ny] [+Nm] [+Nd] [+Nh]]`.

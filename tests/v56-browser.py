@@ -123,7 +123,7 @@ def main():
         page.locator('#html-md-heading-0 [data-html-date-start]').fill('2026-11-09')
         page.locator('#html-md-heading-0 [data-html-date-d]').fill('2')
         page.locator('#html-md-heading-0 [data-html-date-save]').click()
-        page.wait_for_function('docs[0].content.includes("[date:2026-11-09 +2d]")')
+        page.wait_for_function('docs[0].content.includes("[date:2026-11-09 +2D]")')
         assert page.locator('#html-md-heading-0 [data-html-menu-toggle]').count()==0
         assert page.locator('#html-md-heading-0 .html-md-date summary').count()==1
         assert page.locator('#html-md-heading-0 [data-html-editor="date"]').count()==0

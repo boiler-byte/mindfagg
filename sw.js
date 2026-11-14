@@ -4,7 +4,7 @@
  * navigation to a preview URL without an iframe sandbox attribute. */
 'use strict';
 
-const VERSION='mindfagg-v65';
+const VERSION='mindfagg-v69';
 const CORE_CACHE=`${VERSION}-core`;
 const RUNTIME_CACHE=`${VERSION}-runtime`;
 const VFS_ROUTE='__mindfagg_preview__/';
@@ -72,6 +72,7 @@ const CORE_ASSETS=[
   './workspace/github.js',
   './workspace/patch-tool.js',
   './ui/browser-back.js',
+  './ui/direct-links.js',
   './ui/bindings.js',
   './core/service-worker.js',
   './icons/icon.svg',

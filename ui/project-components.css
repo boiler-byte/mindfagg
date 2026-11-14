@@ -7,5 +7,10 @@
 .node-date-layout{grid-template-columns:minmax(0,1fr) minmax(0,2.2fr)}
 .node-date-start select{min-width:0;width:100%;background:#0f1725;color:var(--text);border:1px solid #40516c;border-radius:7px;padding:8px 7px;min-height:38px}
 .node-date-start select:disabled{opacity:.43;cursor:not-allowed}
-.node-duration-selects{grid-template-columns:repeat(4,minmax(0,1fr))}
+.node-duration-selects{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:720px){.node-date-layout{grid-template-columns:minmax(0,1fr)}}
+
+/* v66: keyboard-accessible, unobtrusive copy-link breadcrumb. */
+#breadcrumb{min-width:0;margin:0;padding:0;border:0;border-radius:2px;background:transparent;text-align:left;cursor:copy}
+#breadcrumb:not(:disabled):hover{color:var(--text);text-decoration:underline;text-underline-offset:3px}
+#breadcrumb:disabled{opacity:1;cursor:default}

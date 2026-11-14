@@ -24,6 +24,7 @@ function render(){
   wireWorkspaceTree();
   workspaceUpdateCollapseButton();
   $('#breadcrumb').textContent=`${p?.name||'Workspace'} / ${d?workspacePath(d):'Keine Datei'}`;
+  updateDirectLinkBreadcrumb();
   $('#renameDoc').disabled=!d||appSettingsOpen;
   updateHistoryButtons();
   updateSaveStatus();

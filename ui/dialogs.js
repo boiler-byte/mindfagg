@@ -281,55 +281,94 @@ async function deleteCurrentDocument(){
 }
 // Date controls are shared by the node editor and the creation dialog.
 function dateSelectOptions(unit,selected){
-  const maxima={y:100,m:120,d:365,h:168},max=maxima[unit];
+  const maxima={Y:100,M:120,D:365,h:168,m:240},max=maxima[unit];
   const choices=Array.from({length:max+1},(_,n)=>n);
   if(Number.isSafeInteger(selected)&&selected>max)choices.push(selected);
   return choices.map(n=>`<option value="${n}" ${n===selected?'selected':''}>${n||'–'}</option>`).join('');
 }
 function nodeDateFieldsHtml(value=null){
-  const date=value||{start:'',hour:null,duration:{y:0,m:0,d:0,h:0}};
-  const hours=Array.from({length:24},(_,hour)=>`<option value="${hour}" ${date.hour===hour?'selected':''}>${String(hour).padStart(2,'0')}:00 Uhr</option>`).join('');
+  const date=value||{start:'',hour:null,minute:null,duration:{Y:0,M:0,D:0,h:0,m:0},reminder:null};
+  const hours=Array.from({length:24},(_,hour)=>`<option value="${hour}" ${date.hour===hour?'selected':''}>${String(hour).padStart(2,'0')} Uhr</option>`).join('');
+  const minutes=Array.from({length:60},(_,minute)=>`<option value="${minute}" ${date.minute===minute?'selected':''}>${String(minute).padStart(2,'0')} Min.</option>`).join('');
   return `<div class="field node-date-fields">
     <span class="node-date-label">Datum / Zeitraum</span>
-    <div class="node-date-layout">
+    <div class="node-date-layout${date.start?'':' node-date-empty'}">
       <div class="node-date-start"><label for="nodeDateStart">Startdatum</label><input id="nodeDateStart" type="date" value="${escapeHtml(date.start)}" min="0001-01-01" max="9999-12-31">
-        <label for="nodeDateHour">Startstunde (optional)</label><select id="nodeDateHour"><option value="" ${date.hour===null||date.hour===undefined?'selected':''}>Ohne Uhrzeit</option>${hours}</select></div>
-      <div class="node-date-durations">
+        <div class="node-date-time-fields" id="nodeDateTimeFields" ${date.start?'':'hidden'}>
+          <label for="nodeDateHour">Startstunde (optional)</label><select id="nodeDateHour"><option value="" ${date.hour===null||date.hour===undefined?'selected':''}>Ohne Uhrzeit</option>${hours}</select>
+          <label for="nodeDateMinute">Startminute (optional)</label><select id="nodeDateMinute"><option value="" ${date.minute===null||date.minute===undefined?'selected':''}>Ohne Minutenangabe</option>${minutes}</select>
+        </div></div>
+      <div class="node-date-durations" id="nodeDateDurations" ${date.start?'':'hidden'}>
         <div class="node-duration-selects">
-          <div><label for="nodeDateYears">Jahre (y)</label><select id="nodeDateYears">${dateSelectOptions('y',date.duration.y)}</select></div>
-          <div><label for="nodeDateMonths">Monate (m)</label><select id="nodeDateMonths">${dateSelectOptions('m',date.duration.m)}</select></div>
-          <div><label for="nodeDateDays">Tage (d)</label><select id="nodeDateDays">${dateSelectOptions('d',date.duration.d)}</select></div>
+          <div><label for="nodeDateYears">Jahre (Y)</label><select id="nodeDateYears">${dateSelectOptions('Y',date.duration.Y)}</select></div>
+          <div><label for="nodeDateMonths">Monate (M)</label><select id="nodeDateMonths">${dateSelectOptions('M',date.duration.M)}</select></div>
+          <div><label for="nodeDateDays">Tage (D)</label><select id="nodeDateDays">${dateSelectOptions('D',date.duration.D)}</select></div>
           <div><label for="nodeDateHours">Stunden (h)</label><select id="nodeDateHours">${dateSelectOptions('h',date.duration.h||0)}</select></div>
+          <div><label for="nodeDateMinutes">Minuten (m)</label><select id="nodeDateMinutes">${dateSelectOptions('m',date.duration.m||0)}</select></div>
         </div>
       </div>
     </div>
-    <small class="field-note node-date-preview" id="nodeDatePreview" aria-live="polite"></small>
+    <div class="node-reminder-fields" id="nodeDateReminderFields" ${date.start?'':'hidden'}>
+      <label class="node-reminder-toggle"><input id="nodeDateReminder" type="checkbox" ${date.reminder?'checked':''}> Reminder speichern (noch ohne Benachrichtigung)</label>
+      <input id="nodeDateReminderId" type="hidden" value="${escapeHtml(date.reminder?.id||'')}">
+      <div class="node-reminder-options" id="nodeDateReminderOptions" ${date.reminder?'':'hidden'}><label for="nodeDateReminderAmount">Vorher erinnern</label><input id="nodeDateReminderAmount" type="number" inputmode="numeric" min="0" max="9999" step="1" value="${date.reminder?.amount??30}">
+        <label for="nodeDateReminderUnit">Einheit</label><select id="nodeDateReminderUnit">${[['m','Minuten (m)'],['h','Stunden (h)'],['D','Tage (D)'],['M','Monate (M)'],['Y','Jahre (Y)']].map(([unit,label])=>`<option value="${unit}" ${unit===(date.reminder?.unit||'m')?'selected':''}>${label}</option>`).join('')}</select></div>
+      <small class="field-note" id="nodeDateReminderInfo" ${date.reminder?'':'hidden'}>${date.reminder?.id?'Reminder-ID: '+escapeHtml(date.reminder.id):'Die Reminder-ID wird beim Anlegen automatisch erzeugt.'}</small>
+    </div>
+    <small class="field-note node-date-preview" id="nodeDatePreview" aria-live="polite" ${date.start?'':'hidden'}></small>
   </div>`;
 }
 function readNodeDateFields(){
   const start=$('#nodeDateStart').value;
   if(!start)return null;
-  const hour=$('#nodeDateHour').value;
-  const duration={y:Number($('#nodeDateYears').value),m:Number($('#nodeDateMonths').value),d:Number($('#nodeDateDays').value),h:Number($('#nodeDateHours').value)};
-  return parseNodeDatePayload(start+(hour===''?'':':'+String(hour).padStart(2,'0'))+['y','m','d','h'].filter(unit=>duration[unit]>0).map(unit=>' +'+duration[unit]+unit).join(''));
+  const hour=$('#nodeDateHour').value,minute=$('#nodeDateMinute').value;
+  const duration={Y:Number($('#nodeDateYears').value),M:Number($('#nodeDateMonths').value),D:Number($('#nodeDateDays').value),h:Number($('#nodeDateHours').value),m:Number($('#nodeDateMinutes').value)};
+  let reminder='';
+  if($('#nodeDateReminder').checked){
+    const raw=$('#nodeDateReminderAmount').value.trim(),amount=Number(raw),unit=$('#nodeDateReminderUnit').value;
+    if(!/^(0|[1-9]\d*)$/.test(raw)||!Number.isSafeInteger(amount)||amount>9999)return null;
+    reminder=' !'+($('#nodeDateReminderId').value?$('#nodeDateReminderId').value+':':'')+amount+unit;
+  }
+  const date=parseNodeDatePayload(start+(hour===''?'':':'+String(hour).padStart(2,'0')+(minute===''?'':':'+String(minute).padStart(2,'0')))+
+    ['Y','M','D','h','m'].filter(unit=>duration[unit]>0).map(unit=>' +'+duration[unit]+unit).join('')+reminder);
+  if(date?.reminder&&!date.reminder.id){
+    ensureNodeReminderId(date,documentNow()?.content);
+    $('#nodeDateReminderId').value=date.reminder.id;
+  }
+  return date;
 }
 function wireNodeDateFields(){
-  const start=$('#nodeDateStart'),preview=$('#nodeDatePreview');
+  const start=$('#nodeDateStart'),hour=$('#nodeDateHour'),minute=$('#nodeDateMinute'),preview=$('#nodeDatePreview');
+  const reminder=$('#nodeDateReminder'),amount=$('#nodeDateReminderAmount'),unit=$('#nodeDateReminderUnit'),info=$('#nodeDateReminderInfo');
   if(!start||!preview)return;
   function update(){
-    const empty=!start.value;
-    for(const id of ['#nodeDateHour','#nodeDateYears','#nodeDateMonths','#nodeDateDays','#nodeDateHours'])$(id).disabled=empty;
-    if(empty){preview.textContent='Ohne Startdatum wird kein [date:…]-Tag gespeichert.';return}
+    const empty=!start.value,showReminder=!empty&&reminder.checked;
+    // Keep values and the stable reminder ID when controls are temporarily hidden.
+    start.closest('.node-date-layout').classList.toggle('node-date-empty',empty);
+    $('#nodeDateTimeFields').hidden=empty;
+    $('#nodeDateDurations').hidden=empty;
+    $('#nodeDateReminderFields').hidden=empty;
+    $('#nodeDateReminderOptions').hidden=!showReminder;
+    info.hidden=!showReminder;
+    preview.hidden=empty;
+    for(const id of ['#nodeDateHour','#nodeDateYears','#nodeDateMonths','#nodeDateDays','#nodeDateHours','#nodeDateMinutes'])$(id).disabled=empty;
+    if(hour.value==='')minute.value='';
+    minute.disabled=empty||hour.value==='';
+    reminder.disabled=empty;
+    amount.disabled=unit.disabled=!showReminder;
+    if(empty){preview.textContent='';return}
     const date=readNodeDateFields();
-    if(!date){preview.textContent='Bitte ein gültiges Datum, eine Stunde von 00 bis 23 und eine zulässige Dauer wählen.';return}
+    if(!date){preview.textContent='Bitte ein gültiges Datum, eine Uhrzeit, eine zulässige Dauer und einen gültigen Reminder wählen.';return}
+    info.textContent=date.reminder?'Reminder-ID: '+date.reminder.id+' · '+date.reminder.amount+date.reminder.unit+' vor Beginn · Benachrichtigungen noch inaktiv':'Reminder deaktiviert';
     const hasDuration=Object.values(date.duration).some(Boolean);
     const end=hasDuration?nodeDateEndInfo(date):null;
-    const label=(day,hour)=>day+(hour===null?'':', '+String(hour).padStart(2,'0')+':00 Uhr');
-    const beginning=label(date.start,date.hour??(date.duration.h>0?0:null));
-    preview.textContent=(hasDuration?(end?'Zeitraum: '+beginning+' → '+label(end.day,end.hour):'Zeitraum überschreitet den darstellbaren Kalenderbereich.'):'Zeitpunkt: '+beginning)+' · '+serializeNodeDate(date);
+    const label=(day,hour,minute)=>day+(hour===null?'':', '+String(hour).padStart(2,'0')+':'+String(minute??0).padStart(2,'0')+' Uhr');
+    const beginning=label(date.start,date.hour??(date.duration.h>0||date.duration.m>0?0:null),date.minute);
+    preview.textContent=(hasDuration?(end?'Zeitraum: '+beginning+' → '+label(end.day,end.hour,end.minute):'Zeitraum überschreitet den darstellbaren Kalenderbereich.'):'Zeitpunkt: '+beginning)+' · '+serializeNodeDate(date);
   }
   start.addEventListener('input',update);start.addEventListener('change',update);
-  for(const id of ['#nodeDateHour','#nodeDateYears','#nodeDateMonths','#nodeDateDays','#nodeDateHours'])$(id).addEventListener('change',update);
+  for(const id of ['#nodeDateHour','#nodeDateMinute','#nodeDateYears','#nodeDateMonths','#nodeDateDays','#nodeDateHours','#nodeDateMinutes','#nodeDateReminder','#nodeDateReminderUnit'])$(id).addEventListener('change',update);
+  amount.addEventListener('input',update);
   update();
 }
 function lineEdit(n,props){

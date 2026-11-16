@@ -1,3 +1,21 @@
+# mindfagg v70 – Abnahme mobile Inline-Eingabe in Mindmaps
+
+- [x] Sichtbarer vorhandener Knoten: kein unnötiges Verschieben beim Bearbeiten.
+- [x] Vorhandener Knoten hinter den Controls: Input wird oberhalb der Controls
+  mit freiem Abstand eingeblendet, auch wenn er rechts am Rand liegt.
+- [x] Neu erstellter Unterknoten: Input wird in den freien Bereich zentriert.
+- [x] Simulierte Smartphone-Tastatur: nach `VisualViewport.resize` bleibt
+  der Input oberhalb der Tastatur sichtbar.
+- [x] `VisualViewport.scroll` mit versetzter sichtbarer Fläche wird beachtet.
+- [x] Titel bearbeiten und speichern funktioniert nach dem Verschieben weiter.
+- [x] Desktop-Breite: Pan-/Zoom-Position beim Inline-Bearbeiten unverändert.
+- [x] v69-Regressionen und statische Struktur-/Syntaxprüfung bestanden.
+
+**Ausführen:** `python3 tests/v70-browser.py`, `python3 tests/v69-browser.py`,
+`node tests/check-structure.mjs`.
+
+---
+
 # mindfagg v69 – Abnahme der Formular-Sichtbarkeit
 
 - [x] „Knoten bearbeiten“ bei einem Knoten ohne `[date]`: Nur Startdatum

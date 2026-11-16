@@ -220,6 +220,6 @@ async function createMapNode(place){
   const result=await commitMapContent(lines.join('\n'),insertion,place==='child'?'Unterknoten erstellt':'Knoten auf gleicher Ebene erstellt',parent.start,oldLine=>oldLine>=insertion?oldLine+1:oldLine);
   if(!result&&wasFolded)mapCollapsed(state.docId).add(parent.path);
   if(result?.path&&activeMap?.docId===state.docId){
-    beginMapInlineEdit(activeMap,result.path,true);
+    beginMapInlineEdit(activeMap,result.path,true,true);
   }
 }

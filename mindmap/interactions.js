@@ -184,6 +184,7 @@ function wireMapGestures(state){
 function renderMindmap(){
   const root=currentRoot(),doc=documentNow();
   const layout=mapLayout(root,mapCollapsed(doc.id));
+  activeMap?.inlineEdit?.stopVisibilityWatch?.();
   activeMap?.resizeObserver?.disconnect();
   $('#surface').innerHTML=`<div class="mm-viewport" id="mapViewport" tabindex="0" aria-label="Mindmap: Knoten antippen zum Auswählen, ziehen zum Sortieren oder Anhängen; freie Fläche verschieben; Mausrad oder zwei Finger zoomen; Plus/Minus klappt alle Unterknoten auf oder zu">
       <div class="mm-world" id="mapWorld"><svg class="mm-links" id="mapLinks" aria-hidden="true"></svg>${layout.rows.map(r=>mapNodeHtml(r,r===layout.rootRow)).join('')}</div>

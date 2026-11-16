@@ -1,3 +1,29 @@
+# mindfagg v70 – Mobile Mindmap: Inline-Eingabe bleibt sichtbar
+
+**Delta-Installation:** Dieses ZIP über die vollständige **v69-Installation**
+entpacken (Ordnerstruktur beibehalten, vorhandene Dateien überschreiben).
+Der Offline-Cache wird auf `mindfagg-v70` angehoben. Das Delta enthält nur
+neue oder gegenüber v69 geänderte Dateien.
+
+**Mindmap auf Smartphones:**
+
+- Beim Bearbeiten eines vorhandenen Knotens prüft der Inline-Editor, ob das
+  Eingabefeld sichtbar ist. Nur bei Bedarf verschiebt sich die Mindmap so,
+  dass der Input vollständig im freien Anzeigebereich bleibt, mit mindestens
+  18 px Abstand zu den unteren Mindmap-Controls.
+- Neu angelegte Knoten werden mit ihrem Eingabefeld in der Mitte des freien
+  Bereichs positioniert – nicht hinter den Controls.
+- Bei geöffneter Bildschirmtastatur werden die tatsächlich sichtbare Fläche
+  (`VisualViewport`) und spätere Größen-/Scrolländerungen berücksichtigt.
+- Die Controls bleiben an ihrer bisherigen Position, die Desktop-Ansicht
+  bleibt unverändert. Nur die Ansicht wird verschoben, nicht die Knoten im
+  Dokument; Speicherung und Knotenstruktur ändern sich nicht.
+
+**Tests:** `python3 tests/v70-browser.py`, `python3 tests/v69-browser.py`,
+`node tests/check-structure.mjs`.
+
+---
+
 # mindfagg v69 – Datums- und Reminder-Felder bedingt anzeigen
 
 **Delta-Installation:** Dieses ZIP über die vollständige **v68-Installation**

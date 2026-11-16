@@ -1,3 +1,23 @@
+# mindfagg v70 – Sichtbarkeit mobiler Mindmap-Eingabefelder
+
+- `mindmap/inline-edit.js`: `ensureMapInlineInputVisible` schneidet das
+  tatsächliche sichtbare Fenster (inkl. `VisualViewport`) gegen das Rechteck
+  der Mindmap-Fläche und spart den Bereich der fixierten `.mm-controls` aus.
+  Auf Mobilbreiten (bis 850 px) verschiebt die Funktion `panX`/`panY` nur
+  bei verdeckten bestehenden Inputs; neue Knoten zentriert sie im verfügbaren
+  Bereich. `applyMapView` hält Session-Pan und Aktions-Toolbar synchron.
+- `watchMapInlineInput` reagiert über `requestAnimationFrame` auf `resize`
+  und `scroll` des `VisualViewport` sowie `window.resize`; beim Schließen
+  oder Neurendern werden alle Listener entfernt. Fokus und Eingaben bleiben
+  erhalten. Desktop und Layout-/Knotenkoordinaten sind unverändert.
+- `mindmap/operations.js` markiert neu erstellte Knoten für die Zentrierung;
+  `mindmap/interactions.js` räumt Listener vor dem Renderwechsel auf.
+- `module-manifest.json`/`sw.js`: v70 und frischer Offline-Cache.
+- `tests/v70-browser.py`: Browserabnahme für sichtbare und verdeckte Eingaben,
+  neue Knoten, simulierte Tastatur, Scroll, Speichern und Desktop-Verhalten.
+
+---
+
 # mindfagg v69 – Bedingte Datums-/Reminder-Eingabefelder
 
 - `ui/dialogs.js`: `nodeDateFieldsHtml` erzeugt für das gemeinsame

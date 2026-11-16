@@ -44,6 +44,7 @@ async function flushMapInlineEdit(){
 function closeMapInlineEdit(state,restoreFocus=false){
   const edit=state.inlineEdit;
   if(!edit)return;
+  edit.stopVisibilityWatch?.();
   clearTimeout(edit.timer);
   if(!edit.input.value.trim())edit.input.value=edit.row.node.title;
   else applyMapInlineDraft(state,edit);
@@ -69,7 +70,61 @@ async function finishMapInlineEdit(state,restoreFocus=false){
   if(state.inlineEdit===edit)closeMapInlineEdit(state,restoreFocus);
   return true;
 }
-function beginMapInlineEdit(state,path,selectAll=false){
+// Keep the input inside the *visible* mobile canvas, clear of the fixed map
+// controls and of the portion covered by the on-screen keyboard. Pan the map,
+// not the page, so surrounding nodes keep their relative positions.
+function ensureMapInlineInputVisible(state,center=false){
+  const edit=state?.inlineEdit;
+  if(activeMap!==state||!edit?.input.isConnected||!window.matchMedia('(max-width:850px)').matches)return;
+  const canvas=state.viewport.getBoundingClientRect(),visual=window.visualViewport;
+  const visualLeft=visual?.offsetLeft??0,visualTop=visual?.offsetTop??0;
+  const margin=18;
+  const left=Math.max(canvas.left,visualLeft)+margin;
+  const right=Math.min(canvas.right,visualLeft+(visual?.width??window.innerWidth))-margin;
+  const top=Math.max(canvas.top,visualTop)+margin;
+  let bottom=Math.min(canvas.bottom,visualTop+(visual?.height??window.innerHeight))-margin;
+  const controls=document.querySelector('#surface .mm-controls');
+  if(controls){
+    const b=controls.getBoundingClientRect();
+    if(b.top<bottom&&b.bottom>top&&b.left<right&&b.right>left){
+      bottom=Math.min(bottom,b.top-margin);
+    }
+  }
+  if(right<=left||bottom<=top)return;
+  const input=edit.input.getBoundingClientRect();
+  // Newly created nodes are placed in the middle of the free area; existing
+  // nodes only move the minimum distance needed to become fully readable.
+  const dx=center?(left+right-input.left-input.right)/2
+    :input.left<left?left-input.left:input.right>right?right-input.right:0;
+  const dy=center?(top+bottom-input.top-input.bottom)/2
+    :input.top<top?top-input.top:input.bottom>bottom?bottom-input.bottom:0;
+  if(Math.abs(dx)>.5||Math.abs(dy)>.5){
+    state.panX+=dx;state.panY+=dy;applyMapView(state);
+  }
+}
+function watchMapInlineInput(state,edit){
+  let frame=0;
+  const schedule=()=>{
+    if(frame)return;
+    frame=requestAnimationFrame(()=>{
+      frame=0;
+      if(state.inlineEdit===edit)ensureMapInlineInputVisible(state,edit.centerNew);
+    });
+  };
+  const visual=window.visualViewport;
+  visual?.addEventListener('resize',schedule);
+  visual?.addEventListener('scroll',schedule);
+  window.addEventListener('resize',schedule);
+  edit.scheduleVisibilityCheck=schedule;
+  edit.stopVisibilityWatch=()=>{
+    if(frame)cancelAnimationFrame(frame);
+    visual?.removeEventListener('resize',schedule);
+    visual?.removeEventListener('scroll',schedule);
+    window.removeEventListener('resize',schedule);
+  };
+  schedule();
+}
+function beginMapInlineEdit(state,path,selectAll=false,centerNew=false){
   if(activeMap!==state)return;
   const row=state.rows.find(r=>r.path===path);
   if(!row)return;
@@ -77,6 +132,7 @@ function beginMapInlineEdit(state,path,selectAll=false){
     if(state.inlineEdit.path===path){
       state.inlineEdit.input.focus({preventScroll:true});
       if(selectAll)state.inlineEdit.input.select();
+      state.inlineEdit.scheduleVisibilityCheck?.();
       return;
     }
     closeMapInlineEdit(state);
@@ -92,7 +148,7 @@ function beginMapInlineEdit(state,path,selectAll=false){
   row.el.classList.add('mm-inline-editing');
   row.el.setAttribute('role','group');row.el.tabIndex=-1;
   const input=host.querySelector('input');input.value=row.node.title;
-  const edit={row,path,label,host,input,dirty:false,historyRecorded:false,timer:null};
+  const edit={row,path,label,host,input,dirty:false,historyRecorded:false,timer:null,centerNew};
   state.inlineEdit=edit;
   host.onpointerdown=e=>e.stopPropagation();
   host.onclick=e=>e.stopPropagation();
@@ -111,6 +167,8 @@ function beginMapInlineEdit(state,path,selectAll=false){
   positionMapRows(state);drawMapLinks(state);positionMapToolbar(state);
   input.focus({preventScroll:true});
   if(selectAll)input.select();else input.setSelectionRange(input.value.length,input.value.length);
+  ensureMapInlineInputVisible(state,centerNew);
+  watchMapInlineInput(state,edit);
 }
 function selectMapNode(state,path){
   if(activeMap!==state)return;

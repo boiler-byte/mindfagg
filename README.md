@@ -1,3 +1,23 @@
+# mindfagg v71 – Sichtbarer Kurzname „mifa“
+
+**Delta-Installation:** ZIP über die vollständige **v70-Installation**
+entpacken (Ordnerstruktur beibehalten, vorhandene Dateien überschreiben).
+Der Offline-Cache wird auf `mindfagg-v71` aktualisiert.
+
+- Sidebar: neben dem **unveränderten Logo** steht `mifa`.
+- Browser-Seitentitel: exakt `mifa`.
+- Installierbare PWA/Startbildschirm: Manifest-Name, Kurzname sowie mobile
+  App-Titel-Metadaten verwenden `mifa`.
+- **Unverändert:** Projektname und technische Bezeichner `mindfagg`,
+  Datenbank, URLs, App-Icons sowie sonstige Texte und Funktionen.
+- Vorhandene PWA-Installationen übernehmen neue Namen je nach Browser und
+  Betriebssystem erst nach einer Manifest-Aktualisierung oder Neuinstallation.
+
+**Tests:** `node tests/v71-branding.mjs`, `node tests/check-structure.mjs`
+und `python3 tests/v70-browser.py`.
+
+---
+
 # mindfagg v70 – Mobile Mindmap: Inline-Eingabe bleibt sichtbar
 
 **Delta-Installation:** Dieses ZIP über die vollständige **v69-Installation**

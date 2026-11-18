@@ -1,17 +1,24 @@
 {
-  "name": "mindfagg — Mindmap Markdown",
-  "short_name": "mindfagg",
+  "name": "mifa",
+  "short_name": "mifa",
   "description": "Markdown, Mindmap, Kanban, Kalender und Dateien in einem lokal gespeicherten Offline-Workspace.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "any",
   "background_color": "#0b0e14",
   "theme_color": "#0b0e14",
   "lang": "de",
   "dir": "ltr",
-  "categories": ["productivity", "utilities"],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "icons/icon.svg",

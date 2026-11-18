@@ -1,3 +1,18 @@
+# mindfagg v71 – Abnahme Kurzname „mifa“
+
+- [x] Sidebar-Logo bleibt grafisch unverändert, Schriftzug lautet `mifa`.
+- [x] Browser-Tab-Titel ist exakt `mifa`.
+- [x] PWA-Manifest (`name`, `short_name`) und iOS-/Anwendungsname sind `mifa`.
+- [x] App-Icons (`icon.svg`, `icon-maskable.svg`) unverändert.
+- [x] Sonstige technische Namen, Datenbank und URL-Routen unverändert `mindfagg`.
+- [x] Service-Worker-Cache verwendet `mindfagg-v71`.
+- [x] Struktur-/Syntaxprüfung und v70-Mindmap-Regression unverändert gültig.
+
+**Ausführen:** `node tests/v71-branding.mjs`, `node tests/check-structure.mjs`,
+`python3 tests/v70-browser.py`.
+
+---
+
 # mindfagg v70 – Abnahme mobile Inline-Eingabe in Mindmaps
 
 - [x] Sichtbarer vorhandener Knoten: kein unnötiges Verschieben beim Bearbeiten.

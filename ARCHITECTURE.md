@@ -1,3 +1,17 @@
+# mindfagg v71 – Anzeigename / PWA-Branding
+
+- `index.html`: `aside.sidebar .brand > strong` = `mifa`, `<title>` = `mifa`
+  und mobile App-Titel-Metadaten = `mifa`. Das inline eingebettete
+  Sidebar-Logo-SVG wurde nicht geändert.
+- `manifest.webmanifest`: `name` und `short_name` = `mifa`. Die Icon-
+  Pfade, Icons und sonstigen PWA-Einstellungen bleiben unverändert.
+- `module-manifest.json`, `sw.js`, `tests/check-structure.mjs`: v71;
+  technische Cache- und Datenbanknamen behalten `mindfagg` als Präfix.
+- `tests/v71-branding.mjs`: prüft die drei sichtbaren Namensstellen,
+  Metadaten, technische Namenskonstanz und unveränderte Icon-Inhalte.
+
+---
+
 # mindfagg v70 – Sichtbarkeit mobiler Mindmap-Eingabefelder
 
 - `mindmap/inline-edit.js`: `ensureMapInlineInputVisible` schneidet das
